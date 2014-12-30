@@ -1,23 +1,68 @@
-<div class="jumbotron">
-  <h1>'Allo, 'Allo!</h1>
-  <p class="lead">
-    <img src="images/yeoman.png" alt="I'm Yeoman"><br>
-    Always a pleasure scaffolding your apps.
-  </p>
-  <p><a class="btn btn-lg btn-success" ng-href="#">Splendid!<span class="glyphicon glyphicon-ok"></span></a></p>
-</div>
+<div class="row">
+  <div class="grid col-md-6 well"   ng-keypress="main.keypress($event)" tabindex="0" ng-bind-html="main.draw()">
+  </div>
 
-<div class="row marketing">
-  <h4>HTML5 Boilerplate</h4>
-  <p>
-    HTML5 Boilerplate is a professional front-end template for building fast, robust, and adaptable web apps or sites.
-  </p>
+  <div class="ctrl col-md-6">
 
-  <h4>Angular</h4>
-  <p>
-    AngularJS is a toolset for building the framework most suited to your application development.
-  </p>
+    <tabset>
+      <tab heading="Base">
+        Energy: {{main.home.E | number : 0}} / {{main.home.mE | number : 0}} <span class="badge">+{{main.home.dE | number : 1}} / s</span>
+        <br />Storage: {{main.home.S}} / {{main.home.mS}}
+        <p />
+        <button class="btn btn-primary" ng-click="main.upgradeHome()" ng-disabled="main.home.S < 10">UPGRADE</button>
+        <button class="btn btn-primary" ng-click="main.relocate()" ng-disabled="!main.isHome() || main.home.E < 1000">RELOCATE</button>
+      </tab>
+      <tab heading="Bot">
+        Energy: {{main.bot.E | number : 0}} / {{main.bot.mE | number : 0}} <span class="badge">+{{main.bot.dE | number : 1}} / s</span>,
+        <br />Storage: {{main.bot.S}} / {{main.bot.mS}}
 
-  <h4>Karma</h4>
-  <p>Spectacular Test Runner for JavaScript.</p>
+        <p />
+        <button class="btn btn-primary" ng-click="main.chargeBot()" ng-disabled="main.home.E <= 0 || !main.isHome()">CHARGE</button>
+        <button class="btn btn-primary" ng-click="main.upgradeBot()" ng-disabled="main.home.S < 10 || !main.isHome()">UPGRADE</button>
+
+
+        <p />
+        <div ng-keypress="main.keypress($event)" tabindex="0">
+          <button class="btn btn-primary btn-mono" ng-click="main.move(-1,-1)" ng-disabled="main.bot.E < 1">Q</button>
+          <button class="btn btn-primary btn-mono" ng-click="main.move( 0,-1)" ng-disabled="main.bot.E < 1">W</button>
+          <button class="btn btn-primary btn-mono" ng-click="main.move( 1,-1)" ng-disabled="main.bot.E < 1">E</button>
+          <br />
+          <button class="btn btn-primary btn-mono" ng-click="main.move(-1,0)" ng-disabled="main.bot.E < 1">A</button>
+          <button class="btn btn-primary btn-mono" ng-click="main.mine()" ng-disabled="!(main.bot.S > 0 && main.isHome()) && !main.canMine()">S</button>
+          <button class="btn btn-primary btn-mono" ng-click="main.move( 1,0)" ng-disabled="main.bot.E < 1">D</button>
+          <br />
+          <button class="btn btn-primary btn-mono" ng-click="main.move(-1,1)" ng-disabled="main.bot.E < 1">Z</button>
+          <button class="btn btn-primary btn-mono" ng-click="main.move( 0,1)" ng-disabled="main.bot.E < 1">X</button>
+          <button class="btn btn-primary btn-mono" ng-click="main.move( 1,1)" ng-disabled="main.bot.E < 1">C</button>
+        </div>
+
+        <p />
+        <button class="btn btn-primary" ng-click="main.step()" ng-disabled="main.bot.E < 1">STEP</button>
+        <button class="btn btn-primary" ng-click="main.go()" ng-disabled="main.bot.E < 1">GO</button>
+        <button class="btn btn-primary" ng-click="main.stop()" ng-disabled="!main.running">STOP</button>
+
+        <br /><textarea ui-codemirror ng-model="main.code" ui-codemirror-opts="{
+          lineWrapping : true,
+          lineNumbers: true,
+          mode: 'javascript',
+        }"></textarea>
+      </tab>
+      <tab heading="Cheats">
+        <button class="btn btn-primary" ng-click="main.world.scan(0,0,1000)">scan all</button>
+
+        <h4>Base</h4>
+        <br />Energy: <input type="number" ng-model="main.home.E"> / <input type="number" ng-model="main.home.mE">
+        <br />Storage: <input type="number" ng-model="main.home.S"> / <input type="number" ng-model="main.home.mS">
+
+        <h4>Bot</h4>
+        <br />Energy: <input type="number" ng-model="main.bot.E"> / <input type="number" ng-model="main.bot.mE">
+        <br />Storage: <input type="number" ng-model="main.bot.S"> / <input type="number" ng-model="main.bot.mS">
+
+      </tab>
+    </tabset>
+
+  </div>
+
+  <div class="col-md-12">
+  </div>
 </div>

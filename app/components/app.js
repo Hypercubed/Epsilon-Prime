@@ -13,13 +13,15 @@ angular
     'ngAnimate',
     'ngRoute',
     'ngSanitize',
-    'ngTouch'
+    'ngTouch',
+    'ui.codemirror',
+    'ui.bootstrap'
   ])
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'components/main/main.html',
-        controller: 'MainCtrl'
+        controller: 'MainCtrl as main'
       })
       .when('/about', {
         templateUrl: 'components/about/about.html',
