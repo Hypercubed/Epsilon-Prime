@@ -2,13 +2,17 @@
 
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
-- [ ] fog of war
+- [x] fog of war
 - [ ] Mining speed/efficency
 - [ ] Moving speed
 - [ ] Better terrain generation
 - [ ] Bigger map
 - [ ] Programming
-- [ ] Aliens
+- [ ] Aliens?
+- [ ] Tech tree
+- [ ] Clickable map
+- [ ] Save state
+- [ ] Reuse scripts
 
 - [ ] Base upgrades
   - [ ] Relocate

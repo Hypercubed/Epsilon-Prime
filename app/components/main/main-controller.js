@@ -18,17 +18,36 @@ var TILE = {
   HOLE: 'O'
 };
 
-function Bot(x,y) {  // TODO: move speed, mine speed, storage cap, energy cap, carge rate
+function isAt(obj,x,y) {
+  if (angular.isObject(x)) {
+    return x.x === obj.x && x.y === obj.y;
+  }
+  return x === obj.x && y === obj.y;
+}
+
+function Bot(name,world,x,y) {  // TODO: move speed, mine speed, storage cap, energy cap, carge rate
+  this.name = name;
+  this.world = world;
+
+  this.t = TILE.BOT;
+
   this.x = x;
   this.y = y;
+  this.dEdX = 1;
 
-  this.S = 0;     // Raw material storage
+  this.S = 0;      // Raw material storage
   this.mS = 10;    // Maximum
+  this.dS = 1;     // Mining ability
 
   this.E = 0;     // Energy
-  this.dE = 0;    // Charging rate
+  this.dE = 0.01;    // Charging rate
   this.mE = 10;   // Maximum
 
+  this.manual = true;
+  this.code = '';
+  this.fn = null;
+
+  this.message = '';
 }
 
 Bot.prototype.charge = function(dE) {
@@ -36,87 +55,160 @@ Bot.prototype.charge = function(dE) {
     dE = this.dE;
   }
   var e = this.E;
-  this.E = Math.min(e + dE, this.mE);
+  this.E = +Math.min(e + dE, this.mE).toFixed(2);
   return this.E - e;
-}
+};
 
-Bot.prototype.move = function(x,y) {
-  if (this.E >= 1) {
-    this.x += x;
-    this.y += y;
-    this.E--;
-    return true;
+Bot.prototype.isAt = function(x,y) {
+  return isAt(this,x,y);
+};
+
+Bot.prototype.move = function(dx,dy) {  // TODO: check range
+
+  dx = Math.sign(dx);
+  dy = Math.sign(dy);
+
+  if (this.world.canMove(this.x + dx,this.y + dy)) {  // Need to check bot skills, check path
+    if (this.E >= this.dEdX) {
+      this.x += dx;
+      this.y += dy;
+      this.E -= this.dEdX;
+
+      this.world.scan(this);
+      return true;
+    }
   }
   return false;
-}
+};
 
-Bot.prototype.mine = function(x,y) {
-  if (this.E >= 1 && this.S < this.mS) {
-    this.E--;
-    return true;
+Bot.prototype.moveTo = function(x,y) {
+
+  if (angular.isObject(x)) {  // TODO: Utility
+    y = x.y;
+    x = x.x;
   }
-  return false;
-}
 
-Bot.prototype.load = function(dS) {
+  var dx = x - this.x;
+  var dy = y - this.y;
+
+  this.move(dx,dy);
+};
+
+Bot.prototype.mine = function() {
+  if (this.world.get(this).t === TILE.MINE) {  // use world.canMine?
+    if (this.E >= 1 && this.S < this.mS) {
+      this.E--;
+      var dS = this.world.dig(this);  // TODO: bot effeciency
+      return this.load(dS);
+    }
+  }
+  return 0;
+};
+
+Bot.prototype.load = function(dS) {  // dE?
   var s = this.S;
   this.S = Math.min(s + dS, this.mS);
   return this.S - s;
-}
+};
 
-Bot.prototype.unload = function() {
+Bot.prototype.unload = function() {  // dE?
   var l = this.S;
   this.S = 0;
   return l;
-}
+};
+
+Bot.prototype.run = function() {
+  this.fn = new Function('$bot', '$home', '$ctrl', this.code);  //this, $bot, $home, $ctrl
+  this.manual = false;
+};
+
+Bot.prototype.stop = function() {
+  this.manual = true;
+};
+
+Bot.prototype.error = function(msg) {
+  this.message = msg;
+  this.manual = true;
+};
+
+Bot.prototype.takeTurn = function(dT, main) {
+  this.charge(this.dE*dT);
+
+  if(!this.manual && this.fn) {
+    try {
+      this.fn.call(this,this,main.home,main);  //this, $bot, $home, $ctrl
+    } catch(err) {
+      var m = err.stack;
+      console.log('User script error', m);
+      m = m.match(/<anonymous>:[0-9]+:[0-9]+/)[0].replace('<anonymous>:','');  // TODO: fix line number
+      this.error(err.message+', '+m);
+    }
+  }
+
+};
+
+Bot.prototype.chargeBot = function(bot) {
+  if (isAt(bot, this)) { // TODO: charging range?
+    var e = Math.min(10, this.E);  // TODO: charging speed
+    e = bot.charge(e);
+    this.E -= e;
+  } else {
+    bot.error('Out of range.');
+  }
+};
+
+Bot.prototype.unloadTo = function(bot) {
+  if (isAt(bot, this)) {// TODO: unloading range?
+    var s = this.unload();
+    var l = bot.load(s);
+    this.load(s-l);
+    return l;
+  }
+  return 0;
+};
+
+Bot.prototype.scan = function() {  // dE cost?
+  return this.world.scan(this);
+};
 
 function World() {
   this.map = [];
-  this.size = [60,20];
+  this.size = [60,20];  // cols, rows
 }
 
 World.prototype.generate = function() {
   //console.log('generate');
   this.map = [];
 
-  var p = TILE.FIELD;
-  for(var i = 0; i < this.size[0]; i++) {
-    var row = [];
-    for(var j = 0; j < this.size[1]; j++) {
+  var i, j, col;
+
+  for(i = 0; i < this.size[0]; i++) {  // col
+    col = [];
+    for(j = 0; j < this.size[1]; j++) { // row
       var r = Math.random();
       var x = 0.01;
-      if (p === TILE.MOUNTAIN) {
-        x += 0.3;
+      if (j > 0 && col[j-1].t === TILE.MOUNTAIN) {
+        x += 0.4;
       }
-      if (i > 0 && j > 0 && this.map[i-1][j-1] === TILE.MOUNTAIN) {
-        x += 0.3;
+      if (i > 0 && this.map[i-1][j].t === TILE.MOUNTAIN) {
+        x += 0.4;
       }
-      if (i > 0 && this.map[i-1][j] === TILE.MOUNTAIN) {
-        x += 0.3;
-      }
+      var p = TILE.FIELD;
       if (r < x) {
         p = TILE.MOUNTAIN;
       } else if (r > 0.98) {
         p = TILE.MINE;
-      } else {
-        p = TILE.FIELD;
       }
-      row.push(p);
+
+      col.push({x: i, y: j, t: p, s: false});
     }
-    this.map.push(row);
+    this.map.push(col);
   }
 
-  this.scanned = [];
-  for(var i = 0; i < this.size[0]; i++) {
-    var row = [];
-    for(var j = 0; j < this.size[1]; j++) {
-      row.push('&nbsp;');
-    }
-    this.scanned.push(row);
-  }
+  this.map[30][10].t = TILE.FIELD;
 
   return this;
-}
+};
 
 World.prototype.scan = function(x,y,R) {
   if (arguments.length < 3) {
@@ -130,13 +222,13 @@ World.prototype.scan = function(x,y,R) {
     for(var j = y-R; j <= y+R; j++) {
       var t = this.get(i,j);
       if (t !== null) {
-        r.push({x: i-x, y: j-y, t: t});
-        this.scanned[i][j] = t;
+        t.s = true;
+        r.push(t);
       }
     }
   }
   return r;
-}
+};
 
 World.prototype.get = function(x,y) {
   if (arguments.length === 1) {
@@ -146,11 +238,14 @@ World.prototype.get = function(x,y) {
   if (x < 0 || x >= this.size[0]) { return null; }
   if (y < 0 || y >= this.size[1]) { return null; }
   return this.map[x][y];
-}
+};
 
 World.prototype.dig = function(x,y) {
+  if (arguments.length === 1) {
+    y = x.y;
+    x = x.x;
+  }
   if (this.canMine(x,y)) {
-    this.map[x][y] = TILE.HOLE;
 
     var dS = 1;
     if (Math.random() > 0.75) {
@@ -159,78 +254,122 @@ World.prototype.dig = function(x,y) {
     if (Math.random() > 0.99) {
       dS++;
     }
+    if (Math.random() > 0.90) {
+      this.map[x][y].t = TILE.HOLE;
+    }
     return dS;
-  };
+  }
   return 0;
-}
+};
 
 World.prototype.canMine = function(x,y) {
-  return this.map[x][y] === TILE.MINE;
-}
+  return this.map[x][y].t === TILE.MINE;
+};
 
-World.prototype.canMove = function(x,y) {
+World.prototype.canMove = function(x,y) {  //TODO: change to cost
   var t = this.get(x,y);
-  return t !== null && t !== TILE.MOUNTAIN;
-}
+  return t !== null && t.t !== TILE.MOUNTAIN;
+};
 
 angular.module('myApp')
   .controller('MainCtrl', function ($scope, $interval) {
-    var vm = this;
+    var main = this;
 
-function test() {
-var r = this.get(0,0);
-if (r === '@') {
-  this.chargeBot();
-  this.unloadBot();
-}
-if (r === 'X') {
-  this.mine();
-}
-r = this.scan();
-for(var i = 0; i < r.length; i++) {
-  var p = r[i];
-  if (p.t === 'X') {
-    this.move(p.x,p.y);
+    main.refresh = 1;
+
+    var testCode = (function ($bot, $home, $ctrl) {  // example
+
+if ($bot.isAt($home)) {  // is at home
+  $home.chargeBot(this);
+  var l = $bot.unloadTo($home);
+  if (l === 0 && $bot.S === $bot.mS) { // home base full, wait
     return;
   }
-};
-var x = Math.random()*3-1;
-var y = Math.random()*3-1;
-this.move(x,y);
+} else if ($bot.S === $bot.mS) {  // storage full
+  $bot.moveTo($home);
+  return;
 }
 
-    var entire = test.toString();
-    vm.code = entire.substring(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
+var s = $bot.scan();
+var r = s[4];  // current position
 
-    vm.grid = [];
+if (r.t === 'X' && $bot.S < $bot.mS) {  // is at mine
+  $bot.mine();
+}
 
-    vm.world = new World().generate();
+var rr = [];
+for(var i = 0; i < s.length; i++) {
+  r = s[i];
+  if (r.t === 'X' && this.S < this.mS) {  // found a mine
+    $bot.moveTo(r);
+    return;
+  } else if (r.t === '@' && this.S > 0) {  // found home
+    $bot.moveTo(r);
+    return;
+  } else if (r.t !== '▲') {  // can't pass
+    rr.push(r);
+  }
+}
 
-    vm.home = new Bot(30, 10);
-    vm.home.E = 0;
-    vm.home.dE = 0.1;
-    vm.home.mE = 10;
-    vm.home.mS = 10;
+if (rr.length > 0) {
+  var j = Math.floor(Math.random()*rr.length);
+  $bot.moveTo(rr[j]);
+}
 
-    vm.bot = new Bot(vm.home.x, vm.home.y);
-    vm.world.scan(vm.home);
+}).toString();
 
-    function isAt(obj,x,y) {
-      if (angular.isObject(x)) {
-        return x.x === obj.x && x.y === obj.y;
+    main.world = new World().generate();
+
+    var home = main.home = new Bot('Base', main.world, 30, 10);
+    home.E = 0;
+    home.dE = 0.1;
+    home.mE = 100;
+    home.mS = 10;
+    home.dEdX = 1000;
+    home.t = TILE.BASE;
+
+    main.bots = [home];
+
+    //var bot = new Bot('Rover', main.world, home.x, home.y);
+    //bot.code = testCode.substring(testCode.indexOf('{') + 1, testCode.lastIndexOf('}'));
+
+    main.world.scan(home);
+
+    main.construct = function () {
+      var bot = new Bot('Rover', main.world, main.home.x, main.home.y);
+      bot.code = testCode.substring(testCode.indexOf('{') + 1, testCode.lastIndexOf('}'));
+      main.bots.push(bot);
+      return bot;
+    };
+
+    var bot = main.construct();
+
+    main.setBot = function(index) {
+      if (arguments.length < 1) {
+        index = main.index;
       }
-      return x === obj.x && y === obj.y;
-    }
+      main.index = index;
+      bot = main.bot = main.bots[index];
+      main.code = bot.code;
+      main.manual = bot.manual;
+      main.refresh++;
+    };
+
+    main.setBot(1);
 
     function getTile(x,y) {
-      if (vm.world.get(x,y) !== null) {
-        if (isAt(vm.home,x,y)) { return '<strong class="text-primary">'+TILE.BASE+'</strong>'; }
-        if (isAt(vm.bot,x,y)) { return '<strong class="text-danger">'+TILE.BOT+'</strong>'; }
-        return vm.world.scanned[x][y];
+      var tile = main.world.get(x,y);
+      if (tile !== null) {
+        for(var i = 0; i < main.bots.length; i++) {
+          var bot = main.bots[i];
+          if (isAt(bot,x,y)) { return '<strong class="bot bot-'+bot.name+'">'+bot.t+'</strong>'; }
+        }
+        if (tile.s) { return '<span class="tile tile-'+tile.t+'">'+tile.t+'</span>'; }
+        return '&nbsp;';
       }
     }
 
-    vm.draw = function() {
+    main.draw = function() {
       var b = '';
 
       for(var i = 0; i < 20; i++) {
@@ -241,149 +380,122 @@ this.move(x,y);
       }
 
       return b;
-    }
+    };
 
-    vm.relocate = function() {
-      if (vm.home.E >= 1000) {
-        vm.home.E -= 1000;
-        vm.world.generate();
-        vm.world.scan(vm.home);
+    main.relocate = function() {
+      if (home.E >= 1000) {
+        home.E -= 1000;
+        main.world.generate();
+        main.world.scan(home);
       }
-    }
+    };
 
-    vm.upgradeHome = function() {
-      if (vm.home.S >= 10) {
-        vm.home.S -= 20;
-        vm.home.dE += 0.5;
-        vm.home.mS += 5;
+    main.upgradeBot = function(bot) {
+      if (home.S >= 10) {
+        home.S -= 10;
+        bot.dE += 0.1;
+        bot.mS += 1;
       }
-    }
+    };
 
-    vm.upgradeBot = function() {
-      if (vm.home.S >= 10) {
-        vm.home.S -= 10;
-        vm.bot.dE += 0.1;
-        vm.bot.mS += 1;
+    main.isHome = function(bot) {
+      return isAt(bot || main.bot, home);
+    };
+
+    main.canMine = function() {
+      return !main.isHome() && main.world.get(bot.x,bot.y).t === TILE.MINE;
+    };
+
+    main.chargeBot = function(bot) {
+      home.chargeBot(bot);
+    };
+
+    main.move = function(dx,dy) {
+      bot = bot || main.bot;
+      bot.move(dx,dy);
+    };
+
+    main.mine = function() {
+      bot = bot || main.bot;
+      bot.mine();
+    };
+
+    main.unloadBot = function(bot) {
+      bot = bot || main.bot;
+      bot.unloadTo(home);
+    };
+
+    main.scan = function() {
+      bot = bot || main.bot;
+      return bot.scan();
+    };
+
+    main.get = function(dx,dy) {
+      dx = Math.sign(dx);  // Scan distance = 1
+      dy = Math.sign(dy);
+
+      var x = dx+bot.x;
+      var y = dy+bot.y;
+
+      if (isAt(home,x,y)) { return { t: TILE.BASE }; }
+      return main.world.get(x,y);
+
+    };
+
+    main.toggleBot = function(bot) {
+      bot = bot || main.bot;
+      if (bot.manual) {
+        bot.run();
+      } else {
+        bot.stop();
       }
-    }
+    };
 
-    vm.isHome = function() {
-      return isAt(vm.bot, vm.home);
-    }
-
-    vm.canMine = function() {
-      return !vm.isHome() && vm.world.get(vm.bot.x,vm.bot.y) === TILE.MINE;
-    }
-
-    vm.chargeBot = function () {
-      if (isAt(vm.bot, vm.home)) {
-        var e = Math.min(10, vm.home.E);
-        var e = vm.bot.charge(e);
-        vm.home.E -= e;
-      }
-    }
-
-    vm.move = function(x,y) {
-      x = Math.floor(x);
-      y = Math.floor(y);
-      if (vm.world.canMove(vm.bot.x + x,vm.bot.y + y)) {
-        vm.bot.move(x,y);
-        vm.world.scan(vm.bot);
-      }
-    }
-
-    vm.mine = function() {
-      if (vm.canMine()) {
-        if (vm.bot.mine()) {
-          var dS = vm.world.dig(vm.bot.x, vm.bot.y);
-          vm.bot.load(dS);
-        }
-      }
-    }
-
-    vm.unloadBot = function() {
-      if (isAt(vm.bot, vm.home)) {
-        var s = vm.bot.unload();
-        var ds = vm.home.load(s);
-        vm.bot.load(s-ds);
-      }
-    }
-
-    vm.scan = function() {
-      return vm.world.scan(vm.bot);
-    }
-
-    vm.get = function(x,y) {
-      x = x+vm.bot.x;
-      y = y+vm.bot.y;
-      if (vm.world.get(x,y) !== null) {
-        if (isAt(vm.home,x,y)) { return TILE.BASE; }
-        return vm.world.scanned[x][y];
-      }
-    }
-
-    vm.step = function () {
-      var fn = new Function(vm.code);
-      fn.call(vm);
-    }
-
-    vm.running;
-    vm.go = function() {
-      vm.step();
-      vm.running =  $interval(vm.step, 200);
-    }
-
-    vm.stop = function() {
-      if (angular.isDefined(stop)) {
-        $interval.cancel(vm.running);
-        vm.running = undefined;
-      }
-    }
-
-    function charge() {
-      vm.home.charge(vm.home.dE*dT);
-      vm.bot.charge(vm.bot.dE*dT);
-    }
-
-    vm.keypress = function($event) {
+    main.keypress = function($event) {  // TODO: cheat code
       switch($event.keyCode) {
         case 113:
-          vm.move(-1,-1);
+          bot.move(-1,-1);
           break;
         case 119:
-          vm.move(0,-1);
+          bot.move(0,-1);
           break;
         case 101:
-          vm.move(1,-1);
+          bot.move(1,-1);
           break;
         case 100:
-          vm.move(1,0);
+          bot.move(1,0);
           break;
         case 97:
-          vm.move(-1,0);
+          bot.move(-1,0);
           break;
         case 122:
-          vm.move(-1,1);
+          bot.move(-1,1);
           break;
         case 120:
-          vm.move(0,1);
+          bot.move(0,1);
           break;
         case 99:
-          vm.move(1,1);
+          bot.move(1,1);
           break;
         case 115:
-          if (vm.isHome()) {
-            vm.unloadBot();
+          if (isAt(bot,home)) {
+            bot.unloadTo(home);
+            home.chargeBot(bot);
           } else {
-            vm.mine();
+            bot.mine();
           }
           break;
       }
 
-    }
+    };
 
-    var dT = 10;
+    var dT = 1;
 
-    $interval(charge, dT*1000);
+    $interval(function tick() {
+      main.bots.forEach(function(_bot) {
+        bot = _bot; // hack
+        _bot.takeTurn(dT, main);
+      });
+    }, dT*200);
 
   });
