@@ -79,6 +79,19 @@ angular.module('myApp')
       return false;
     };
 
+    Bot.prototype.canMoveTo = function(x,y) {  // TODO: check range
+
+      if (angular.isObject(x)) {  // TODO: Utility
+        y = x.y;
+        x = x.x;
+      }
+
+      var dx = x - this.x;
+      var dy = y - this.y;
+
+      return this.canMove(dx,dy);
+    };
+
     Bot.prototype.moveTo = function(x,y) {
 
       if (angular.isObject(x)) {  // TODO: Utility
@@ -89,7 +102,7 @@ angular.module('myApp')
       var dx = x - this.x;
       var dy = y - this.y;
 
-      this.move(dx,dy);
+      return this.move(dx,dy);
     };
 
     Bot.prototype.canMine = function() {

@@ -3,17 +3,24 @@
   font-family: "Courier New", Courier, monospace;
 }
 
-.grid .bot-home {
+.grid .bot {
+  color: #a94442;
+  cursor: pointer;
+}
+
+.grid .bot-base {
   color: #428bca;
 }
 
-.grid .bot-bot {
-  color: #a94442;
+.grid .bot.active {
+  background-color: #2DFF00;
 }
 
 .grid {
   overflow: scroll;
   height: 500px;
+  font-size: 14px;
+  line-height: 12px;
 }
 
 .ctrl .nav {
@@ -36,28 +43,26 @@
   font-weight: bold;
 }
 
-.units-list .list-group-item-heading i {
-  font-family: 'Glyphicons Halflings';
-  content: "\e080";
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  font-size: 14px;
-  line-height: 14px;
-  margin-top: -7px;
-  color: #ccc;
-}
-
-.unit-ctrl {
-  position: relative;
+.unit-ctrl .panel, .unit-list .panel {
+  margin-bottom: 5px;
 }
 
 .unit-ctrl .panel-heading {
   padding-left: 40px;
 }
 
-.unit-ctrl .panel-heading {
-  margin-top: 0;
+.unit-ctrl .panel-heading, .unit-list .panel-heading {
+  margin: 0 0 5px 0;
+  cursor: pointer;
+  position: relative;
+}
+
+.unit-ctrl .panel-body, .unit-list .panel-body {
+  padding: 0 15px 5px 15px;
+}
+
+.unit-ctrl .panel-body, .unit-list .panel-body {
+  padding: 0 15px 5px 15px;
 }
 
 .unit-ctrl .panel-heading:before {
@@ -72,9 +77,14 @@
   color: #ccc;
 }
 
-.units-list  .list-group-item.active {
-  z-index: 2;
-  color: inherit;
-  background-color: #F5F5F5;
-  border-color: #ddd;
+.unit-list .panel-heading:before {
+  font-family: 'Glyphicons Halflings';
+  content: "\e080";
+  position: absolute;
+  right: 15px;
+  top: 20px;
+  font-size: 14px;
+  line-height: 14px;
+  margin-top: -7px;
+  color: #ccc;
 }

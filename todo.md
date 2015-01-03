@@ -3,6 +3,7 @@
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Next
+- [ ] Improve drawing (isDirty flag?)
 - [ ] Scrolling map
 - [ ] Balance gameplay
 - [ ] pass clones ($bot, $home) to tick functions, security

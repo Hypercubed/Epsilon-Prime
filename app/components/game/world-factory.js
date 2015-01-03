@@ -13,42 +13,49 @@ angular.module('myApp')
   .factory('World', function (TILES) {
 
     function World() {
-      this.map = [];
-      this.size = [60,20];  // cols, rows
+
     }
 
-    World.prototype.generate = function() {
-      //console.log('generate');
-      this.map = [];
+    World.prototype.generate = function(xs,ys) {
+      xs = xs||60;
+      ys = ys||60;
 
-      var i, j, col;
+      this.size = [xs, ys];  // cols, rows
 
-      for(i = 0; i < this.size[0]; i++) {  // col
-        col = [];
-        for(j = 0; j < this.size[1]; j++) { // row
-          var r = Math.random();
-          var x = 0.01;
-          if (j > 0 && col[j-1].t === TILES.MOUNTAIN) {
-            x += 0.4;
-          }
-          if (i > 0 && this.map[i-1][j].t === TILES.MOUNTAIN) {
-            x += 0.4;
-          }
-          var p = TILES.FIELD;
-          if (r < x) {
-            p = TILES.MOUNTAIN;
-          } else if (r > 0.98) {
-            p = TILES.MINE;
-          }
+      var x, y;
 
-          col.push({x: i, y: j, t: p, s: false});
+      this.map = new Array(xs);       // todo: improve storage
+
+      for(x = 0; x < xs; x++) {  // col
+        this.map[x] = new Array(ys);
+        for(y = 0; y < ys; y++) { // row
+          this.map[x][y] = this.chooseTile(x,y);   // todo: improve storage, store only strings again?
         }
-        this.map.push(col);
       }
 
-      this.map[30][10].t = TILES.FIELD;  // base
-
       return this;
+    };
+
+    World.prototype.chooseTile = function(x,y) {
+      var pm = 0.01;  // Probability of a mountain
+      if (y > 0 && this.map[x][y-1].t === TILES.MOUNTAIN) {
+        pm += 0.4;
+      }
+      if (x > 0 && this.map[x-1][y].t === TILES.MOUNTAIN) {
+        pm += 0.4;
+      }
+
+      var p;
+      var r = Math.random();
+      if (r < pm) {
+        p = TILES.MOUNTAIN;
+      } else if (r > 0.98) {
+        p = TILES.MINE;
+      } else {
+        p = TILES.FIELD;
+      }
+
+      return {x: x, y: y, t: p, s: false};   // todo: improve storage, store only strings again?
     };
 
     World.prototype.scan = function(x,y,R) {

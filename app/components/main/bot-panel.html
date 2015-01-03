@@ -1,6 +1,6 @@
 <div>
   <div class="row">
-    <label class="col-sm-2">Movement</label> {{bot.dEdX}} [J/d]
+    <label class="col-sm-2">Movement</label> {{bot.dEdX}} J/d
   </div>
 
   <div class="row">
@@ -10,7 +10,7 @@
         <i>{{bot.E | number : 1}} / {{bot.mE | number : 0}}</i>
       </progressbar>
     </div>
-    <span class="badge">+{{bot.dE | number : 2}} [J/d]</span>
+    <span class="badge">+{{bot.dE | number : 2}} J/d</span>
   </div>
 
   <div class="row">
@@ -23,23 +23,23 @@
   </div>
 
   <div class="">
-    <button class="btn btn-primary btn-xs" ng-click="main.toggleBot(bot)" ng-disabled="!bot.code">
+    <button class="btn btn-primary btn-xs" ng-click="main.toggleBot(bot)" ng-disabled="!bot.code" tooltip="Run code">
       <i class="glyphicon glyphicon-play" ng-class="{ true: 'glyphicon-play', false: 'glyphicon-pause'}[bot.manual]"></i>
     </button>
-    <button class="btn btn-primary btn-xs" ng-if="bot !== main.home" ng-click="bot.unloadTo(main.home)" ng-disabled="!main.canUnload(bot)">
+    <button class="btn btn-primary btn-xs" ng-if="bot !== main.home" ng-click="bot.unloadTo(main.home)" ng-disabled="!main.canUnload(bot)" tooltip="Unload storage">
       <i class="glyphicon glyphicon-log-out"></i>
     </button>
-    <button class="btn btn-primary btn-xs" ng-click="main.home.chargeBot(bot); $event.stopPropagation();" ng-if="bot !== main.home" ng-disabled="!main.canCharge(bot)">
+    <button class="btn btn-primary btn-xs" ng-click="main.home.chargeBot(bot); $event.stopPropagation();" ng-if="bot !== main.home" ng-disabled="!main.canCharge(bot)" tooltip="Charge">
       <i class="glyphicon glyphicon-flash"></i>
     </button>
     <div class="pull-right">
-      <button class="btn btn-primary btn-xs" ng-click="main.upgradeBot(bot); $event.stopPropagation();" ng-disabled="main.home.S < 10 || (bot !== main.home && !main.isAtHome(bot))">
+      <button class="btn btn-primary btn-xs" ng-click="main.upgradeBot(bot); $event.stopPropagation();" ng-disabled="main.home.S < 10 || (bot !== main.home && !main.isAtHome(bot))" tooltip="Upgrade bot">
         UPGRADE <span class="badge">10</span>
       </button>
-      <button class="btn btn-primary btn-xs" ng-click="main.construct(); $event.stopPropagation();" ng-if="bot === main.home" ng-disabled="main.home.S < 100">
+      <button class="btn btn-primary btn-xs" ng-click="main.construct(); $event.stopPropagation();" ng-if="bot === main.home" ng-disabled="main.home.S < 100" tooltip="Construct new bot">
         CONSTRUCT <span class="badge">100</span>
       </button>
-      <button class="btn btn-primary btn-xs" ng-click="main.relocate(); $event.stopPropagation();" ng-if="bot === main.home" ng-disabled="main.home.E < 1000">
+      <button class="btn btn-primary btn-xs" ng-click="main.relocate(); $event.stopPropagation();" ng-if="bot === main.home" ng-disabled="main.home.E < 1000" tooltip="Launch and land base at new location">
         RELOCATE <span class="badge">1000 J</span>
       </button>
     </div>

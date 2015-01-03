@@ -32,13 +32,13 @@ angular.module('myApp')
     var rr = [];
     for(var i = 0; i < s.length; i++) {
       r = s[i];
-      if (r.t === 'X' && this.S < this.mS) {  // found a mine
+      if (r.t === 'X' && $bot.S < $bot.mS) {  // found a mine
         $bot.moveTo(r);
         return;
-      } else if (r.t === '@' && this.S > 0) {  // found home
+      } else if (r.t === '@' && $bot.S > 0) {  // found home
         $bot.moveTo(r);
         return;
-      } else if (r.t !== '▲') {  // can't pass
+      } else if (r.t !== '▲' && $bot.canMoveTo(r)) {  // can't pass
         rr.push(r);
       }
     }
@@ -49,7 +49,7 @@ angular.module('myApp')
     }
 
   }).toString())
-  .controller('MainCtrl', function ($scope, $interval, isAt, World, Bot, TILES, EXAMPLE) {
+  .controller('MainCtrl', function ($scope, $log, $interval, isAt, World, Bot, TILES, EXAMPLE) {
 
     var main = this;
 
@@ -72,25 +72,71 @@ angular.module('myApp')
     };
 
     function getTile(x,y) {  // todo: create map directive
+
       var tile = main.world.get(x,y);
+
       if (tile !== null) {
-        for(var i = 0; i < main.bots.length; i++) {
-          var bot = main.bots[i];
-          if (isAt(bot,x,y)) { return '<strong class="bot bot-'+bot.name+'">'+bot.t+'</strong>'; }
+        var _class = 'tile';
+
+        if (isAt(main.bot,x,y)) {  // active bot can be obscured by another
+          _class += ' active';
         }
-        if (tile.s) { return '<span class="tile tile-'+tile.t+'">'+tile.t+'</span>'; }
+
+        var bots = main.bots.filter(function(bot) {
+          return isAt(bot,x,y);
+        });
+
+        if (bots.length > 0) {
+          var bot = bots[0];
+          _class += ' bot bot-'+bot.name.toLowerCase();
+          var _tip = bots.map(function(bot) {return bot.name;}).join('<br />');
+          return '<strong class="'+_class+'" tooltip-html-unsafe="'+_tip+'">'+bot.t+'</strong>';
+        }
+
+        if (tile.s) {
+          return '<span class="'+_class+'">'+tile.t+'</span>';
+        }
+        return '&nbsp;';
       }
-      return '&nbsp;';
+      return '*';
     }
 
+    main.drawWatch = function drawWatch() {  // Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
+      var s = '';
+
+      var xs = mapOffset[0], ys = mapOffset[1];
+      var xe = xs+mapDisplaySize[0], ye = ys+mapDisplaySize[1];
+
+      for(var y = ys; y < ye; y++) {  // need to iterate over rows first
+        for(var x = xs; x < xe; x++) {
+          var tile = main.world.get(x,y);
+          if (tile.s && (tile.t === TILES.MINE || tile.t === TILES.HOLE)) {
+            s += tile.t;
+          }
+        }
+      }
+
+      var ke = main.bots.length;
+      var ws = main.world.size[0];
+      for(var k = 0; k < ke; k++) {
+        var bot = main.bots[k];
+        s += bot.t+ws*bot.x+bot.y+(bot === main.bot ? '!' : '');
+      }
+
+      return s;
+    };
+
     main.draw = function() {  // todo: create map directive
-      console.log('draw');
+      $log.debug('draw');
 
       var b = '';
 
-      for(var i = 0; i < main.mapDisplaySize[1]; i++) {
-        for(var j = 0; j < main.mapDisplaySize[0]; j++) {
-          b += getTile(j+main.mapOffset[0],i+main.mapOffset[1]);
+      var xs = mapOffset[0], ys = mapOffset[1];
+      var xe = xs+mapDisplaySize[0], ye = ys+mapDisplaySize[1];
+
+      for(var y = ys; y < ye; y++) {  // need to iterate over rows first
+        for(var x = xs; x < xe; x++) {
+          b += getTile(x,y);
         }
         b += '\n';
       }
@@ -202,7 +248,7 @@ angular.module('myApp')
       }
     };
 
-    main.keypress = function($event) {  // TODO: cheat code
+    main.keypress = function(bot, $event) {  // TODO: cheat code
       switch($event.keyCode) {
         case 113:
           bot.move(-1,-1);
@@ -239,15 +285,17 @@ angular.module('myApp')
 
     main.refresh = 1;
 
-    main.world = new World().generate();
+    main.world = new World().generate(60,30);
 
-    var home = main.home = new Bot('Base', main.world, 30, 10);
+    var home = main.home = new Bot('Base', main.world, 20, 10);
     home.E = 0;
     home.dE = 0.1;
     home.mE = 100;
     home.mS = 10;
     home.dEdX = 1000;
     home.t = TILES.BASE;
+
+    main.world.get(main.home).t = TILES.FIELD;  // base must be on plain
 
     main.bots = [home];
 
@@ -256,16 +304,99 @@ angular.module('myApp')
     var bot = main.construct();
     main.setBot(1);
 
-    main.mapDisplaySize = main.world.size;
-    main.mapOffset = [0,0];  // TODO: focus on
+    var mapDisplaySize = main.world.size; // to map directive
+    var mapOffset = [0,0];  // TODO: focus on
 
     var dT = 1;
 
+    main.tick = 0;
+
     $interval(function tick() {
       main.bots.forEach(function(_bot) {
-        //bot = _bot; // hack
         _bot.takeTurn(dT, main);
       });
-    }, dT*1000); // todo: make variable speed
+      main.tick++;
+    }, dT*500); // todo: make variable speed
+
+  })
+
+  // todo: combine bindHtmlCompile and kcdRecompile
+  .directive('bindHtmlCompile', function ($sce, $parse, $compile) {  //https://github.com/incuna/angular-bind-html-compile/blob/master/angular-bind-html-compile.js
+    return {
+      restrict: 'A',
+      compile: function (tElement, tAttrs) {
+        var ngBindHtmlGetter = $parse(tAttrs.bindHtmlCompile);
+        var ngBindHtmlWatch = $parse(tAttrs.bindHtmlCompile, function getStringValue(value) {
+          return (value || '').toString();
+        });
+        $compile.$$addBindingClass(tElement);
+
+        return function ngBindHtmlLink(scope, element, attr) {
+          $compile.$$addBindingInfo(element, attr.ngBindHtml);
+
+          scope.$watch(ngBindHtmlWatch, function ngBindHtmlWatchAction() {
+            element.html(ngBindHtmlGetter(scope) || '');
+            $compile(element.contents())(scope);
+          });
+        };
+      }
+    };
+  })
+
+
+
+  /* .directive('bindHtmlCompile', function ($compile) {  //https://github.com/incuna/angular-bind-html-compile/blob/master/angular-bind-html-compile.js
+    return {
+      restrict: 'A',
+      link: function (scope, element, attrs) {
+        scope.$watch(function () {
+          return scope.$eval(attrs.bindHtmlCompile);
+        }, function (value) {
+          element.html(value);
+          $compile(element.contents())(scope);
+        });
+      }
+    };
+  }) */
+
+  .directive('kcdRecompile', function($compile, $parse) {
+
+    function removeChildrenWatchers(element) {
+      angular.forEach(element.children(), function(childElement) {
+        removeAllWatchers(angular.element(childElement));
+      });
+    }
+
+    function removeAllWatchers(element) {
+      if (element.data().hasOwnProperty('$scope')) {
+        element.data().$scope.$$watchers = [];
+      }
+      removeChildrenWatchers(element);
+    }
+
+    return {
+      scope: true, // required to be able to clear watchers safely
+      compile: function(el) {
+        var template = el.html();
+        return function link(scope, $el, attrs) {
+          scope.$parent.$watch(attrs.kcdRecompile, function(_new, _old) {
+            var useBoolean = attrs.hasOwnProperty('useBoolean');
+            if ((useBoolean && (!_new || _new === 'false')) || (!useBoolean && (!_new || _new === _old))) {
+              return;
+            }
+            // remove all watchers because the recompiled version will set them up again.
+            removeChildrenWatchers($el);
+            // reset kcdRecompile to false if we're using a boolean
+            if (useBoolean) {
+              $parse(attrs.kcdRecompile).assign(scope.$parent, false);
+            }
+
+            // recompile
+            var newEl = $compile(template)(scope.$parent.$new());
+            $el.html(newEl);
+          });
+        };
+      }
+    };
 
   });
