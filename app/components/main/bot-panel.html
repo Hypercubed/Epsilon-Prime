@@ -1,0 +1,49 @@
+<div>
+  <div class="row">
+    <label class="col-sm-2">Movement</label> {{bot.dEdX}} [J/d]
+  </div>
+
+  <div class="row">
+    <label class="col-sm-3">Energy [J]</label>
+    <div class="col-sm-4">
+      <progressbar class="active" ng-class="{'progress-striped': bot.E < bot.mE}" value="bot.E * 100 / bot.mE" type="danger">
+        <i>{{bot.E | number : 1}} / {{bot.mE | number : 0}}</i>
+      </progressbar>
+    </div>
+    <span class="badge">+{{bot.dE | number : 2}} [J/d]</span>
+  </div>
+
+  <div class="row">
+    <label class="col-sm-3">Storage</label>
+    <div class="col-sm-4">
+      <progressbar class="active" value="bot.S * 100 / bot.mS" type="info">
+        <i>{{bot.S}} / {{bot.mS}}</i>
+      </progressbar>
+    </div>
+  </div>
+
+  <div class="">
+    <button class="btn btn-primary btn-xs" ng-click="main.toggleBot(bot)" ng-disabled="!bot.code">
+      <i class="glyphicon glyphicon-play" ng-class="{ true: 'glyphicon-play', false: 'glyphicon-pause'}[bot.manual]"></i>
+    </button>
+    <button class="btn btn-primary btn-xs" ng-if="bot !== main.home" ng-click="bot.unloadTo(main.home)" ng-disabled="!main.canUnload(bot)">
+      <i class="glyphicon glyphicon-log-out"></i>
+    </button>
+    <button class="btn btn-primary btn-xs" ng-click="main.home.chargeBot(bot); $event.stopPropagation();" ng-if="bot !== main.home" ng-disabled="!main.canCharge(bot)">
+      <i class="glyphicon glyphicon-flash"></i>
+    </button>
+    <div class="pull-right">
+      <button class="btn btn-primary btn-xs" ng-click="main.upgradeBot(bot); $event.stopPropagation();" ng-disabled="main.home.S < 10 || (bot !== main.home && !main.isAtHome(bot))">
+        UPGRADE <span class="badge">10</span>
+      </button>
+      <button class="btn btn-primary btn-xs" ng-click="main.construct(); $event.stopPropagation();" ng-if="bot === main.home" ng-disabled="main.home.S < 100">
+        CONSTRUCT <span class="badge">100</span>
+      </button>
+      <button class="btn btn-primary btn-xs" ng-click="main.relocate(); $event.stopPropagation();" ng-if="bot === main.home" ng-disabled="main.home.E < 1000">
+        RELOCATE <span class="badge">1000 J</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="alert alert-danger clear-fix" role="alert" ng-show="bot.message.length">{{main.bot.message}}</div>
+</div>

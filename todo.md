@@ -2,28 +2,45 @@
 
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
-- [x] fog of war
+## Next
+- [ ] Scrolling map
+- [ ] Balance gameplay
+- [ ] pass clones ($bot, $home) to tick functions, security
+- [ ] Tooltips
+
+## Superficial
+- [ ] Rename bots -> units?
+- [ ] User rename bots?
+
+## Wish list
 - [ ] Mining speed/efficency
-- [ ] Moving speed
+- [ ] Moving speed?
+- [ ] Upgrades -> Bot.mass -> Movement cost
 - [ ] Better terrain generation
-- [ ] Bigger map
-- [ ] Programming
+  - [ ] Ensure base is not locked
+  - [ ] Ensure enough resources
+- [ ] Environmental effects (Solar intensity, etc)
+- [ ] Async Programming?
 - [ ] Aliens?
 - [ ] Tech tree
+- [ ] Map directive
 - [ ] Clickable map
+- [ ] Hover on map for location (x,y)
 - [ ] Save state
-- [ ] Reuse scripts
+- [ ] Save/reuse scripts
+- [ ] Language support
+- [ ] Material design
+- [ ] Use $animate
+- [ ] Support ES6 in user scripts!!
 
-- [ ] Base upgrades
-  - [ ] Relocate
-  - [ ] Build bot
-  - [ ] Scanner
-  - [ ] Storage
-  - [ ] Solar panels
-
-- [ ] Bot upgrades
-  - [ ] Scanner
-  - [ ] Storage
-  - [ ] Solar panels
-  - [ ] Speed
-  - [ ] Mountain borer
+## Bot upgrades
+- [x] Relocate
+- [x] Build bot
+- [ ] Improve Scanner range
+- [x] Increase resource storage
+- [x] Increase charging rate
+- [ ] Increase energy storage
+- [ ] Increase mining efficiency
+- [ ] Improve engine
+- [ ] Mountain borer?
+- [ ] Flight?

@@ -1,58 +1,22 @@
 <div class="row">
-  <div class="grid col-md-6 well"   ng-keypress="main.keypress($event)" tabindex="0" ng-bind-html="main.draw()">
+  <div class="col-md-6">
+    <div class="grid well" ng-keypress="main.keypress($event)" tabindex="0" ng-bind-html="main.draw()">
+    </div>
+    <!-- button ng-click="main.mapOffset[0] = main.mapOffset[0] - 1">&lt;</button>
+    <button ng-click="main.mapOffset[1] = main.mapOffset[1] - 1">^</button>
+    <button ng-click="main.mapOffset[1] = main.mapOffset[1] + 1">|</button>
+    <button ng-click="main.mapOffset[0] = main.mapOffset[0] + 1">&gt;</button -->
   </div>
 
   <div class="ctrl col-md-6" ng-init="main.activeTab = 0">
 
     <div class="" ng-show="main.activeTab === 0">
       <div class="list-group units-list">
-        <a href="#/" class="list-group-item small" ng-class="{active: $index === main.index}" ng-repeat="bot in main.bots" ng-click="main.setBot($index)">
+        <a href="#/" class="list-group-item" ng-class="{active: $index === main.index}" ng-repeat="bot in main.bots" ng-click="main.setBot($index)">
           <h4 class="list-group-item-heading" ng-click="main.activeTab = 1">
             {{bot.name}} <i class="glyphicon glyphicon-chevron-right"></i>
           </h4>
-
-          <p class="list-group-item-text">
-            <div class="row">
-              <label class="col-sm-2">Speed</label> {{bot.dEdX}}
-            </div>
-
-            <div class="row">
-              <label class="col-sm-2">Energy</label>
-              <div class="col-sm-4">
-                <progressbar class="active" ng-class="{'progress-striped': bot.E < bot.mE}" value="bot.E * 100 / bot.mE" type="danger">
-                  <i>{{bot.E | number : 1}} / {{bot.mE | number : 0}}</i>
-                </progressbar>
-              </div>
-              <span class="badge">+{{bot.dE | number : 2}} / s</span>
-              <button class="btn btn-primary btn-xs" ng-click="main.upgradeBot(bot); $event.stopPropagation()" ng-disabled="main.home.S < 10 || !main.isHome(bot)">UPGRADE <span class="badge">10</span></button>
-            </div>
-
-            <div class="row">
-              <label class="col-sm-2">Storage</label>
-              <div class="col-sm-4">
-                <progressbar class="active" value="bot.S * 100 / bot.mS" type="info">
-                  <i>{{bot.S}} / {{bot.mS}}</i>
-                </progressbar>
-              </div>
-              <button class="btn btn-primary btn-xs" ng-click="main.upgradeBot(bot); $event.stopPropagation();" ng-disabled="main.home.S < 10 || !main.isHome(bot)">UPGRADE <span class="badge">10</span></button>
-            </div>
-
-            <div class="">
-              <button class="btn btn-primary btn-xs" ng-click="main.toggleBot(bot)">
-                <i class="glyphicon glyphicon-play" ng-class="{ true: 'glyphicon-play', false: 'glyphicon-pause'}[bot.manual]"></i>
-              </button>
-
-              <button class="btn btn-primary btn-xs" ng-if="bot !== main.home" ng-click="bot.unloadTo(main.home)" ng-disabled="bot.S <= 0 || !main.isHome(bot)">
-                <i class="glyphicon glyphicon-log-out"></i>
-              </button>
-              <button class="btn btn-primary btn-xs" ng-click="main.construct(); $event.stopPropagation();" ng-if="bot === main.home" ng-disabled="main.home.S < 100">CONSTRUCT</button>
-              <button class="btn btn-primary btn-xs" ng-click="main.chargeBot(bot); $event.stopPropagation();" ng-if="bot !== main.home" ng-disabled="main.home.E <= 0 || !main.isHome(bot)">
-                <i class="glyphicon glyphicon-flash"></i>
-              </button>
-            </div>
-
-            <div class="alert alert-danger clear-fix" role="alert" ng-show="bot.message.length">{{main.bot.message}}</div>
-          </p>
+          <div class="small" ng-include="'components/main/bot-panel.html'"></div>
         </a>
       </div>
     </div>
@@ -63,46 +27,10 @@
           {{main.bot.name}}
         </h4>
         <div class="panel-body">
-          <div class="row">
-            <label class="col-sm-2">Speed</label> {{main.bot.dEdX}}
+
+          <div class="small" ng-include="'components/main/bot-panel.html'">
+            {{bot = main.bot}}
           </div>
-
-          <div class="row">
-            <label class="col-sm-2">Energy</label>
-            <div class="col-sm-4">
-              <progressbar class="active" ng-class="{'progress-striped': main.bot.E < main.bot.mE}" value="main.bot.E * 100 / main.bot.mE" type="danger">
-                <i>{{main.bot.E | number : 1}} / {{main.bot.mE | number : 0}}</i>
-              </progressbar>
-            </div>
-            <span class="badge">+{{main.bot.dE | number : 2}} / s</span>
-            <button class="btn btn-primary btn-xs" ng-click="main.upgradeBot()" ng-disabled="main.home.S < 10 || !main.isHome()">UPGRADE <span class="badge">10</span></button>
-          </div>
-
-          <div class="row">
-            <label class="col-sm-2">Storage</label>
-            <div class="col-sm-4">
-              <progressbar class="active" value="main.bot.S * 100 / main.bot.mS" type="info">
-                <i>{{main.bot.S}} / {{main.bot.mS}}</i>
-              </progressbar>
-            </div>
-            <button class="btn btn-primary btn-xs" ng-click="main.upgradeBot()" ng-disabled="main.home.S < 10 || !main.isHome()">UPGRADE <span class="badge">10</span></button>
-          </div>
-
-          <div class="">
-            <button class="btn btn-primary btn-xs" ng-click="main.toggleBot(main.bot)">
-              <i class="glyphicon glyphicon-play" ng-class="{ true: 'glyphicon-play', false: 'glyphicon-pause'}[main.bot.manual]"></i>
-            </button>
-
-            <button class="btn btn-primary btn-xs" ng-if="main.bot !== main.home" ng-click="main.bot.unloadTo(main.home)" ng-disabled="main.bot.S <= 0 || !main.isHome(main.bot)">
-              <i class="glyphicon glyphicon-log-out"></i>
-            </button>
-            <button class="btn btn-primary btn-xs" ng-click="main.construct(); $event.stopPropagation();" ng-if="main.bot === main.home" ng-disabled="main.home.S < 100">CONSTRUCT</button>
-            <button class="btn btn-primary btn-xs" ng-click="main.chargeBot(main.bot); $event.stopPropagation();" ng-if="main.bot !== main.home" ng-disabled="main.home.E <= 0 || !main.isHome(main.bot)">
-              <i class="glyphicon glyphicon-flash"></i>
-            </button>
-          </div>
-
-          <div class="alert alert-danger" role="alert" ng-show="main.bot.message.length">{{main.bot.message}}</div>
 
           <div class="row">
             <hr class="clearfix">
@@ -111,21 +39,18 @@
           <tabset type="pills" justified="true">
             <tab heading="Manual Control">
               <div class="row" ng-keypress="main.keypress($event)" tabindex="0">
-                <div class="col-md-4">
-                  <button class="btn btn-primary" ng-click="main.chargeBot()" ng-disabled="main.home.E <= 0 || !main.isHome()">CHARGE</button>
-                </div>
                 <div class="col-md-6">
-                  <button class="btn btn-primary btn-mono" ng-click="main.move(-1,-1)" ng-disabled="main.bot.E < 1">Q</button>
-                  <button class="btn btn-primary btn-mono" ng-click="main.move( 0,-1)" ng-disabled="main.bot.E < 1">W</button>
-                  <button class="btn btn-primary btn-mono" ng-click="main.move( 1,-1)" ng-disabled="main.bot.E < 1">E</button>
+                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.bot.move(-1,-1)" ng-disabled="!main.bot.canMove(-1,-1)">Q</button>
+                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.bot.move( 0,-1)" ng-disabled="!main.bot.canMove( 0,-1)">W</button>
+                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.bot.move( 1,-1)" ng-disabled="!main.bot.canMove( 1,-1)">E</button>
                   <br />
-                  <button class="btn btn-primary btn-mono" ng-click="main.move(-1,0)" ng-disabled="main.bot.E < 1">A</button>
-                  <button class="btn btn-primary btn-mono" ng-click="main.mine()" ng-disabled="!(main.bot.S > 0 && main.isHome()) && !main.canMine()">S</button>
-                  <button class="btn btn-primary btn-mono" ng-click="main.move( 1,0)" ng-disabled="main.bot.E < 1">D</button>
+                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.bot.move(-1,0)" ng-disabled="!main.bot.canMove(-1,0)">A</button>
+                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.mineOrUnload(bot)" ng-disabled="!main.canMineOrUnload(bot)">S</button>
+                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.bot.move( 1,0)" ng-disabled="!main.bot.canMove( 1,0)">D</button>
                   <br />
-                  <button class="btn btn-primary btn-mono" ng-click="main.move(-1,1)" ng-disabled="main.bot.E < 1">Z</button>
-                  <button class="btn btn-primary btn-mono" ng-click="main.move( 0,1)" ng-disabled="main.bot.E < 1">X</button>
-                  <button class="btn btn-primary btn-mono" ng-click="main.move( 1,1)" ng-disabled="main.bot.E < 1">C</button>
+                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.bot.move(-1,1)" ng-disabled="!main.bot.canMove(-1,1)">Z</button>
+                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.bot.move( 0,1)" ng-disabled="!main.bot.canMove( 0,1)">X</button>
+                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.bot.move( 1,1)" ng-disabled="!main.bot.canMove( 1,1)">C</button>
                 </div>
               </div>
             </tab>
@@ -150,7 +75,8 @@
             <tab heading="Cheats">
               <div class="row">
                 <div class="col-md-12">
-
+                  Movement: <input type="number" ng-model="main.bot.dEdX">
+                  <br />Charging: <input type="number" ng-model="main.bot.dE">
                   <br />Energy: <input type="number" ng-model="main.bot.E"> / <input type="number" ng-model="main.bot.mE">
                   <br />Storage: <input type="number" ng-model="main.bot.S"> / <input type="number" ng-model="main.bot.mS">
 
