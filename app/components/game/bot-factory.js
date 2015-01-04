@@ -173,7 +173,10 @@ angular.module('myApp')
 
         self.update();
 
-        var fn = new Function('$log', '$bot', '$home', code);
+        /*jshint -W054 */
+        var fn = new Function('$log', '$bot', '$home', code);  // todo: move to setup?
+        /*jshint +W054 */
+
         fn.call(this,self.$log,self.$bot,self.$home);
       }
 

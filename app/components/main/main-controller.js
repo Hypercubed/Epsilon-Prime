@@ -1,3 +1,5 @@
+/* global ace:true */
+
 'use strict';
 
 /**
@@ -74,11 +76,11 @@ angular.module('myApp')
 
     function main() {
       if ($bot.x === 30 && $bot.y === 10) {  // is at home
-        //$home.chargeBot($bot);
-        //var l = $bot.unloadTo($home);
-        //if (l === 0 && $bot.S === $bot.mS) { // home base full, wait
-        //  return;
-        //}
+        $home.chargeBot($bot);
+        var l = $bot.unloadTo($home);
+        if (l === 0 && $bot.S === $bot.mS) { // home base full, wait
+          return;
+        }
       } else if ($bot.S >= $bot.mS) {  // storage full
         $bot.moveTo(30, 10);  // todo: check for stuck
         return;
@@ -353,7 +355,7 @@ angular.module('myApp')
     main.aceLoaded = function(_editor){
       // Editor part
       var _session = _editor.getSession();
-      var _renderer = _editor.renderer;
+      //var _renderer = _editor.renderer;
 
       // Options
       _session.setOption('firstLineNumber', 3);
