@@ -3,6 +3,8 @@
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Next
+- [ ] Test ACE editor
+- [ ] Try https://github.com/NeilFraser/JS-Interpreter
 - [ ] Improve drawing (isDirty flag?)
 - [ ] Scrolling map
 - [ ] Balance gameplay

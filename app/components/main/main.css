@@ -1,4 +1,6 @@
 
+.ace_editor { height: 300px; }
+
 .grid, .btn-mono {
   font-family: "Courier New", Courier, monospace;
 }

@@ -15,7 +15,7 @@
     <div class="unit-list" ng-show="main.activeTab === 0">
 
       <div class="panel" ng-class="$index === main.index ? 'panel-warning' : 'panel-default'" ng-repeat="bot in main.bots" ng-keypress="main.keypress(bot, $event)" tabindex="0">
-        <h4 class="panel-heading" ng-click="main.activeTab = 1">
+        <h4 class="panel-heading" ng-click="main.setBot($index); main.activeTab = 1">
           {{bot.name}}
         </h4>
         <div class="panel-body" ng-click="main.setBot($index)" >
@@ -62,19 +62,26 @@
               <div class="row">
                 <div class="col-md-12">
 
-                  <p/><textarea ui-codemirror ng-model="main.code" ui-codemirror-opts="{
-                    lineWrapping : true,
-                    lineNumbers: true,
-                    mode: 'javascript'
-                  }" ui-refresh='main.refresh'></textarea>
+                  <p/>
+
+                  <div ui-ace="{
+                    useWrapMode : true,
+                    showGutter: true,
+                    mode: 'javascript',
+                    firstLineNumber: 3,
+                    onLoad : main.aceLoaded
+                  }" ng-model="main.code"></div>
 
                   <div class="pull-right">
-                    <button class="btn btn-primary" ng-click="main.bot.code = main.code" ng-disabled="main.code === main.bot.code">Apply</button>
+                    <button class="btn btn-primary" ng-click="main.bot.setCode(main.code)" ng-disabled="main.code === main.bot.code">Apply</button>
                     <button class="btn btn-default" ng-click="main.code = main.bot.code" ng-disabled="main.code === main.bot.code">Cancel</button>
                   </div>
 
                 </div>
               </div>
+            </tab>
+            <tab heading="Log">
+              <textarea readonly ng-model="main.bot.log"></textarea>
             </tab>
             <tab heading="Cheats">
               <div class="row">

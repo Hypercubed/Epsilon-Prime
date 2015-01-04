@@ -14,7 +14,7 @@ angular
     'ngRoute',
     'ngSanitize',
     'ngTouch',
-    'ui.codemirror',
+    'ui.ace',
     'ui.bootstrap'
   ])
   .config(function ($routeProvider) {
@@ -22,10 +22,6 @@ angular
       .when('/', {
         templateUrl: 'components/main/main.html',
         controller: 'MainCtrl as main'
-      })
-      .when('/about', {
-        templateUrl: 'components/about/about.html',
-        controller: 'AboutCtrl'
       })
       .otherwise({
         redirectTo: '/'

@@ -9,46 +9,42 @@
  */
 
 angular.module('myApp')
-  .value('EXAMPLE', (function ($bot, $home) {  // example
+  .value('EXAMPLE', (function ($bot, $home) {if ($bot.isAt($home)) {  // is at home
+  $home.chargeBot(this);
+  var l = $bot.unloadTo($home);
+  if (l === 0 && $bot.S === $bot.mS) { // home base full, wait
+    return;
+  }
+} else if ($bot.S >= $bot.mS) {  // storage full
+  $bot.moveTo($home);  // todo: check for stuck
+  return;
+}
 
-    if ($bot.isAt($home)) {  // is at home
-      $home.chargeBot(this);
-      var l = $bot.unloadTo($home);
-      if (l === 0 && $bot.S === $bot.mS) { // home base full, wait
-        return;
-      }
-    } else if ($bot.S >= $bot.mS) {  // storage full
-      $bot.moveTo($home);  // todo: check for stuck
-      return;
-    }
+var s = $bot.scan();
+var r = s[4];  // current position
 
-    var s = $bot.scan();
-    var r = s[4];  // current position
+if (r.t === 'X' && $bot.S < $bot.mS) {  // is at mine
+  $bot.mine();
+}
 
-    if (r.t === 'X' && $bot.S < $bot.mS) {  // is at mine
-      $bot.mine();
-    }
+var rr = [];
+for(var i = 0; i < s.length; i++) {
+  r = s[i];
+  if (r.t === 'X' && $bot.S < $bot.mS) {  // found a mine
+    $bot.moveTo(r);
+    return;
+  } else if (r.t === '@' && $bot.S > 0) {  // found home
+    $bot.moveTo(r);
+    return;
+  } else if (r.t !== '▲' && $bot.canMoveTo(r)) {  // can't pass
+    rr.push(r);
+  }
+}
 
-    var rr = [];
-    for(var i = 0; i < s.length; i++) {
-      r = s[i];
-      if (r.t === 'X' && $bot.S < $bot.mS) {  // found a mine
-        $bot.moveTo(r);
-        return;
-      } else if (r.t === '@' && $bot.S > 0) {  // found home
-        $bot.moveTo(r);
-        return;
-      } else if (r.t !== '▲' && $bot.canMoveTo(r)) {  // can't pass
-        rr.push(r);
-      }
-    }
-
-    if (rr.length > 0) {
-      var j = Math.floor(Math.random()*rr.length);
-      $bot.moveTo(rr[j]);
-    }
-
-  }).toString())
+if (rr.length > 0) {
+  var j = Math.floor(Math.random()*rr.length);
+  $bot.moveTo(rr[j]);
+}}).toString())
   .controller('MainCtrl', function ($scope, $log, $interval, isAt, World, Bot, TILES, EXAMPLE) {
 
     var main = this;
@@ -278,6 +274,17 @@ angular.module('myApp')
           main.mineOrUnload(bot);
           break;
       }
+
+    };
+
+    main.aceLoaded = function(_editor){
+      // Editor part
+      var _session = _editor.getSession();
+      var _renderer = _editor.renderer;
+
+      // Options
+      _session.setOption('firstLineNumber', 3);
+      _session.setUndoManager(new ace.UndoManager());
 
     };
 

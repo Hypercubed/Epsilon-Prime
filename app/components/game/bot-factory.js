@@ -137,8 +137,13 @@ angular.module('myApp')
       return l;
     };
 
-    Bot.prototype.run = function() {
+    Bot.prototype.setCode = function(code) {
+      this.code = code || this.code;
       this.fn = new Function('$bot', '$home', '$ctrl', this.code);  //this, $bot, $home, $ctrl
+    };
+
+    Bot.prototype.run = function() {
+      this.setCode(this.code);
       this.manual = false;
     };
 
