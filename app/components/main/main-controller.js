@@ -9,49 +9,120 @@
  */
 
 angular.module('myApp')
-  .value('EXAMPLE', (function ($bot, $home) {if ($bot.isAt($home)) {  // is at home
-  $home.chargeBot(this);
-  var l = $bot.unloadTo($home);
-  if (l === 0 && $bot.S === $bot.mS) { // home base full, wait
-    return;
-  }
-} else if ($bot.S >= $bot.mS) {  // storage full
-  $bot.moveTo($home);  // todo: check for stuck
-  return;
-}
+  .value('EXAMPLE', (function ($bot, $home, $log) {
+    $log($bot.name, $bot.x, $bot.y);
 
-var s = $bot.scan();
-var r = s[4];  // current position
+    $bot.unload();
+    $bot.charge();
 
-if (r.t === 'X' && $bot.S < $bot.mS) {  // is at mine
-  $bot.mine();
-}
+    if ($bot.S >=  $bot.mS) {
+      $bot.moveTo($home.x,$home.y);
+    } else {
+      if (!$bot.mine()) {
+        var x = 3*Math.random()-1;
+        var y = 3*Math.random()-1;
+        $bot.move(x,y);
+      }
+    }
 
-var rr = [];
-for(var i = 0; i < s.length; i++) {
-  r = s[i];
-  if (r.t === 'X' && $bot.S < $bot.mS) {  // found a mine
-    $bot.moveTo(r);
-    return;
-  } else if (r.t === '@' && $bot.S > 0) {  // found home
-    $bot.moveTo(r);
-    return;
-  } else if (r.t !== '▲' && $bot.canMoveTo(r)) {  // can't pass
-    rr.push(r);
-  }
-}
+  }).toString())
+  .value('xEXAMPLE', (function ($bot, $home) {
 
-if (rr.length > 0) {
-  var j = Math.floor(Math.random()*rr.length);
-  $bot.moveTo(rr[j]);
-}}).toString())
+    function main($bot) {
+      if ($bot.isAt($home)) {  // is at home
+        $home.chargeBot($bot);
+        var l = $bot.unloadTo($home);
+        if (l === 0 && $bot.S === $bot.mS) { // home base full, wait
+          return;
+        }
+      } else if ($bot.S >= $bot.mS) {  // storage full
+        $bot.moveTo($home);  // todo: check for stuck
+        return;
+      }
+
+      var s = $bot.scan();
+      var r = s[4];  // current position
+
+      if (r.t === 'X' && $bot.S < $bot.mS) {  // is at mine
+        $bot.mine();
+      }
+
+      var rr = [];
+      for(var i = 0; i < s.length; i++) {
+        r = s[i];
+        if (r.t === 'X' && $bot.S < $bot.mS) {  // found a mine
+          $bot.moveTo(r);
+          return;
+        } else if (r.t === '@' && $bot.S > 0) {  // found home
+          $bot.moveTo(r);
+          return;
+        } else if (r.t !== '▲' && $bot.canMoveTo(r)) {  // can't pass
+          rr.push(r);
+        }
+      }
+
+      if (rr.length > 0) {
+        var j = Math.floor(Math.random()*rr.length);
+        $bot.moveTo(rr[j]);
+      }
+    }
+
+    main($bot);
+
+  }).toString())
+  .value('xEXAMPLE', (function ($bot, $home) {
+
+    function main() {
+      if ($bot.x === 30 && $bot.y === 10) {  // is at home
+        //$home.chargeBot($bot);
+        //var l = $bot.unloadTo($home);
+        //if (l === 0 && $bot.S === $bot.mS) { // home base full, wait
+        //  return;
+        //}
+      } else if ($bot.S >= $bot.mS) {  // storage full
+        $bot.moveTo(30, 10);  // todo: check for stuck
+        return;
+      }
+
+      var s = $bot.scan();
+      var r = s[4];  // current position
+
+      if (r.t === 'X' && $bot.S < $bot.mS) {  // is at mine
+        $bot.mine();
+      }
+
+      var rr = [];
+      for(var i = 0; i < s.length; i++) {
+        r = s[i];
+        if (r.t === 'X' && $bot.S < $bot.mS) {  // found a mine
+          $bot.moveTo(r.x,r.y);
+          return;
+        } else if (r.t === '@' && $bot.S > 0) {  // found home
+          $bot.moveTo(r.x,r.y);
+          return;
+        } else if (r.t !== '▲' && $bot.canMoveTo(r)) {  // can't pass
+          rr.push({x: r.x,y: r.y});
+        }
+      }
+
+      if (rr.length > 0) {
+        var j = Math.floor(Math.random()*rr.length);
+        r = rr[j];
+        $bot.moveTo(r.x,r.y);
+      }
+    }
+
+    main();
+
+  }).toString())
   .controller('MainCtrl', function ($scope, $log, $interval, isAt, World, Bot, TILES, EXAMPLE) {
 
     var main = this;
 
     main.construct = function () { // TODO: move to bot class?
       var bot = new Bot('Rover', main.world, main.home.x, main.home.y);
-      bot.code = EXAMPLE.substring(EXAMPLE.indexOf('{') + 1, EXAMPLE.lastIndexOf('}')); // todo: mopve to bot constructor?
+      bot.code = EXAMPLE.substring(EXAMPLE.indexOf('{') + 1, EXAMPLE.lastIndexOf('}'));
+      //bot.setCode();  // todo: mopve to bot constructor?
       main.bots.push(bot);
       return bot;
     };
@@ -85,7 +156,9 @@ if (rr.length > 0) {
         if (bots.length > 0) {
           var bot = bots[0];
           _class += ' bot bot-'+bot.name.toLowerCase();
-          var _tip = bots.map(function(bot) {return bot.name;}).join('<br />');
+          var _tip = bots.map(function(bot) {return bot.name;});
+          _tip.push([x,y]);
+          _tip = _tip.join('<br />');
           return '<strong class="'+_class+'" tooltip-html-unsafe="'+_tip+'">'+bot.t+'</strong>';
         }
 
@@ -298,7 +371,7 @@ if (rr.length > 0) {
     home.E = 0;
     home.dE = 0.1;
     home.mE = 100;
-    home.mS = 10;
+    home.mS = 100;
     home.dEdX = 1000;
     home.t = TILES.BASE;
 
@@ -349,8 +422,6 @@ if (rr.length > 0) {
       }
     };
   })
-
-
 
   /* .directive('bindHtmlCompile', function ($compile) {  //https://github.com/incuna/angular-bind-html-compile/blob/master/angular-bind-html-compile.js
     return {

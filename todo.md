@@ -3,13 +3,20 @@
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Next
-- [ ] Test ACE editor
-- [ ] Try https://github.com/NeilFraser/JS-Interpreter
+- [x] Test ACE editor
+- [x] Try https://github.com/NeilFraser/JS-Interpreter
+- [ ] Fix scan in acorn controls
+- [ ] Bots should know all other pieces?
+- [x] dEdX = A*mS + B*mE
+- [ ] dE = A*mE?
+- [ ] Adjust upgrade cost
+- [ ] Base always starts on mine with S > 10, no rover
 - [ ] Improve drawing (isDirty flag?)
 - [ ] Scrolling map
 - [ ] Balance gameplay
-- [ ] pass clones ($bot, $home) to tick functions, security
-- [ ] Tooltips
+- [ ] More Tooltips
+- [ ] Need to indicate when unit is on mine
+- [ ] Any unit (rover, base) can mine, move, relocate, charge, upgrade?
 
 ## Superficial
 - [ ] Rename bots -> units?
@@ -18,7 +25,6 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 ## Wish list
 - [ ] Mining speed/efficency
 - [ ] Moving speed?
-- [ ] Upgrades -> Bot.mass -> Movement cost
 - [ ] Better terrain generation
   - [ ] Ensure base is not locked
   - [ ] Ensure enough resources
