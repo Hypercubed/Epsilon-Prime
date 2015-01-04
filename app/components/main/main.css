@@ -1,5 +1,5 @@
 
-.ace_editor { height: 300px; }
+
 
 .grid, .btn-mono {
   font-family: "Courier New", Courier, monospace;
@@ -29,9 +29,9 @@
   margin-bottom: 10px;
 }
 
-.ctrl textarea, .CodeMirror {
+.ctrl .ace_editor, .ctrl .log {
   width: 100%;
-  min-height: 100px;
+  height: 300px;
   border: 1px solid #ccc;
   margin-bottom: 5px;
 }
