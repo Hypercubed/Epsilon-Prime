@@ -13,6 +13,7 @@ angular
     'ngAnimate',
     'ngRoute',
     'ngSanitize',
+    'ngMessages',
     'ngTouch',
     'ui.ace',
     'ui.bootstrap'

@@ -1,0 +1,55 @@
+<h4>Scripts</h4>
+
+<form name="form" novalidate>
+
+  <div class="panel panel-default editor-panel">
+    <div class="panel-heading">
+
+      <div class="row">
+        <div class="col-sm-4">
+          <input class="form-control input-sm col-sm-6" name="name" ng-model="editor.script.name" placeholder="Name this script…" required/>
+        </div>
+        <div class="col-sm-4 control-label">
+          <label ng-messages="form.name.$error">
+            <span ng-message="required">required</span>
+          </label>
+        </div>
+        <div class="col-sm-4">
+          <div class="pull-right" >
+            <div class="btn-group">
+              <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                <span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span> <i>Script:</i> <b>{{editor.master.name}}</b> <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href ng-repeat="script in editor.scripts" ng-click="editor.set(script)">{{script.name}}</a></li>
+                <li class="divider"></li>
+                <li><a href ng-click="editor.new()">New script</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="panel-body">
+      <textarea ui-ace="{
+        useWrapMode : true,
+        showGutter: true,
+        mode: 'javascript',
+        firstLineNumber: 1,
+        onLoad : editor.aceLoaded
+      }" ng-model="editor.script.code" name="code" required ng-change="form.code.$error.syntaxError = false"></textarea>
+    </div>
+    <div ng-messages="form.code.$error" class="bg-danger">
+      <div ng-message="required">required</div>
+      <div ng-message="syntaxError">{{form.code.$error.syntaxError}}</div>
+    </div>
+
+  </div>
+
+  <div class="pull-right">
+    <button class="btn btn-primary" ng-click="editor.update(editor.script, form)" ng-disabled="form.$pristine">Save</button>
+    <button class="btn btn-default" ng-click="editor.reset(form)" ng-disabled="form.$pristine">Cancel</button>
+  </div>
+
+</form>

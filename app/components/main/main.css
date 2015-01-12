@@ -29,7 +29,7 @@
   margin-bottom: 10px;
 }
 
-.ctrl .ace_editor, .ctrl .log {
+.ctrl .log {
   width: 100%;
   height: 300px;
   border: 1px solid #ccc;

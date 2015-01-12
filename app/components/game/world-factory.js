@@ -78,6 +78,21 @@ angular.module('myApp')
       return r;
     };
 
+    World.prototype.scanList = function() {
+      var xs = this.size[0];
+      var ys = this.size[0];
+      var r = [];
+      for(var i = 0; i < xs; i++) {
+        for(var j = 0; j < ys; j++) {
+          var t = this.get(i,j);
+          if (t !== null && t.s === true && t.t === 'X') {
+            r.push(t);
+          }
+        }
+      }
+      return r;
+    }
+
     World.prototype.get = function(x,y) {
       if (arguments.length === 1) {
         y = x.y;
@@ -88,6 +103,24 @@ angular.module('myApp')
       return this.map[x][y];
     };
 
+    function poisson(mean) {
+      var limit = Math.exp(-mean);
+
+      return function() {
+        var n = 0,
+        x = Math.random();
+
+        while(x > limit){
+          n++;
+          x *= Math.random();
+        }
+        return n;
+      };
+    }
+
+    var digYield = poisson(1.26);
+    var mineMTTF = 0.05;
+
     World.prototype.dig = function(x,y) {
       if (arguments.length === 1) {
         y = x.y;
@@ -95,14 +128,8 @@ angular.module('myApp')
       }
       if (this.canMine(x,y)) {
 
-        var dS = 1;
-        if (Math.random() > 0.75) {
-          dS++;
-        }
-        if (Math.random() > 0.99) {
-          dS++;
-        }
-        if (Math.random() > 0.90) {
+        var dS = digYield();
+        if (dS > 0 && Math.random() < mineMTTF) {
           this.map[x][y].t = TILES.HOLE;
         }
         return dS;

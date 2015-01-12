@@ -1,9 +1,10 @@
 'use strict';
 
 angular.module('myApp')
-  .factory('SandBox', function($log) {
+  .factory('SandBox', function($log, Interpreter) {
 
     var acorn = true;
+    var N = 1000;  // Maximum execution steps per turn, used only when acorn is enabled
 
     $log.debug(acorn ? 'Using acorn' : 'Using Function');
 
@@ -128,6 +129,17 @@ angular.module('myApp')
         return createPrimitive(r);
       }
 
+      function $$upgrade() {  // not working in acorn
+        self.bot.upgrade();
+      }
+
+      function $$list() {  // not working in acorn
+        //var r = interpreter.createObject(interpreter.ARRAY);
+        var r = self.bot.scanList();
+        console.log(r);
+        return createPrimitive(0);
+      }
+
       /* function $$x() {  // not working in acorn
         //var r = interpreter.createObject(interpreter.ARRAY);
         var r = self.bot.x;
@@ -146,6 +158,8 @@ angular.module('myApp')
       setMethod('scan',$$scan);
       setMethod('unload',$$unload);
       setMethod('charge',$$charge);
+      setMethod('upgrade',$$upgrade);
+      setMethod('list',$$list);
 
       //setMethod('$x',$$x);
       //setMethod('$y',$$y);
@@ -154,9 +168,11 @@ angular.module('myApp')
     SandBox.prototype.run = function(bot, home) { // bot is not needed, don't pass home
       var self = this;
 
-      var code = this.bot.code;
+      var code = this.bot.script.code;
 
-      this.home = home;  // hack
+      this.home = this.bot.$home || home;  // hack
+
+
 
       function initScope(interpreter, scope) {
 
@@ -168,13 +184,17 @@ angular.module('myApp')
 
       if (acorn) {
         self.update();
-        new window.Interpreter(code, initScope).run();
+        this.interpreter = new Interpreter(code, initScope);
+
+        var c = 0;
+        while(c < N && this.interpreter.step()) { c++; } // same as .run();, check for > 1000 steps adjust if needed
+        //console.log('steps', c);
       } else {
 
         self.update();
 
         /*jshint -W054 */
-        var fn = new Function('$log', '$bot', '$home', code);  // todo: move to setup?
+        var fn = new Function('$log', '$bot', '$home', code);  // todo: move to setup?, trap infinite loops?
         /*jshint +W054 */
 
         fn.call(this,self.$log,self.$bot,self.$home);
@@ -191,7 +211,7 @@ angular.module('myApp')
     return x === obj.x && y === obj.y;
   })
   .value('Interpreter', window.Interpreter)
-  .factory('Bot', function (isAt, TILES, Interpreter, $log, SandBox) {
+  .factory('Bot', function (isAt, TILES, Interpreter, $log, SandBox, defaultScripts) {
 
     function Bot(name,world,x,y) {  // TODO: move speed, mine speed, storage cap, energy cap, carge rate
       this.name = name;
@@ -208,7 +228,7 @@ angular.module('myApp')
       this.dS = 1;     // Mining ability
 
       this.E = 0;     // Energy
-      this.dE = 0.01;    // Charging rate
+      //this.dE = 0.01;    // Charging rate
       this.mE = 10;   // Maximum
 
       this.manual = true;
@@ -220,11 +240,8 @@ angular.module('myApp')
     }
 
     Bot.prototype.charge = function(dE) {
-      if (arguments.length < 1) {
-        dE = this.dE;
-      }
       var e = this.E;
-      this.E = +Math.min(e + dE, this.mE).toFixed(2);
+      this.E = +Math.min(e + dE, this.mE).toFixed(4);
       return this.E - e;
     };
 
@@ -232,8 +249,23 @@ angular.module('myApp')
       return isAt(this,x,y);
     };
 
+    Bot.prototype.mass = function() {
+      return this.mS + this.mE;
+    };
+
+    var DIS = 1+1;  // 1+Discharge exponent, faster discharge means lower effeciency
+
     Bot.prototype.moveCost = function() {
-      return this.mS/20 + this.mE/20;
+      return Math.pow(this.mass()/20, DIS);
+    };
+
+    var CHAR = 0.5; // Charging effeciency
+    var I = 0.1; // moves per turn for base
+    var E = 2/3;  // surface/volume exponent
+    var N = CHAR*I/(Math.pow(20, E));  // normilization factor
+
+    Bot.prototype.chargeRate = function() {
+      return N*Math.pow(this.mass(), E);
     };
 
     Bot.prototype.canMove = function(dx,dy) {  // TODO: check range
@@ -326,13 +358,13 @@ angular.module('myApp')
       return l;
     };
 
-    Bot.prototype.setCode = function(code) {
-      code = code || this.code;
-      this.code = code;  // todo: do initial check
+    Bot.prototype.setCode = function(script) {
+      script = script || this.script;
+      this.script = script;  // todo: do initial check
     };
 
     Bot.prototype.run = function() {
-      this.setCode(this.code);
+      this.setCode(this.script);
       this.manual = false;
     };
 
@@ -346,7 +378,7 @@ angular.module('myApp')
     };
 
     Bot.prototype.takeTurn = function(dT, main) {
-      this.charge(this.dE*dT);
+      this.charge(this.chargeRate()*dT);
 
       if(!this.manual) {
 
@@ -382,8 +414,40 @@ angular.module('myApp')
       return 0;
     };
 
+    Bot.prototype.upgrade = function() {
+      if (this.S >= 10) {
+        this.S -= 10;
+        this.mS += 5;
+        this.mE += 5;
+      }
+    };
+
+    Bot.prototype.construct = function() {
+      if (this.S >= 100) {
+        var bot = new Bot('Rover', this.world, this.x, this.y);
+        bot.script = defaultScripts[3];  // todo: should keep key?
+        bot.$home = this;
+
+        this.S -= 100;
+        return bot;
+      }
+      return null;
+    };
+
     Bot.prototype.scan = function() {  // dE cost?
       return this.world.scan(this);
+    };
+
+    Bot.prototype.scanList = function() {
+      var self = this;
+      var l = this.world.scanList();
+      l.forEach(function(d) {
+        var dx = d.x - self.x;
+        var dy = d.y - self.y;
+        d.r = Math.max(Math.abs(dx),Math.abs(dy));
+      });
+
+      return l.sort(function(a, b) {return a.r - b.r});
     };
 
     return Bot;

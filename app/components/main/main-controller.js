@@ -11,122 +11,15 @@
  */
 
 angular.module('myApp')
-  .value('EXAMPLE', (function ($bot, $home, $log) {
-    $log($bot.name, $bot.x, $bot.y);
-
-    $bot.unload();
-    $bot.charge();
-
-    if ($bot.S >=  $bot.mS) {
-      $bot.moveTo($home.x,$home.y);
-    } else {
-      if (!$bot.mine()) {
-        var x = 3*Math.random()-1;
-        var y = 3*Math.random()-1;
-        $bot.move(x,y);
-      }
-    }
-
-  }).toString())
-  .value('xEXAMPLE', (function ($bot, $home) {
-
-    function main($bot) {
-      if ($bot.isAt($home)) {  // is at home
-        $home.chargeBot($bot);
-        var l = $bot.unloadTo($home);
-        if (l === 0 && $bot.S === $bot.mS) { // home base full, wait
-          return;
-        }
-      } else if ($bot.S >= $bot.mS) {  // storage full
-        $bot.moveTo($home);  // todo: check for stuck
-        return;
-      }
-
-      var s = $bot.scan();
-      var r = s[4];  // current position
-
-      if (r.t === 'X' && $bot.S < $bot.mS) {  // is at mine
-        $bot.mine();
-      }
-
-      var rr = [];
-      for(var i = 0; i < s.length; i++) {
-        r = s[i];
-        if (r.t === 'X' && $bot.S < $bot.mS) {  // found a mine
-          $bot.moveTo(r);
-          return;
-        } else if (r.t === '@' && $bot.S > 0) {  // found home
-          $bot.moveTo(r);
-          return;
-        } else if (r.t !== '▲' && $bot.canMoveTo(r)) {  // can't pass
-          rr.push(r);
-        }
-      }
-
-      if (rr.length > 0) {
-        var j = Math.floor(Math.random()*rr.length);
-        $bot.moveTo(rr[j]);
-      }
-    }
-
-    main($bot);
-
-  }).toString())
-  .value('xEXAMPLE', (function ($bot, $home) {
-
-    function main() {
-      if ($bot.x === 30 && $bot.y === 10) {  // is at home
-        $home.chargeBot($bot);
-        var l = $bot.unloadTo($home);
-        if (l === 0 && $bot.S === $bot.mS) { // home base full, wait
-          return;
-        }
-      } else if ($bot.S >= $bot.mS) {  // storage full
-        $bot.moveTo(30, 10);  // todo: check for stuck
-        return;
-      }
-
-      var s = $bot.scan();
-      var r = s[4];  // current position
-
-      if (r.t === 'X' && $bot.S < $bot.mS) {  // is at mine
-        $bot.mine();
-      }
-
-      var rr = [];
-      for(var i = 0; i < s.length; i++) {
-        r = s[i];
-        if (r.t === 'X' && $bot.S < $bot.mS) {  // found a mine
-          $bot.moveTo(r.x,r.y);
-          return;
-        } else if (r.t === '@' && $bot.S > 0) {  // found home
-          $bot.moveTo(r.x,r.y);
-          return;
-        } else if (r.t !== '▲' && $bot.canMoveTo(r)) {  // can't pass
-          rr.push({x: r.x,y: r.y});
-        }
-      }
-
-      if (rr.length > 0) {
-        var j = Math.floor(Math.random()*rr.length);
-        r = rr[j];
-        $bot.moveTo(r.x,r.y);
-      }
-    }
-
-    main();
-
-  }).toString())
-  .controller('MainCtrl', function ($scope, $log, $interval, isAt, World, Bot, TILES, EXAMPLE) {
+  .controller('MainCtrl', function ($scope, $log, $interval, isAt, TILES, GAME) {
 
     var main = this;
 
-    main.construct = function () { // TODO: move to bot class?
-      var bot = new Bot('Rover', main.world, main.home.x, main.home.y);
-      bot.code = EXAMPLE.substring(EXAMPLE.indexOf('{') + 1, EXAMPLE.lastIndexOf('}'));
-      //bot.setCode();  // todo: mopve to bot constructor?
-      main.bots.push(bot);
-      return bot;
+    main.construct = function(home) {
+      var bot = home.construct();
+      if (bot) {
+        main.bots.push(bot);  // need to move this somewhere, needed in Bot.prototype.construct
+      }
     };
 
     main.setBot = function(index) {
@@ -198,7 +91,7 @@ angular.module('myApp')
     };
 
     main.draw = function() {  // todo: create map directive
-      $log.debug('draw');
+      //$log.debug('draw');
 
       var b = '';
 
@@ -215,21 +108,16 @@ angular.module('myApp')
       return b;
     };
 
-    main.relocate = function() { // TODO: collect bots first? move to bot class?
-      //console.log('main.relocate');
-      if (home.E >= 1000) {
-        home.E -= 1000;
+    main.relocate = function(bot) { // TODO: do something with rovers, move to bot class
+      if (bot.E >= 1000) {
+        bot.E -= 1000;
         main.world.generate();
         main.world.scan(home);
       }
     };
 
-    main.upgradeBot = function(bot) {  // TODO: move to bot class?
-      if (home.S >= 10) {
-        home.S -= 10;
-        bot.dE += 0.01;
-        bot.mS += 1;
-      }
+    main.upgradeBot = function(bot) {  // TODO: delete
+      bot.upgrade();
     };
 
     // TODO: canMove, isHome, isFull
@@ -352,53 +240,56 @@ angular.module('myApp')
 
     };
 
-    main.aceLoaded = function(_editor){
-      // Editor part
-      var _session = _editor.getSession();
-      //var _renderer = _editor.renderer;
-
-      // Options
-      _session.setOption('firstLineNumber', 3);
-      _session.setUndoManager(new ace.UndoManager());
-
-    };
-
     // Init
 
     main.refresh = 1;
 
-    main.world = new World().generate(60,30);
+    main.world = GAME.world;
 
-    var home = main.home = new Bot('Base', main.world, 20, 10);
-    home.E = 0;
-    home.dE = 0.1;
-    home.mE = 100;
-    home.mS = 100;
-    home.dEdX = 1000;
-    home.t = TILES.BASE;
+    var home = main.home = GAME.bots[0];
+    main.bots = GAME.bots;
+    main.scripts = GAME.scripts;
 
-    main.world.get(main.home).t = TILES.FIELD;  // base must be on plain
-
-    main.bots = [home];
-
-    main.world.scan(home);
-
-    var bot = main.construct();
+    var bot = GAME.bots[1];
     main.setBot(1);
 
-    var mapDisplaySize = main.world.size; // to map directive
+    var mapDisplaySize = GAME.world.size; // to map directive
     var mapOffset = [0,0];  // TODO: focus on
 
     var dT = 1;
 
     main.tick = 0;
 
+    function mezclar2(arr) {
+      for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp) {}
+      return arr;
+    }
+
+    function shuffle(array) {
+      var currentIndex = array.length, temporaryValue, randomIndex ;
+
+      // While there remain elements to shuffle...
+      while (0 !== currentIndex) {
+
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+      }
+
+      return array;
+    }
+
     $interval(function tick() {
-      main.bots.forEach(function(_bot) {
+      mezclar2(GAME.bots.slice(0)).forEach(function(_bot) {
         _bot.takeTurn(dT, main);
       });
       main.tick++;
-    }, dT*500); // todo: make variable speed
+    }, dT*200); // todo: make variable speed
 
   })
 
@@ -421,6 +312,22 @@ angular.module('myApp')
             $compile(element.contents())(scope);
           });
         };
+      }
+    };
+  })
+
+  .directive('botPanel', function ($parse) {  //https://github.com/incuna/angular-bind-html-compile/blob/master/angular-bind-html-compile.js
+    return {
+      restrict: 'A',
+      scope: true,
+      templateUrl: 'components/main/bot-panel.html',
+      //require: '^main',
+      compile: function(tElem, tAttrs) {
+        var getter = $parse(tAttrs.botPanel);
+        return function link(scope, element, attrs) {
+          scope.bot = getter(scope);
+          scope.showControls = angular.isDefined(attrs.showControls);
+        }
       }
     };
   })

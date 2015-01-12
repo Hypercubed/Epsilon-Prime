@@ -19,7 +19,9 @@
           {{bot.name}}
         </h4>
         <div class="panel-body" ng-click="main.setBot($index)" >
-          <div class="small" ng-include="'components/main/bot-panel.html'"></div>
+          <!-- div class="small" ng-include="'components/main/bot-panel.html'"></div -->
+
+          <div class="small" bot-panel="bot"></div>
         </div>
       </div>
 
@@ -32,76 +34,19 @@
         </h4>
         <div class="panel-body">
 
-          <div class="small" ng-include="'components/main/bot-panel.html'">
+          <div class="small" bot-panel="main.bot" show-controls></div>
+
+          <!-- div class="small" ng-include="'components/main/bot-panel.html'">
             {{;bot = main.bot;false}}
-          </div>
+          </div -->
 
-          <div class="row">
-            <hr class="clearfix">
-          </div>
-
-          <tabset type="pills" justified="true">
-            <tab heading="Manual Control">
-              <div class="row" ng-keypress="main.keypress(bot, $event)" tabindex="0">
-                <div class="col-md-6">
-                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.bot.move(-1,-1)" ng-disabled="!main.bot.canMove(-1,-1)">Q</button>
-                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.bot.move( 0,-1)" ng-disabled="!main.bot.canMove( 0,-1)">W</button>
-                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.bot.move( 1,-1)" ng-disabled="!main.bot.canMove( 1,-1)">E</button>
-                  <br />
-                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.bot.move(-1,0)" ng-disabled="!main.bot.canMove(-1,0)">A</button>
-                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.mineOrUnload(bot)" ng-disabled="!main.canMineOrUnload(bot)">S</button>
-                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.bot.move( 1,0)" ng-disabled="!main.bot.canMove( 1,0)">D</button>
-                  <br />
-                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.bot.move(-1,1)" ng-disabled="!main.bot.canMove(-1,1)">Z</button>
-                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.bot.move( 0,1)" ng-disabled="!main.bot.canMove( 0,1)">X</button>
-                  <button class="btn btn-primary btn-mono btn-lg" ng-click="main.bot.move( 1,1)" ng-disabled="!main.bot.canMove( 1,1)">C</button>
-                </div>
-              </div>
-            </tab>
-            <tab heading="Auto" select="main.refresh = main.refresh + 1" ng-init="main.refresh = 1">
-              <div class="row">
-                <div class="col-md-12">
-
-                  <div ui-ace="{
-                    useWrapMode : true,
-                    showGutter: true,
-                    mode: 'javascript',
-                    firstLineNumber: 3,
-                    onLoad : main.aceLoaded
-                  }" ng-model="main.code"></div>
-
-                  <div class="pull-right">
-                    <button class="btn btn-primary" ng-click="main.bot.setCode(main.code)" ng-disabled="main.code === main.bot.code">Apply</button>
-                    <button class="btn btn-default" ng-click="main.code = main.bot.code" ng-disabled="main.code === main.bot.code">Cancel</button>
-                  </div>
-
-                </div>
-              </div>
-            </tab>
-            <tab heading="Log">
-              <textarea class="log" readonly ng-model="main.bot.log"></textarea>
-            </tab>
-            <tab heading="Cheats">
-              <div class="row">
-                <div class="col-md-12">
-                  <button ng-click="main.world.scan(0,0,1000)">Show map</button>
-                  <br />Movement: <input type="number" ng-model="main.bot.dEdX">
-                  <br />Charging: <input type="number" ng-model="main.bot.dE">
-                  <br />Energy: <input type="number" ng-model="main.bot.E"> / <input type="number" ng-model="main.bot.mE">
-                  <br />Storage: <input type="number" ng-model="main.bot.S"> / <input type="number" ng-model="main.bot.mS">
-
-                </div>
-              </div>
-            </tab>
-          </tabset>
         </div>
       </div>
-
 
     </div>
 
   </div>
 
-  <div class="col-md-12">
+  <div id="script-panel" class="col-md-12" ng-controller="EditorCtrl as editor" ng-include="'components/editor/editor.html'">
   </div>
 </div>
