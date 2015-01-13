@@ -85,7 +85,7 @@ angular.module('myApp')
       for(var i = 0; i < xs; i++) {
         for(var j = 0; j < ys; j++) {
           var t = this.get(i,j);
-          if (t !== null && t.s === true && t.t === 'X') {
+          if (t !== null && t.s === true) {
             r.push(t);
           }
         }

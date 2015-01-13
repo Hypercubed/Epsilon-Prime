@@ -1,26 +1,94 @@
 'use strict';
 
+/*
+function filter(t, fun) {
+var res = [];
+var len = t.length;
+for (var i = 0; i < len; i++) {
+var val = t[i];
+if (fun(val, i, t)) {
+res.push(val);
+}
+}
+
+return res;
+}
+*/
+
+var collect = (function random($bot) {
+
+/* function filter(t, fun) {
+  var res = [];
+  var len = t.length;
+  for (var i = 0; i < len; i++) {
+    var val = t[i];
+    if (fun(val, i, t)) {
+      res.push(val);
+    }
+  }
+
+  return res;
+} */
+
+$bot.unload();
+$bot.charge();
+
+if ($bot.S >=  $bot.mS) {
+  var home = $bot.list().filter(function(d) { return d.t === '@'; })[0];
+  $bot.moveTo(home.x,home.y);
+} else {
+  if ($bot.E >= 1 && $bot.mine() === false) {
+    var mines = $bot.list().filter(function(d) { return d.t === 'X'; });
+
+    var x,y;
+    if (mines.length > 0) {
+      x = mines[0].x;
+      y = mines[0].y;
+    } else {
+      x = 3*Math.random()-1+$bot.x;
+      y = 3*Math.random()-1+$bot.y;
+    }
+    $bot.moveTo(x,y);
+
+  }
+}
+
+
+}).toString();
+
+collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
+
 angular.module('myApp')
+  .constant('defaultScripts', [   // make a servioce, add Construct script
+    { name: 'Debug', code: '$log($bot.name, $bot.x, $bot.y);' },
+    { name: 'Upgrade', code: '$bot.upgrade();' },
+    { name: 'Go Home', code: '$bot.moveTo($home.x,$home.y);' },
+    { name: 'Collect', code: collect },
+    { name: 'Test', code: '$log($bot.list())' }
+  ])
   .factory('SandBox', function($log, Interpreter) {
 
-    var acorn = true;
+    var acorn = false;
     var N = 1000;  // Maximum execution steps per turn, used only when acorn is enabled
 
     $log.debug(acorn ? 'Using acorn' : 'Using Function');
 
-    function SandBox(bot) {
+    function SandBox(bot, GAME) {
       var self = this;
 
       this.interpreter = (acorn) ? new window.Interpreter(bot.code) : null;  // do I really need a new interpreter to create objects?
 
       this.bot = bot;
-      this.home = {x: 20, y: 10}; // hack
+      this.GAME = GAME;
+
+      //this.home = {x: 20, y: 10}; // hack
 
       if (acorn) {
         this.$bot = this.interpreter.createObject(this.interpreter.OBJECT);
         this.$home = this.interpreter.createObject(this.interpreter.OBJECT);
 
         this.$log = function() {
+          //$log.debug(arguments);
           var args = Array.prototype.slice.call(arguments,0).map(function(arg) {
             return arg.toString() || '';
           });
@@ -55,17 +123,56 @@ angular.module('myApp')
       }
 
       setProps(this.$bot, this.bot);
-      setProps(this.$home, this.home);
+      //setProps(this.$home, this.home);
 
     };
 
     SandBox.prototype.setup = function() {
       var self = this;
+      var bot = this.bot;
+      var GAME = this.GAME;
+      //var home = GAME.bots[0];  // todo: not this
 
       var interpreter = this.interpreter;
 
+      function create(r) {
+        if (Array.isArray(r)) {
+          return createArray(r);
+        } else if (typeof r === 'object') {
+          return createObject(r);
+        } else {
+          return createPrimitive(r);
+        }
+      }
+
       function createPrimitive(r) {
         return acorn ? interpreter.createPrimitive(r) : r;
+      }
+
+      function createArray(r) {
+        if (acorn) {
+          var newArray = self.interpreter.createObject(self.interpreter.ARRAY);
+          for (var i = 0; i < r.length; i++) {
+            newArray.properties[i] = create(r[i]);
+          }
+          newArray.length = i;
+          //console.log(o);
+          return newArray;
+        } else {
+          return angular.copy(r);
+        }
+      }
+
+      function createObject(r) {
+        if (acorn) {
+          var o = interpreter.createObject(interpreter.OBJECT);
+          for (var prop in r) {
+            interpreter.setProperty(o, prop, create(r[prop]));
+          }
+          return o;
+        } else {
+          return angular.copy(r);
+        }
       }
 
       function setMethod(prop, fn) {
@@ -87,7 +194,7 @@ angular.module('myApp')
       function $$move(x,y) {
         x = toNumber(x);
         y = toNumber(y);
-        var r = self.bot.move(x,y);
+        var r = bot.move(x,y);
 
         self.update();
 
@@ -97,7 +204,7 @@ angular.module('myApp')
       function $$moveTo(x,y) {
         x = toNumber(x);
         y = toNumber(y);
-        var r = self.bot.moveTo(x,y);
+        var r = bot.moveTo(x,y);
 
         self.update();
 
@@ -105,19 +212,21 @@ angular.module('myApp')
       }
 
       function $$mine() {
-        var r = self.bot.mine();
+        var r = bot.mine();
         self.update();
         return createPrimitive(r);
       }
 
       function $$unload() {
-        var r = self.bot.unloadTo(self.home);
+        var home = GAME.bots[0];
+        var r = bot.unloadTo(home); // todo: unload to where?
         self.update();
         return createPrimitive(r);
       }
 
       function $$charge() {
-        var r = self.home.chargeBot(self.bot);
+        var home = GAME.bots[0];
+        var r = home.chargeBot(bot);
         self.update();
         return createPrimitive(r);
       }
@@ -130,14 +239,16 @@ angular.module('myApp')
       }
 
       function $$upgrade() {  // not working in acorn
-        self.bot.upgrade();
+        bot.upgrade();
       }
 
       function $$list() {  // not working in acorn
         //var r = interpreter.createObject(interpreter.ARRAY);
-        var r = self.bot.scanList();
-        console.log(r);
-        return createPrimitive(0);
+        var r = bot.scanList();
+
+        //r = r.filter(function(d) { return d.t === 'X'; })[0];
+        //console.log(r);
+        return createArray(r);
       }
 
       /* function $$x() {  // not working in acorn
@@ -165,19 +276,21 @@ angular.module('myApp')
       //setMethod('$y',$$y);
     };
 
-    SandBox.prototype.run = function(bot, home) { // bot is not needed, don't pass home
+    SandBox.prototype.run = function() {
       var self = this;
+      //var bot = this.bot;
+      //var GAME = this.GAME;
 
       var code = this.bot.script.code;
 
-      this.home = this.bot.$home || home;  // hack
-
-
+      //this.home = this.bot.$home;  // hack
 
       function initScope(interpreter, scope) {
 
+        //self.setup();
+
         interpreter.setProperty(scope, '$bot', self.$bot, true);
-        interpreter.setProperty(scope, '$home', self.$home, true);
+        //interpreter.setProperty(scope, '$home', self.$home, true);
         interpreter.setProperty(scope, '$log',interpreter.createNativeFunction(self.$log));
 
       }
@@ -194,10 +307,10 @@ angular.module('myApp')
         self.update();
 
         /*jshint -W054 */
-        var fn = new Function('$log', '$bot', '$home', code);  // todo: move to setup?, trap infinite loops?
+        var fn = new Function('$log', '$bot', code);  // todo: move to setup?, trap infinite loops?
         /*jshint +W054 */
 
-        fn.call(this,self.$log,self.$bot,self.$home);
+        fn.call(this,self.$log,self.$bot);
       }
 
     };
@@ -213,9 +326,10 @@ angular.module('myApp')
   .value('Interpreter', window.Interpreter)
   .factory('Bot', function (isAt, TILES, Interpreter, $log, SandBox, defaultScripts) {
 
-    function Bot(name,world,x,y) {  // TODO: move speed, mine speed, storage cap, energy cap, carge rate
+    function Bot(name,x,y,GAME) {  // TODO: move speed, mine speed, storage cap, energy cap, carge rate
       this.name = name;
-      this.world = world;
+      this.GAME = GAME;
+      //this.world = GAME.world;
 
       this.t = TILES.BOT;
 
@@ -234,7 +348,7 @@ angular.module('myApp')
       this.manual = true;
       this.code = '';
 
-      this.sandBox = new SandBox(this);
+      this.sandBox = new SandBox(this, GAME);
 
       this.message = '';
     }
@@ -276,7 +390,7 @@ angular.module('myApp')
       var dr = Math.max(Math.abs(dx),Math.abs(dy));
       var dE = this.moveCost()*dr;
 
-      return this.world.canMove(this.x + dx,this.y + dy) && this.E >= dE;
+      return this.GAME.world.canMove(this.x + dx,this.y + dy) && this.E >= dE;
     };
 
     Bot.prototype.move = function(dx,dy) {  // TODO: check range
@@ -287,13 +401,13 @@ angular.module('myApp')
       var dr = Math.max(Math.abs(dx),Math.abs(dy));
       var dE = this.moveCost()*dr;
 
-      if (this.world.canMove(this.x + dx,this.y + dy)) {  // Need to check bot skills, check path
+      if (this.GAME.world.canMove(this.x + dx,this.y + dy)) {  // Need to check bot skills, check path
         if (this.E >= dE) {
           this.x += dx;
           this.y += dy;
           this.E -= dE;
 
-          this.world.scan(this);
+          this.GAME.world.scan(this);
           return true;
         }
       }
@@ -327,7 +441,7 @@ angular.module('myApp')
     };
 
     Bot.prototype.canMine = function() {
-      if (this.world.get(this).t === TILES.MINE) {  // use world.canMine?
+      if (this.GAME.world.get(this).t === TILES.MINE) {  // use world.canMine?
         if (this.E >= 1 && this.S < this.mS) {
           return true;
         }
@@ -336,10 +450,10 @@ angular.module('myApp')
     };
 
     Bot.prototype.mine = function() {
-      if (this.world.get(this).t === TILES.MINE) {  // use world.canMine?
+      if (this.GAME.world.get(this).t === TILES.MINE) {  // use world.canMine?
         if (this.E >= 1 && this.S < this.mS) {
           this.E--;
-          var dS = this.world.dig(this);  // TODO: bot effeciency
+          var dS = this.GAME.world.dig(this);  // TODO: bot effeciency
           return this.load(dS);
         }
       }
@@ -377,13 +491,13 @@ angular.module('myApp')
       this.manual = true;
     };
 
-    Bot.prototype.takeTurn = function(dT, main) {
+    Bot.prototype.takeTurn = function(dT) {
       this.charge(this.chargeRate()*dT);
 
       if(!this.manual) {
 
         try {
-          this.sandBox.run(this, main.home);
+          this.sandBox.run();
         } catch(err) {
           var m = err.stack;
           console.log('User script error', err.message, m);
@@ -424,7 +538,7 @@ angular.module('myApp')
 
     Bot.prototype.construct = function() {
       if (this.S >= 100) {
-        var bot = new Bot('Rover', this.world, this.x, this.y);
+        var bot = new Bot('Rover', this.x, this.y, this.GAME);
         bot.script = defaultScripts[3];  // todo: should keep key?
         bot.$home = this;
 
@@ -435,19 +549,19 @@ angular.module('myApp')
     };
 
     Bot.prototype.scan = function() {  // dE cost?
-      return this.world.scan(this);
+      return this.GAME.world.scan(this);
     };
 
-    Bot.prototype.scanList = function() {
+    Bot.prototype.scanList = function() {  // move, GAME.scanFrom?
       var self = this;
-      var l = this.world.scanList();
+      var l = this.GAME.scanList();
       l.forEach(function(d) {
         var dx = d.x - self.x;
         var dy = d.y - self.y;
         d.r = Math.max(Math.abs(dx),Math.abs(dy));
       });
 
-      return l.sort(function(a, b) {return a.r - b.r});
+      return l.sort( function(a, b) {return a.r - b.r; } );
     };
 
     return Bot;

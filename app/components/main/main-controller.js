@@ -208,7 +208,14 @@ angular.module('myApp')
     };
 
     main.keypress = function(bot, $event) {  // TODO: cheat code
+      //console.log($event);
       switch($event.keyCode) {
+        case 70:  // cheat
+          main.cheat = true;
+          GAME.bots.forEach(function(d) {
+            d.E = d.mE;
+          });
+          break;
         case 113:
           bot.move(-1,-1);
           break;
@@ -243,6 +250,7 @@ angular.module('myApp')
     // Init
 
     main.refresh = 1;
+    main.cheat = false;
 
     main.world = GAME.world;
 
@@ -284,9 +292,9 @@ angular.module('myApp')
       return array;
     }
 
-    $interval(function tick() {
+    $interval(function tick() {  // todo: move to GAME?
       mezclar2(GAME.bots.slice(0)).forEach(function(_bot) {
-        _bot.takeTurn(dT, main);
+        _bot.takeTurn(dT, GAME);
       });
       main.tick++;
     }, dT*200); // todo: make variable speed
@@ -325,8 +333,12 @@ angular.module('myApp')
       compile: function(tElem, tAttrs) {
         var getter = $parse(tAttrs.botPanel);
         return function link(scope, element, attrs) {
-          scope.bot = getter(scope);
+          scope.bot = scope.$parent.$eval(tAttrs.botPanel);
           scope.showControls = angular.isDefined(attrs.showControls);
+
+          scope.$parent.$watch(tAttrs.botPanel, function(val) {
+            scope.bot = val;
+          });
         }
       }
     };

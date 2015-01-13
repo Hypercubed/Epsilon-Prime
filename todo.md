@@ -3,35 +3,30 @@
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Next
-- [x] Test ACE editor
-- [x] Try https://github.com/NeilFraser/JS-Interpreter
-- [x] Check for infinite loops
-- [x] Add, copy, rename scripts
-- [x] Validate on script save
-- [x] Create gameService (stores world, bots, etc)
-- [ ] Improve map code, use chunks
+- [ ] Clean up classes
+- [ ] Fix or remove JS-interpretor
+- [ ] Enable scan in acorn scripts.
+- [x] Scan/list should also return units.
+- [ ] $bot.log()
+- [ ] More easily cycle through units.
+- [ ] Improve map code, use chunks.
 - [ ] Improve drawing (isDirty flag?/faster hash). Use d3?
 - [ ] Scan returns list? List of pieces and terrain?
-- [ ] Fix scan script
-- [x] Allow scripting of upgrade
 - [ ] Bots store key of script node code.
 - [ ] Bot memory?
-- [x] Move script editor
-- [x] dEdX = A*mS + B*mE
-- [x] dE = A*mE?
-- [x] Adjust upgrade cost?  Upgrade rate?  (current 10 = 1+1, perhaps 10=5+5?)
 - [ ] Start with just rover? Upgrade self?
 - [ ] Scrolling map.  By chunk?
 - [ ] More balancing of gameplay.
 - [ ] More Tooltips?
 - [ ] Need to indicate when unit is on mine.
-- [x] Bot panel directive.
 
 ## Decisions
+- [ ] D* for moveTo
+- [ ] Use ui-router?
 - [ ] Any unit (rover, base) can mine, move, relocate, charge, upgrade?
 - [ ] Faster bot (drone)? mE = mS = 1 (Can never upgrade using current rules)
 - [ ] Allow scripting of change script?
-- [x] Can upgrade self?
+- [x] Upgrade self or upgrade in base?
 - [ ] Start with rover, upgrade to base?
 - [ ] Infinite map?  Grid of chunks?
 - [ ] Generate map as needed? Per tile or per chunk?
@@ -41,7 +36,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Superficial
 - [ ] Rename bots -> units?
-- [ ] User rename bots?  Assign labels (@,A,B,C,...)
+- [ ] User rename bots?  Assign labels (A,B,C,...,@)
 - [x] Improve readability of progress bars
 - [ ] Map directive
 

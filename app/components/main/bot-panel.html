@@ -1,20 +1,22 @@
 <div>
   <div class="row">
-    <label class="col-sm-2">Movement</label> {{bot.moveCost()}} J/d
+    <label class="col-sm-2">Movement</label>
+    <div class="col-sm-4">
+      {{bot.moveCost() | number : 0}} J/km
+    </div>
+    <label class="col-sm-2">Charging</label>
+    <div class="col-sm-4">{{bot.chargeRate() | number : 2}} J/d</div>
   </div>
 
   <div class="row">
-    <label class="col-sm-3">Energy [J]</label>
+    <label class="col-sm-2">Energy [J]</label>
     <div class="col-sm-4">
       <progressbar class="active" ng-class="{'progress-striped': bot.E < bot.mE}" value="bot.E * 100 / bot.mE" type="danger">
         <span style="color:black; white-space:nowrap;">{{bot.E | number : 1}} / {{bot.mE | number : 0}}</span>
       </progressbar>
     </div>
-    <span class="badge">+{{bot.chargeRate() | number : 2}} J/d</span>
-  </div>
 
-  <div class="row">
-    <label class="col-sm-3">Storage</label>
+    <label class="col-sm-2">Storage</label>
     <div class="col-sm-4">
       <progressbar class="active" value="bot.S * 100 / bot.mS" type="info">
         <span style="color:black; white-space:nowrap;">{{bot.S}} / {{bot.mS}}</span>
@@ -90,7 +92,7 @@
 <tab heading="Log">
   <textarea class="log" readonly ng-model="bot.log"></textarea>
 </tab>
-<tab heading="Cheats">
+<tab heading="Cheats" ng-if="main.cheat">
   <div class="row">
     <div class="col-md-12">
       <button ng-click="main.world.scan(0,0,1000)">Show map</button>
