@@ -71,7 +71,7 @@ angular.module('myApp')
 
     World.prototype.scanTile = function(x,y) {
       var chunk = this.getChunk(x,y);
-      var z = chunk.get(x,y);  // maybe chunk shoudl return charcode
+      var z = chunk.get(x,y);  // maybe chunk should return charcode
       var tile;
 
       if (z === 0) {  // new tile
