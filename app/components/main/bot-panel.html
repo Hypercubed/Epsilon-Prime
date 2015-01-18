@@ -1,4 +1,5 @@
-<div>
+<div class="bot-panel" ng-keypress="main.keypress(bot, $event)" tabindex="0">
+  <h4>{{bot.name}}</h4>
   <div class="row">
     <label class="col-sm-2">Movement</label>
     <div class="col-sm-4">
@@ -64,7 +65,7 @@
 
 <tabset type="pills" justified="true" ng-if="showControls">
   <tab heading="Manual Control">
-    <div class="row" ng-keypress="main.keypress(bot, $event)" tabindex="0">
+    <div class="row">
       <div class="col-md-6">
         <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move(-1,-1)" ng-disabled="!bot.canMove(-1,-1)">Q</button>
         <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move( 0,-1)" ng-disabled="!bot.canMove( 0,-1)">W</button>
@@ -79,7 +80,7 @@
         <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move( 1,1)" ng-disabled="!bot.canMove( 1,1)">C</button>
       </div>
       <div class="col-md-4">
-        <button class="btn btn-primary btn-lg btn-block"
+        <button class="btn btn-primary btn-block"
         ng-repeat="script in main.scripts"
         ng-class="{ active: bot.script === script}"
         ng-click="bot.setCode(script); main.toggleBot(bot)">

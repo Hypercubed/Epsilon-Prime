@@ -1,7 +1,7 @@
 <div class="row">
 
-  <div class="col-md-6">
-    <div class="grid well small" ng-keypress="main.keypress(main.bot, $event)" tabindex="0"  kcd-recompile="main.drawWatch()">
+  <div class="col-md-6 grid-ctrl">
+    <div class="grid well small" tabindex="0"  kcd-recompile="main.drawWatch()">
       <div bind-html-compile="::main.draw()"></div>
     </div>
     <!-- button ng-click="main.mapOffset[0] = main.mapOffset[0] - 1">&lt;</button>
@@ -10,41 +10,10 @@
     <button ng-click="main.mapOffset[0] = main.mapOffset[0] + 1">&gt;</button -->
   </div>
 
-  <div class="ctrl col-md-6" ng-init="main.activeTab = 0">
-
-    <div class="unit-list" ng-show="main.activeTab === 0">
-
-      <div class="panel" ng-class="$index === main.index ? 'panel-warning' : 'panel-default'" ng-repeat="bot in main.bots" ng-keypress="main.keypress(bot, $event)" tabindex="0">
-        <h4 class="panel-heading" ng-click="main.setBot($index); main.activeTab = 1">
-          {{bot.name}}
-        </h4>
-        <div class="panel-body" ng-click="main.setBot($index)" >
-          <!-- div class="small" ng-include="'components/main/bot-panel.html'"></div -->
-
-          <div class="small" bot-panel="bot"></div>
-        </div>
-      </div>
-
+  <div class="col-md-6 ctrl unit-ctrl">
+    <div sliding-list="bot in main.bots">
+      <div class="small" bot-panel="bot" show-controls="opened"></div>
     </div>
-    <div class="unit-ctrl" ng-show="main.activeTab === 1">
-
-      <div class="panel panel-default">
-        <h4 class="panel-heading" ng-click="main.activeTab = 0">
-          {{main.bot.name}}
-        </h4>
-        <div class="panel-body">
-
-          <div class="small" bot-panel="main.bot" show-controls></div>
-
-          <!-- div class="small" ng-include="'components/main/bot-panel.html'">
-            {{;bot = main.bot;false}}
-          </div -->
-
-        </div>
-      </div>
-
-    </div>
-
   </div>
 
   <div id="script-panel" class="col-md-12" ng-controller="EditorCtrl as editor" ng-include="'components/editor/editor.html'">

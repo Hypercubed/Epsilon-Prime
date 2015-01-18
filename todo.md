@@ -5,9 +5,10 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 ## Next
 - [ ] Clean up classes
 - [ ] Fix or remove JS-interpretor
-- [ ] Enable scan in acorn scripts.
+- [ ] Enable scan/find in acorn scripts.
 - [x] Scan/list should also return units.
-- [ ] $bot.log()
+- [ ] Implement $bot.log()
+- [ ] Panels
 - [ ] More easily cycle through units.
 - [ ] Improve map code, use chunks.
 - [ ] Improve drawing (isDirty flag?/faster hash). Use d3?
@@ -33,6 +34,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [x] Randomize turn order?
 - [ ] Save state
 - [ ] Store total E/S found/spent.
+- [ ] More terrain types (various movement costs)
 
 ## Superficial
 - [ ] Rename bots -> units?

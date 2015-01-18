@@ -1,4 +1,5 @@
 /* global ace:true */
+/* global acorn:true */
 
 'use strict';
 
@@ -11,7 +12,7 @@
 */
 
 angular.module('myApp')
-  .controller('EditorCtrl', function($log, GAME, Interpreter) {
+  .controller('EditorCtrl', function($log, GAME) {
 
     var editor = this;
 
@@ -34,7 +35,7 @@ angular.module('myApp')
       try {
         $log.debug('Validate', script.code);
 
-        new Interpreter(script.code);
+        editor.master.ast = acorn.parse(script.code);
         angular.extend(editor.master, script);
 
         if (form) {
@@ -70,4 +71,4 @@ angular.module('myApp')
 
     editor.reset();
 
-  })
+  });

@@ -1,5 +1,7 @@
 
-
+.grid-ctrl {
+  z-index: 100;
+}
 
 .grid, .btn-mono {
   font-family: "Courier New", Courier, monospace;
@@ -45,12 +47,12 @@
   font-weight: bold;
 }
 
-.unit-ctrl .panel, .unit-list .panel {
-  margin-bottom: 5px;
+.unit-ctrl h4 {
+  margin: 0;
 }
 
-.unit-ctrl .panel-heading {
-  padding-left: 40px;
+.unit-ctrl .panel, .unit-list .panel {
+  margin-bottom: 5px;
 }
 
 .unit-ctrl .panel-heading, .unit-list .panel-heading {
@@ -67,26 +69,6 @@
   padding: 0 15px 5px 15px;
 }
 
-.unit-ctrl .panel-heading:before {
-  font-family: 'Glyphicons Halflings';
-  content: "\e079";
-  position: absolute;
-  left: 15px;
-  top: 20px;
-  font-size: 14px;
-  line-height: 14px;
-  margin-top: -7px;
-  color: #ccc;
-}
-
-.unit-list .panel-heading:before {
-  font-family: 'Glyphicons Halflings';
-  content: "\e080";
-  position: absolute;
-  right: 15px;
-  top: 20px;
-  font-size: 14px;
-  line-height: 14px;
-  margin-top: -7px;
-  color: #ccc;
+.bot-panel {
+  outline:0;
 }

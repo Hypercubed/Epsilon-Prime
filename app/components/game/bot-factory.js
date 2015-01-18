@@ -17,33 +17,20 @@ return res;
 
 var collect = (function random($bot) {
 
-/* function filter(t, fun) {
-  var res = [];
-  var len = t.length;
-  for (var i = 0; i < len; i++) {
-    var val = t[i];
-    if (fun(val, i, t)) {
-      res.push(val);
-    }
-  }
-
-  return res;
-} */
-
 $bot.unload();
 $bot.charge();
 
 if ($bot.S >=  $bot.mS) {
-  var home = $bot.list().filter(function(d) { return d.t === '@'; })[0];
+  var home = $bot.find('@');
   $bot.moveTo(home.x,home.y);
 } else {
   if ($bot.E >= 1 && $bot.mine() === false) {
-    var mines = $bot.list().filter(function(d) { return d.t === 'X'; });
+    var mine = $bot.find('X');
 
     var x,y;
-    if (mines.length > 0) {
-      x = mines[0].x;
-      y = mines[0].y;
+    if (mine !== null) {
+      x = mine.x;
+      y = mine.y;
     } else {
       x = 3*Math.random()-1+$bot.x;
       y = 3*Math.random()-1+$bot.y;
@@ -191,6 +178,14 @@ angular.module('myApp')
         }
       }
 
+      function toString(x) {
+        if (acorn) {
+          return x.toString();
+        } else {
+          return x;
+        }
+      }
+
       function $$move(x,y) {
         x = toNumber(x);
         y = toNumber(y);
@@ -243,12 +238,17 @@ angular.module('myApp')
       }
 
       function $$list() {  // not working in acorn
-        //var r = interpreter.createObject(interpreter.ARRAY);
         var r = bot.scanList();
-
-        //r = r.filter(function(d) { return d.t === 'X'; })[0];
-        //console.log(r);
         return createArray(r);
+      }
+
+      function $$find(_) {  // not working in acorn
+        var r = bot.scanList().filter(function(d) { return d.t === _; });
+        if (r.length > 0) {
+          return create(r[0]);
+        } else {
+          return create(null);
+        }
       }
 
       /* function $$x() {  // not working in acorn
@@ -271,6 +271,7 @@ angular.module('myApp')
       setMethod('charge',$$charge);
       setMethod('upgrade',$$upgrade);
       setMethod('list',$$list);
+      setMethod('find',$$find);
 
       //setMethod('$x',$$x);
       //setMethod('$y',$$y);
