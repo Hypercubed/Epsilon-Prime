@@ -162,6 +162,22 @@ angular.module('myApp')
         }
       }
 
+      function __createObject(r, p) {
+        if (acorn) {
+          var o = interpreter.createObject(interpreter.OBJECT);
+          p.forEach(function(prop) {
+            interpreter.setProperty(o, prop, create(r[prop]));
+          });
+          return o;
+        } else {
+          var o = {};
+          p.forEach(function(k) {
+            o[k] = r[k];
+          });
+          return o;
+        }
+      }
+
       function setMethod(prop, fn) {
         if (acorn) {
           interpreter.setProperty(self.$bot, prop, interpreter.createNativeFunction(fn));
@@ -244,8 +260,10 @@ angular.module('myApp')
 
       function $$find(_) {  // not working in acorn
         var r = bot.scanList().filter(function(d) { return d.t === _; });
+        //console.log(r);
         if (r.length > 0) {
-          return create(r[0]);
+          var o = __createObject(r[0], ['x','y']);
+          return o;
         } else {
           return create(null);
         }
@@ -408,7 +426,7 @@ angular.module('myApp')
           this.y += dy;
           this.E -= dE;
 
-          this.GAME.world.scan(this);
+          this.GAME.world.scanRange(this);
           return true;
         }
       }
@@ -455,7 +473,9 @@ angular.module('myApp')
         if (this.E >= 1 && this.S < this.mS) {
           this.E--;
           var dS = this.GAME.world.dig(this);  // TODO: bot effeciency
-          return this.load(dS);
+          dS = this.load(dS);
+          this.GAME.S += dS;
+          return dS;
         }
       }
       return false;
@@ -493,7 +513,7 @@ angular.module('myApp')
     };
 
     Bot.prototype.takeTurn = function(dT) {
-      this.charge(this.chargeRate()*dT);
+      this.GAME.E += this.charge(this.chargeRate()*dT);
 
       if(!this.manual) {
 

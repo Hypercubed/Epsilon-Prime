@@ -23,15 +23,18 @@ angular.module('myApp')
     home.dEdX = 1000;
     home.t = TILES.BASE;
 
-    GAME.world.get(home).t = TILES.FIELD;  // base must be on plain
+    //GAME.world.get(home).t = TILES.FIELD;  // todo: make sure home is on plain
 
     GAME.bots = [home];
 
-    GAME.world.scan(home);
+    GAME.world.scanRange(home);
 
     var bot = home.construct();
 
     GAME.bots = [home, bot];
+
+    GAME.E = 0;
+    GAME.S = 0;
 
   }
 

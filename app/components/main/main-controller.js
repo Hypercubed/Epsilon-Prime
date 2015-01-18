@@ -37,6 +37,8 @@ angular.module('myApp')
 
       var tile = main.world.get(x,y);
 
+      //console.log(tile);
+
       if (tile !== null) {
         var _class = 'tile';
 
@@ -66,9 +68,9 @@ angular.module('myApp')
     }
 
     main.drawWatch = function drawWatch() {  // Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
-      var s = '';
+       var s = main.world.chunk.hash
 
-      var xs = mapOffset[0], ys = mapOffset[1];
+      /* var xs = mapOffset[0], ys = mapOffset[1];
       var xe = xs+mapDisplaySize[0], ye = ys+mapDisplaySize[1];
 
       for(var y = ys; y < ye; y++) {  // need to iterate over rows first
@@ -78,7 +80,7 @@ angular.module('myApp')
             s += tile.t;
           }
         }
-      }
+      } */
 
       var ke = main.bots.length;
       var ws = main.world.size[0];
@@ -88,10 +90,11 @@ angular.module('myApp')
       }
 
       return s;
+      //return main.world.chunk.hash;
     };
 
     main.draw = function() {  // todo: create map directive
-      //$log.debug('draw');
+      $log.debug('draw');
 
       var b = '';
 
@@ -252,6 +255,7 @@ angular.module('myApp')
     main.refresh = 1;
     main.cheat = false;
 
+    main.game = GAME;
     main.world = GAME.world;
 
     var home = main.home = GAME.bots[0];
@@ -268,6 +272,8 @@ angular.module('myApp')
 
     main.tick = 0;
     main.pause = false;
+
+    //main.world.scanRange(0,0,1000);  // for testing
 
     function mezclar2(arr) {
       for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp) {}

@@ -13,11 +13,17 @@
     "angular-bootstrap": "~0.12.0",
     "angular-ui-ace": "bower",
     "JS-Interpreter": "NeilFraser/JS-Interpreter",
-    "angular-messages": "~1.3.8"
+    "angular-messages": "~1.3.8",
+    "noisejs": "josephg/noisejs"
   },
   "devDependencies": {
     "angular-mocks": "~1.2.0",
     "angular-scenario": "~1.2.0"
+  },
+  "overrides": {
+    "noisejs": {
+      "main": "perlin.js"
+    }
   },
   "appPath": "app"
 }
