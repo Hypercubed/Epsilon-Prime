@@ -5,16 +5,22 @@
   <div class="panel panel-default editor-panel">
     <div class="panel-heading">
 
+
       <div class="row">
+        <div class="col-sm-1">
+          <button class="btn btn-primary btn-xs" ng-click="main.pause = !main.pause" tooltip="Pause all scripts">
+            <i class="glyphicon glyphicon-play" ng-class="{ true: 'glyphicon-play', false: 'glyphicon-pause'}[main.pause]"></i>
+          </button>
+        </div>
         <div class="col-sm-4">
           <input class="form-control input-sm col-sm-6" name="name" ng-model="editor.script.name" placeholder="Name this script…" required/>
         </div>
-        <div class="col-sm-4 control-label">
+        <div class="col-sm-3 control-label">
           <label ng-messages="form.name.$error">
             <span ng-message="required">required</span>
           </label>
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
           <div class="pull-right" >
             <div class="btn-group">
               <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">

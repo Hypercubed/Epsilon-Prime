@@ -267,6 +267,7 @@ angular.module('myApp')
     var dT = 1;
 
     main.tick = 0;
+    main.pause = false;
 
     function mezclar2(arr) {
       for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp) {}
@@ -293,11 +294,13 @@ angular.module('myApp')
     }
 
     $interval(function tick() {  // todo: move to GAME?
-      mezclar2(GAME.bots.slice(0)).forEach(function(_bot) {
-        _bot.takeTurn(dT, GAME);
-      });
-      main.tick++;
-    }, dT*200); // todo: make variable speed
+      if (!main.pause) {
+        mezclar2(GAME.bots.slice(0)).forEach(function(_bot) {
+          _bot.takeTurn(dT, GAME);
+        });
+        main.tick++;
+      }
+    }, dT*200); // todo: make variable speed, use setTimeout instead of interval
 
   })
 
