@@ -1,6 +1,7 @@
 
-.list-container .panel-heading {
+.list-container .panel-heading, .list-container .panel-footer {
   height: 50px;
+  margin-bottom: 0;
 }
 
 .panel-list {
@@ -13,6 +14,7 @@
 .panel-item .panel-body {
   height: 400px;
   overflow: auto;
+  padding-top: 5px;
 }
 
 .panel-list .list-group-item {

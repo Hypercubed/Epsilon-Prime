@@ -2,26 +2,32 @@
 
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
+## Milestones
+- [ ] D*
+- [ ] Save game
+- [ ] End game
+
+## Bugs
+- [ ] JS-interpretor scanning broken
+- [ ] Incorrect bot highlighting
+
 ## Next
+- [ ] Ensure bot starts in plain
 - [ ] Clean up classes
-- [ ] Fix or remove JS-interpretor
-- [ ] Enable scan/find in acorn scripts.
-- [x] Scan/list should also return units.
 - [ ] Implement $bot.log()
-- [ ] Panels
-- [ ] More easily cycle through units.
-- [ ] Improve map code, use chunks.
+- [x] Improve map code, use chunks.
 - [ ] Improve drawing (isDirty flag?/faster hash). Use d3?
 - [ ] Scan returns list? List of pieces and terrain?
-- [ ] Bots store key of script node code.
+- [ ] Bots store key of script not code.
 - [ ] Bot memory?
-- [ ] Start with just rover? Upgrade self?
-- [ ] Scrolling map.  By chunk?
+- [ ] Scrolling map. By chunk?
 - [ ] More balancing of gameplay.
 - [ ] More Tooltips?
 - [ ] Need to indicate when unit is on mine.
 
 ## Decisions
+- [ ] Start with just rover? Upgrade self?
+- [ ] Script panel
 - [ ] D* for moveTo
 - [ ] Use ui-router?
 - [ ] Any unit (rover, base) can mine, move, relocate, charge, upgrade?

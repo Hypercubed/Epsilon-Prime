@@ -21,7 +21,7 @@
 }
 
 .grid {
-  overflow: scroll;
+  overflow: hidden;
   height: 500px;
   font-size: 14px;
   line-height: 12px;

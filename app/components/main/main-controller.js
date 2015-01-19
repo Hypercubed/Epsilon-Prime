@@ -59,7 +59,7 @@ angular.module('myApp')
           return '<strong class="'+_class+'" tooltip-html-unsafe="'+_tip+'">'+bot.t+'</strong>';
         }
 
-        if (tile.s) {
+        if (tile.t !== TILES.EMPTY) {
           return '<span class="'+_class+'">'+tile.t+'</span>';
         }
         return '&nbsp;';
@@ -68,7 +68,9 @@ angular.module('myApp')
     }
 
     main.drawWatch = function drawWatch() {  // Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
-       var s = main.world.chunk.hash
+
+      var xs = mapOffset[0], ys = mapOffset[1];
+      var s = main.world.getChunk(xs,ys).hash;  // todo: not this
 
       /* var xs = mapOffset[0], ys = mapOffset[1];
       var xe = xs+mapDisplaySize[0], ye = ys+mapDisplaySize[1];
@@ -82,8 +84,8 @@ angular.module('myApp')
         }
       } */
 
-      var ke = main.bots.length;
-      var ws = main.world.size[0];
+      var ke = main.bots.length;  // do better
+      var ws = main.world.size;
       for(var k = 0; k < ke; k++) {
         var bot = main.bots[k];
         s += bot.t+ws*bot.x+bot.y+(bot === main.bot ? '!' : '');
@@ -101,8 +103,8 @@ angular.module('myApp')
       var xs = mapOffset[0], ys = mapOffset[1];
       var xe = xs+mapDisplaySize[0], ye = ys+mapDisplaySize[1];
 
-      for(var y = ys; y < ye; y++) {  // need to iterate over rows first
-        for(var x = xs; x < xe; x++) {
+      for(var y = ys; y <= ye; y++) {  // need to iterate over rows first
+        for(var x = xs; x <= xe; x++) {
           b += getTile(x,y);
         }
         b += '\n';
@@ -211,9 +213,9 @@ angular.module('myApp')
     };
 
     main.keypress = function(bot, $event) {  // TODO: cheat code
-      //console.log($event);
+      console.log($event.keyCode);
       switch($event.keyCode) {
-        case 70:  // cheat
+        case 102:  // cheat
           main.cheat = true;
           GAME.bots.forEach(function(d) {
             d.E = d.mE;
@@ -265,7 +267,7 @@ angular.module('myApp')
     var bot = GAME.bots[1];
     main.setBot(1);
 
-    var mapDisplaySize = GAME.world.size; // to map directive
+    var mapDisplaySize = [GAME.world.size,GAME.world.size]; // todo: chunk size
     var mapOffset = [0,0];  // TODO: focus on
 
     var dT = 1;

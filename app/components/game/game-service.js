@@ -11,9 +11,9 @@ angular.module('myApp')
   };
 
   function setup() {
-    GAME.world = new World().generate(60,30);
+    GAME.world = new World(60);
 
-    var home = new Bot('Base', 20, 10, GAME);
+    var home = new Bot('Base', 30, 10, GAME);
     home.code = defaultScripts.Upgrade; // todo: only key
     home.S = 100;
     home.E = 0;

@@ -5,6 +5,7 @@
 
 angular.module('myApp')
   .value('TILES', {
+    EMPTY: String.fromCharCode(0),
     MOUNTAIN: '#',
     FIELD: '.',
     MINE: 'X',
@@ -13,9 +14,10 @@ angular.module('myApp')
     BASE: '@',
     HOLE: 'O'
   })
-  .factory('World', function (TILES) {
-
+  .factory('Chunk', function () {
     function Chunk(size) {
+
+
       this.size = size;
       this.length = size*size;
       this.hash = 0;
@@ -33,7 +35,7 @@ angular.module('myApp')
       if (arguments.length === 2) {
         x = this.index(x,y);
       }
-      return this.view[x];
+      return String.fromCharCode(this.view[x]);
     };
 
     Chunk.prototype.set = function(x,y,z) {
@@ -42,40 +44,48 @@ angular.module('myApp')
       } else {
         z = y;
       }
-      this.view[x] = z;
+      this.view[x] = z.charCodeAt(0);
       this.hash++;
       return this;
     };
 
+    return Chunk;
+  })
+  .factory('World', function (TILES, Chunk) {
+
     function World(size, seed) {  // todo: landmarks
-      this._size = size || 60;
+      this.size = size = size || 60;
       this.seed = seed || Math.random();
-
-      this.size = [size,size]; // todo: remove
-
-      this.chunk = new Chunk(this._size);
+      this.chunks = {};
+      //this.chunk = new Chunk(size);
     }
 
-    World.prototype.getChunk = function(x,y) {  // todo: chunks object
-      return this.chunk;
+    World.prototype.getChunkId = function(x,y) {
+      var X = Math.floor(x / this.size) % 256;  // chunk
+      var Y = Math.floor(y / this.size) % 256;
+      return Y+';'+X;
     };
 
-    /* World.prototype.getHeight = function(x,y) {
-      return this.getChunk(x,y).get(x,y);
-    };*/
+    World.prototype.getChunk = function(x,y) {  // todo: chunks object
+      var id = this.getChunkId(x,y);
+      var chunk = this.chunks[id];
+      if (!chunk) {
+        chunk = this.chunks[id] = new Chunk(this.size);
+      }
+      return chunk;
+    };
 
     World.prototype.getHeight = function(x,y) {
       noise.seed(this.seed);  // move this
-      return perlin(x/this._size,y/this._size,5);  // one byte
+      return perlin((x-30)/this.size,(y-10)/this.size,5);
     };
 
     World.prototype.scanTile = function(x,y) {
       var chunk = this.getChunk(x,y);
-      var z = chunk.get(x,y);  // maybe chunk should return charcode
-      var tile;
+      var tile = chunk.get(x,y);  // maybe chunk should return charcode
 
-      if (z === 0) {  // new tile
-        z = this.getHeight(x,y);
+      if (tile === TILES.EMPTY) {  // new tile
+        var z = this.getHeight(x,y);
 
         tile = TILES.FIELD;
         if (z > 0.60) {
@@ -84,12 +94,7 @@ angular.module('myApp')
           tile = TILES.MINE;
         }
 
-        //console.log('new tile',tile);
-
-        chunk.set(x,y,tile.charCodeAt(0));
-      } else {
-        tile = String.fromCharCode(z);
-        //console.log('old tile',tile,z);
+        chunk.set(x,y,tile);
       }
 
       return {x: x, y: y, t: tile, s: true};   // todo: improve storage, store only strings again?
@@ -97,7 +102,7 @@ angular.module('myApp')
 
     World.prototype.set = function(x,y,z) {
       var chunk = this.getChunk(x,y);
-      chunk.set(x,y,z.charCodeAt(0));
+      chunk.set(x,y,z);
     };
 
     World.prototype.get = function(x,y) {
@@ -105,14 +110,14 @@ angular.module('myApp')
         y = x.y;
         x = x.x;
       }
-      if (x < 0 || x >= this.size[0]) { return null; }
-      if (y < 0 || y >= this.size[1]) { return null; }
+      if (x < 0 || x > this.size) { return null; } // Git rid of this...
+      if (y < 0 || y > this.size) { return null; }
 
       var chunk = this.getChunk(x,y);
       var z = chunk.get(x,y);
 
-      if (z === 0) {
-        return {x: x, y: y, s: false};
+      if (z === TILES.EMPTY) {
+        return {x: x, y: y, t: z, s: false};
       }
       return this.scanTile(x,y);
     };
@@ -152,27 +157,7 @@ angular.module('myApp')
       return 2*z/s;
     }
 
-    World.prototype.generate = function(xs,ys) {
-      xs = xs||60;
-      ys = ys||60;
-
-      this.size = [xs, ys];  // cols, rows
-
-      /* var x, y;
-
-      this.map = new Array(xs);       // todo: improve storage
-
-      for(x = 0; x < xs; x++) {  // col
-        this.map[x] = new Array(ys);
-        for(y = 0; y < ys; y++) { // row
-          this.map[x][y] = this.chooseTile(x,y);   // todo: improve storage, store only strings again?
-        }
-      } */
-
-      return this;
-    };
-
-    World.prototype._chooseTile = function(x,y) {  // old
+    /* World.prototype._chooseTile = function(x,y) {  // old
       var pm = 0.01;  // Probability of a mountain
       if (y > 0 && this.map[x][y-1].t === TILES.MOUNTAIN) {
         pm += 0.4;
@@ -192,16 +177,16 @@ angular.module('myApp')
       }
 
       return {x: x, y: y, t: p, s: false};   // todo: improve storage, store only strings again?
-    };
+    }; */
 
     World.prototype.scanList = function() {
-      var xs = this.size[0];
-      var ys = this.size[0];
+      var xs = this.size;  // need to limit region??
+      var ys = this.size;
       var r = [];
       for(var i = 0; i < xs; i++) {
         for(var j = 0; j < ys; j++) {
           var t = this.get(i,j);
-          if (t !== null && t.s === true) {
+          if (t !== null && t.t !== TILES.EMPTY) {
             r.push(t);
           }
         }
