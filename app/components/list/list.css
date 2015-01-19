@@ -55,11 +55,11 @@
 
 .animate-slide-container {
   position:relative;
-  background:white;
+  background: none;
 }
 
 .animate-slide {
-  background:white;
+  background: none;
   width: 200%;
 }
 
@@ -79,7 +79,7 @@
 }
 
 .animate-if {
-  background:white;
+  background: none;
 }
 
 .animate-if.ng-enter, .animate-if.ng-leave {

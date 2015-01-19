@@ -27,6 +27,11 @@
   line-height: 12px;
 }
 
+.ctrl hr {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
 .ctrl .nav {
   margin-bottom: 10px;
 }
@@ -40,6 +45,7 @@
 
 .ctrl .progress {
   margin-bottom: 0px;
+  height: 20px;
 }
 
 .ctrl .progress-bar {

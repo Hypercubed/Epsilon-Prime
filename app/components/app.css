@@ -60,6 +60,16 @@ body {
   }
 }
 
+.btn-xs {
+  padding: 1px 5px;
+}
+
+.btn-sm {
+  padding: 5px 10px;
+}
+
+
+
 /* Sticky footer styles
 -------------------------------------------------- */
 
