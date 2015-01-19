@@ -1,28 +1,33 @@
-<div class="row">
+<div id="wrap">
+  <div class="container">
 
-  <div class="col-md-6 grid-ctrl">
-    <div class="grid well small" tabindex="0"  kcd-recompile="main.drawWatch()">
-      <div bind-html-compile="::main.draw()"></div>
+    <div class="col-md-6 grid-ctrl">
+      <div class="grid well small" tabindex="0"  kcd-recompile="main.drawWatch()">
+        <div bind-html-compile="::main.draw()"></div>
+      </div>
+      <!-- button ng-click="main.mapOffset[0] = main.mapOffset[0] - 1">&lt;</button>
+      <button ng-click="main.mapOffset[1] = main.mapOffset[1] - 1">^</button>
+      <button ng-click="main.mapOffset[1] = main.mapOffset[1] + 1">|</button>
+      <button ng-click="main.mapOffset[0] = main.mapOffset[0] + 1">&gt;</button -->
     </div>
-    <!-- button ng-click="main.mapOffset[0] = main.mapOffset[0] - 1">&lt;</button>
-    <button ng-click="main.mapOffset[1] = main.mapOffset[1] - 1">^</button>
-    <button ng-click="main.mapOffset[1] = main.mapOffset[1] + 1">|</button>
-    <button ng-click="main.mapOffset[0] = main.mapOffset[0] + 1">&gt;</button -->
-  </div>
 
-  <div class="col-md-6 ctrl unit-ctrl">
-    <div sliding-list="bot in main.bots">
-      <div class="small" bot-panel="bot" show-controls="opened"></div>
+    <div class="col-md-6 ctrl unit-ctrl">
+      <div sliding-list="bot in main.bots">
+        <div class="small" bot-panel="bot" show-controls="opened"></div>
+      </div>
     </div>
-  </div>
 
-  <div id="script-panel" class="col-md-12"
-    ng-controller="EditorCtrl as editor"
-    ng-include="'components/editor/editor.html'">
-  </div>
+    <div id="script-panel" class="col-md-12"
+      ng-controller="EditorCtrl as editor"
+      ng-include="'components/editor/editor.html'">
+    </div>
 
-  <div class="col-md-12">
-    E: {{main.game.E | number:0}} S: {{main.game.S | number:0}}
   </div>
+</div>
 
+<div id="footer">
+  <div class="container muted credit">
+    <i class="glyphicon glyphicon-flash"></i> {{main.game.E | number:0}}
+    <i class="glyphicon glyphicon-asterisk"></i> {{main.game.S | number:0}}
+  </div>
 </div>

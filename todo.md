@@ -3,6 +3,7 @@
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Milestones
+- [ ] Scrolling map. By chunk?
 - [ ] D*
 - [ ] Save game
 - [ ] End game
@@ -10,6 +11,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 ## Bugs
 - [ ] JS-interpretor scanning broken
 - [ ] Incorrect bot highlighting
+- [ ] Map not square
 
 ## Next
 - [ ] Ensure bot starts in plain
@@ -20,7 +22,6 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Scan returns list? List of pieces and terrain?
 - [ ] Bots store key of script not code.
 - [ ] Bot memory?
-- [ ] Scrolling map. By chunk?
 - [ ] More balancing of gameplay.
 - [ ] More Tooltips?
 - [ ] Need to indicate when unit is on mine.
