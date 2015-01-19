@@ -16,7 +16,8 @@ angular
     'ngMessages',
     'ngTouch',
     'ui.ace',
-    'ui.bootstrap'
+    'ui.bootstrap',
+    'xeditable'
   ])
   .config(function ($routeProvider) {
     $routeProvider
@@ -30,4 +31,7 @@ angular
   })
   .config(function($logProvider){
     $logProvider.debugEnabled(true);
+  })
+  .run(function(editableOptions) {
+    editableOptions.theme = 'bs3';
   });
