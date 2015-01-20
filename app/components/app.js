@@ -17,7 +17,8 @@ angular
     'ngTouch',
     'ui.ace',
     'ui.bootstrap',
-    'xeditable'
+    'xeditable',
+    'LocalStorageModule'
   ])
   .config(function ($routeProvider) {
     $routeProvider
@@ -31,6 +32,10 @@ angular
   })
   .config(function($logProvider){
     $logProvider.debugEnabled(true);
+  })
+  .config(function (localStorageServiceProvider) {
+    localStorageServiceProvider
+      .setPrefix('myApp');
   })
   .run(function(editableOptions) {
     editableOptions.theme = 'bs3';

@@ -56,21 +56,22 @@ angular.module('myApp')
     function World(size, seed) {  // todo: landmarks
       this.size = size = size || 60;
       this.seed = seed || Math.random();
-      this.chunks = {};
+      this.$$chunks = {};
       //this.chunk = new Chunk(size);
     }
 
     World.prototype.getChunkId = function(x,y) {
-      var X = Math.floor(x / this.size) % 256;  // chunk
-      var Y = Math.floor(y / this.size) % 256;
+      var X = Math.floor(x / this.size);  // chunk
+      var Y = Math.floor(y / this.size);
       return Y+';'+X;
     };
 
     World.prototype.getChunk = function(x,y) {  // todo: chunks object
       var id = this.getChunkId(x,y);
-      var chunk = this.chunks[id];
+      var chunk = this.$$chunks[id];
       if (!chunk) {
-        chunk = this.chunks[id] = new Chunk(this.size);
+        console.log('new chunk', x,y,id);
+        chunk = this.$$chunks[id] = new Chunk(this.size);
       }
       return chunk;
     };
@@ -110,8 +111,8 @@ angular.module('myApp')
         y = x.y;
         x = x.x;
       }
-      if (x < 0 || x > this.size) { return null; } // Git rid of this...
-      if (y < 0 || y > this.size) { return null; }
+      if (x < 0 || x >= this.size) { return null; } // Git rid of this...
+      if (y < 0 || y >= this.size) { return null; }
 
       var chunk = this.getChunk(x,y);
       var z = chunk.get(x,y);

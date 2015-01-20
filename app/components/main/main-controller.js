@@ -22,12 +22,12 @@ angular.module('myApp')
       }
     };
 
-    main.setBot = function(index) {
+    main.setBot = function(index) {  // still used?
       if (arguments.length < 1) {
         index = main.index;
       }
       main.index = index;
-      bot = main.bot = main.bots[index];  // todo: rename main.bot -> main.curbot
+      main.bot = main.bots[index];  // todo: rename main.bot -> main.curbot
       main.code = bot.code;
       main.manual = bot.manual;
       main.refresh++;
@@ -103,8 +103,8 @@ angular.module('myApp')
       var xs = mapOffset[0], ys = mapOffset[1];
       var xe = xs+mapDisplaySize[0], ye = ys+mapDisplaySize[1];
 
-      for(var y = ys; y <= ye; y++) {  // need to iterate over rows first
-        for(var x = xs; x <= xe; x++) {
+      for(var y = ys; y < ye; y++) {  // need to iterate over rows first
+        for(var x = xs; x < xe; x++) {
           b += getTile(x,y);
         }
         b += '\n';
@@ -252,6 +252,8 @@ angular.module('myApp')
 
     };
 
+    main.save = GAME.save;
+
     // Init
 
     main.refresh = 1;
@@ -264,8 +266,8 @@ angular.module('myApp')
     main.bots = GAME.bots;
     main.scripts = GAME.scripts;
 
-    var bot = GAME.bots[1];
-    main.setBot(1);
+    main.bot = GAME.bots[1];
+    //main.setBot(1);
 
     var mapDisplaySize = [GAME.world.size,GAME.world.size]; // todo: chunk size
     var mapOffset = [0,0];  // TODO: focus on
@@ -303,6 +305,7 @@ angular.module('myApp')
 
     $interval(function tick() {  // todo: move to GAME?
       if (!main.pause) {
+        //console.log(GAME.bots);
         mezclar2(GAME.bots.slice(0)).forEach(function(_bot) {
           _bot.takeTurn(dT, GAME);
         });

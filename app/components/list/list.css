@@ -33,6 +33,11 @@
   outline: 0;
 }
 
+.panel-list .list-group-item {
+  background-color: #fff;
+  padding: 3px 16px;
+}
+
 .panel-list .list-group-item.panel-active {
   background-color: #eee;
 }

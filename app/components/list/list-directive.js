@@ -2,7 +2,9 @@ function ListController($scope) {
 
   $scope.page = 1;
 
-  $scope.openItem = $scope.item = undefined;
+  console.log($scope.openItem.name);
+
+  $scope.item = $scope.openItem;
   $scope.opened = false;
   $scope.search = { name: '' };
 
@@ -27,22 +29,8 @@ function ListController($scope) {
 
 }
 
-function MainController() {
-  var main = this;
-
-  main.title = 'test';
-
-  main.items = [];
-
-  for(var i = 1; i <= 26; i++) {
-    main.items.push({i: i-1, id: String.fromCharCode(12352+i), name: 'item'+i, content: 'item'+i, text: 'iiiiitem'+i});
-  }
-}
-
-
 angular.module('myApp')
 .controller('ListController', ListController)
-.controller('MainController', MainController)
 .directive('slidingListInject', function(){
   return {
     require: '^slidingList',
@@ -80,7 +68,9 @@ angular.module('myApp')
   return {
     restrict: 'AE',
     transclude: true,
-    scope: {},
+    scope: {
+      openItem: '=item'
+    },
     controller: 'ListController',
     templateUrl: 'components/list/list-template.html',
     link: function link($scope, $element, $attrs, controller) {

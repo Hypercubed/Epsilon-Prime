@@ -55,18 +55,22 @@ angular.module('myApp')
   ])
   .factory('SandBox', function($log, Interpreter) {
 
+    var GAME = null;  // later the game service
+
     var acorn = false;
     var N = 1000;  // Maximum execution steps per turn, used only when acorn is enabled
 
     $log.debug(acorn ? 'Using acorn' : 'Using Function');
 
-    function SandBox(bot, GAME) {
+    function SandBox(bot, _GAME) {
       var self = this;
 
-      this.interpreter = (acorn) ? new window.Interpreter(bot.code) : null;  // do I really need a new interpreter to create objects?
+      GAME = GAME || _GAME;
+
+      this.interpreter = (acorn) ? new window.Interpreter(bot.$$code) : null;  // do I really need a new interpreter to create objects?
 
       this.bot = bot;
-      this.GAME = GAME;
+      //GAME = GAME;
 
       //this.home = {x: 20, y: 10}; // hack
 
@@ -117,7 +121,7 @@ angular.module('myApp')
     SandBox.prototype.setup = function() {
       var self = this;
       var bot = this.bot;
-      var GAME = this.GAME;
+      //var GAME = GAME;
       //var home = GAME.bots[0];  // todo: not this
 
       var interpreter = this.interpreter;
@@ -298,7 +302,7 @@ angular.module('myApp')
     SandBox.prototype.run = function() {
       var self = this;
       //var bot = this.bot;
-      //var GAME = this.GAME;
+      //var GAME = GAME;
 
       var code = this.bot.script.code;
 
@@ -345,10 +349,11 @@ angular.module('myApp')
   .value('Interpreter', window.Interpreter)
   .factory('Bot', function (isAt, TILES, Interpreter, $log, SandBox, defaultScripts) {
 
-    function Bot(name,x,y,GAME) {  // TODO: move speed, mine speed, storage cap, energy cap, carge rate
+    var GAME = null;  // later the GAME service
+
+    function Bot(name,x,y,_GAME) {  // TODO: move speed, mine speed, storage cap, energy cap, carge rate
       this.name = name;
-      this.GAME = GAME;
-      //this.world = GAME.world;
+      GAME = GAME || _GAME;
 
       this.t = TILES.BOT;
 
@@ -365,11 +370,12 @@ angular.module('myApp')
       this.mE = 10;   // Maximum
 
       this.manual = true;
-      this.code = '';
 
-      this.sandBox = new SandBox(this, GAME);
 
       this.message = '';
+
+      this.$$code = '';
+      this.$$sandBox = new SandBox(this, GAME);
     }
 
     Bot.prototype.charge = function(dE) {
@@ -409,7 +415,7 @@ angular.module('myApp')
       var dr = Math.max(Math.abs(dx),Math.abs(dy));
       var dE = this.moveCost()*dr;
 
-      return this.GAME.world.canMove(this.x + dx,this.y + dy) && this.E >= dE;
+      return GAME.world.canMove(this.x + dx,this.y + dy) && this.E >= dE;
     };
 
     Bot.prototype.move = function(dx,dy) {  // TODO: check range
@@ -420,13 +426,13 @@ angular.module('myApp')
       var dr = Math.max(Math.abs(dx),Math.abs(dy));
       var dE = this.moveCost()*dr;
 
-      if (this.GAME.world.canMove(this.x + dx,this.y + dy)) {  // Need to check bot skills, check path
+      if (GAME.world.canMove(this.x + dx,this.y + dy)) {  // Need to check bot skills, check path
         if (this.E >= dE) {
           this.x += dx;
           this.y += dy;
           this.E -= dE;
 
-          this.GAME.world.scanRange(this);
+          GAME.world.scanRange(this);
           return true;
         }
       }
@@ -460,7 +466,7 @@ angular.module('myApp')
     };
 
     Bot.prototype.canMine = function() {
-      if (this.GAME.world.get(this).t === TILES.MINE) {  // use world.canMine?
+      if (GAME.world.get(this).t === TILES.MINE) {  // use world.canMine?
         if (this.E >= 1 && this.S < this.mS) {
           return true;
         }
@@ -469,12 +475,12 @@ angular.module('myApp')
     };
 
     Bot.prototype.mine = function() {
-      if (this.GAME.world.get(this).t === TILES.MINE) {  // use world.canMine?
+      if (GAME.world.get(this).t === TILES.MINE) {  // use world.canMine?
         if (this.E >= 1 && this.S < this.mS) {
           this.E--;
-          var dS = this.GAME.world.dig(this);  // TODO: bot effeciency
+          var dS = GAME.world.dig(this);  // TODO: bot effeciency
           dS = this.load(dS);
-          this.GAME.S += dS;
+          GAME.S += dS;
           return dS;
         }
       }
@@ -513,12 +519,12 @@ angular.module('myApp')
     };
 
     Bot.prototype.takeTurn = function(dT) {
-      this.GAME.E += this.charge(this.chargeRate()*dT);
+      GAME.E += this.charge(this.chargeRate()*dT);
 
       if(!this.manual) {
 
         try {
-          this.sandBox.run();
+          this.$$sandBox.run();
         } catch(err) {
           var m = err.stack;
           console.log('User script error', err.message, m);
@@ -559,7 +565,7 @@ angular.module('myApp')
 
     Bot.prototype.construct = function() {
       if (this.S >= 100) {
-        var bot = new Bot('Rover', this.x, this.y, this.GAME);
+        var bot = new Bot('Rover', this.x, this.y);
         bot.script = defaultScripts[3];  // todo: should keep key?
         bot.$home = this;
 
@@ -570,12 +576,12 @@ angular.module('myApp')
     };
 
     Bot.prototype.scan = function() {  // dE cost?
-      return this.GAME.world.scan(this);
+      return GAME.world.scan(this);
     };
 
     Bot.prototype.scanList = function() {  // move, GAME.scanFrom?
       var self = this;
-      var l = this.GAME.scanList();
+      var l = GAME.scanList();
       l.forEach(function(d) {
         var dx = d.x - self.x;
         var dy = d.y - self.y;
