@@ -15,14 +15,21 @@ angular.module('myApp')
     HOLE: 'O'
   })
   .factory('Chunk', function () {
-    function Chunk(size) {
+    function Chunk(_) {
 
+      //console.log(_);
 
-      this.size = size;
-      this.length = size*size;
+      if (Array.isArray(_)) {
+        this.length = _.length;
+        this.size = Math.sqrt(_.length);
+        this.view = new Uint8ClampedArray(_);
+      } else {
+        this.size = _;
+        this.length = _*_;
+        this.view = new Uint8ClampedArray(this.length);
+      }
+
       this.hash = 0;
-
-      this.view = new Uint8Array(this.length);
     }
 
     Chunk.prototype.index = function(x,y) {
@@ -51,7 +58,7 @@ angular.module('myApp')
 
     return Chunk;
   })
-  .factory('World', function (TILES, Chunk) {
+  .factory('World', function ($log, TILES, Chunk) {
 
     function World(size, seed) {  // todo: landmarks
       this.size = size = size || 60;
@@ -70,7 +77,7 @@ angular.module('myApp')
       var id = this.getChunkId(x,y);
       var chunk = this.$$chunks[id];
       if (!chunk) {
-        console.log('new chunk', x,y,id);
+        $log.debug('new chunk',id);
         chunk = this.$$chunks[id] = new Chunk(this.size);
       }
       return chunk;

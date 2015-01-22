@@ -11,7 +11,7 @@
  */
 
 angular.module('myApp')
-  .controller('MainCtrl', function ($scope, $log, $interval, isAt, TILES, GAME) {
+  .controller('MainCtrl', function ($scope, $log, $route, $window, $interval, hotkeys, debug, isAt, TILES, GAME) {
 
     var main = this;
 
@@ -71,6 +71,7 @@ angular.module('myApp')
 
       var xs = mapOffset[0], ys = mapOffset[1];
       var s = main.world.getChunk(xs,ys).hash;  // todo: not this
+      //console.log(s);
 
       /* var xs = mapOffset[0], ys = mapOffset[1];
       var xe = xs+mapDisplaySize[0], ye = ys+mapDisplaySize[1];
@@ -183,18 +184,12 @@ angular.module('myApp')
 
     main.canUnload = function(bot) {
       bot = bot || main.bot;
-      if (isAt(bot,home) && bot.S > 0 && home.S < home.mS) {
-        return true;
-      }
-      return false;
+      return isAt(bot,main.home) && bot.S > 0 && main.home.S < main.home.mS;
     };
 
     main.canCharge = function(bot) {
       bot = bot || main.bot;
-      if (isAt(bot,home) && bot.E < bot.mE && home.E > 0) {
-        return true;
-      }
-      return false;
+      return isAt(bot,main.home) && bot.E < bot.mE && main.home.E > 0;
     };
 
     main.canMineOrUnload = function(bot) {
@@ -204,15 +199,105 @@ angular.module('myApp')
 
     main.mineOrUnload = function(bot) {
       bot = bot || main.bot;
-      if (isAt(bot,home)) {
-        bot.unloadTo(home);
-        home.chargeBot(bot);
+      if (isAt(bot,main.home)) {
+        bot.unloadTo(main.home);
+        main.home.chargeBot(bot);
       } else {
         bot.mine();
       }
     };
 
-    main.keypress = function(bot, $event) {  // TODO: cheat code
+    var d = [  // move
+      ['q','NW',-1,-1],
+      ['w','N' , 0,-1],
+      ['e','NE', 1,-1],
+      ['a','W' ,-1, 0],
+      ['d','E' , 1, 0],
+      ['z','SW',-1, 1],
+      ['x','S' , 0, 1],
+      ['c','SE', 1, 1]
+    ]
+
+    /* cheat */
+    if (debug) {
+      hotkeys.bindTo($scope)
+        .add({
+          combo: 'f',
+          //description: '',
+          callback: function() {
+            main.cheat = true;
+            GAME.bots.forEach(function(d) {
+              d.E = d.mE;
+            });
+          }
+        });
+    }
+
+    /* global */
+    hotkeys.bindTo($scope)
+      .add({
+        combo: 'k',
+        //description: 'next bot',
+        callback: function() {
+          var i = main.bots.indexOf(main.bot);
+          main.bot = main.bots[i+1] || main.bots[0];
+        }
+      })
+      .add({
+        combo: 'j',
+        //description: 'prev bot',
+        callback: function() {
+          var i = main.bots.indexOf(main.bot);
+          main.bot = main.bots[i-1] || main.bots[main.bots.length-1];
+        }
+      })
+      .add({
+        combo: 'esc',
+        description: 'Pause game',
+        callback: function() {
+          main.pause = !main.pause;
+        }
+      });
+
+    /* bot directions */
+    d.forEach(function(k) {
+      hotkeys.bindTo($scope)
+        .add({
+          combo: k[0],
+          //description: '',
+          callback: function() {
+            main.bot.move(k[2],k[3]);
+          }
+        });
+    });
+
+    /* bot actions */
+    hotkeys.bindTo($scope)
+      .add({
+        combo: 's',
+        description: 'Unload/load/mine',
+        callback: function() {
+          main.mineOrUnload(main.bot);
+        }
+      })
+      .add({
+        combo: 'r',
+        description: 'Manual/auto',
+        callback: function() {
+          main.bot.manual = !main.bot.manual;
+        }
+      })
+      .add({
+        combo: 'q/w/e/a/d/z/x/c',
+        description: 'Move bot'
+      })
+      .add({
+        combo: 'j/k',
+        description: 'Prev/next bot'
+      })
+      ;
+
+    /* main.keypress = function(bot, $event) {  // TODO: cheat code
       console.log($event.keyCode);
       switch($event.keyCode) {
         case 102:  // cheat
@@ -250,7 +335,7 @@ angular.module('myApp')
           break;
       }
 
-    };
+    }; */
 
     main.save = GAME.save;
 
@@ -259,23 +344,39 @@ angular.module('myApp')
     main.refresh = 1;
     main.cheat = false;
 
-    main.game = GAME;
-    main.world = GAME.world;
+    function setup() {
+      main.refresh = 1; // still used?
+      main.cheat = false;
 
-    var home = main.home = GAME.bots[0];
-    main.bots = GAME.bots;
-    main.scripts = GAME.scripts;
 
-    main.bot = GAME.bots[1];
-    //main.setBot(1);
+      //GAME.reset();
+      main.game = GAME;
+
+      main.world = GAME.world;  // delete this
+
+      var home = main.home = GAME.bots[0];  // remove these
+      main.bots = GAME.bots;
+      main.scripts = GAME.scripts;
+
+      main.bot = GAME.bots[1];  // dont do this
+
+      main.tick = 0;   // needed?
+      main.pause = false;
+    }
+
+    main.reset = function() {
+      console.log('reset');
+      $interval.cancel(timer);
+      GAME.clear().then(function() {
+        $window.location.reload();
+        //$route.reload
+      });
+    }
+
+    setup();
 
     var mapDisplaySize = [GAME.world.size,GAME.world.size]; // todo: chunk size
     var mapOffset = [0,0];  // TODO: focus on
-
-    var dT = 1;
-
-    main.tick = 0;
-    main.pause = false;
 
     //main.world.scanRange(0,0,1000);  // for testing
 
@@ -303,15 +404,25 @@ angular.module('myApp')
       return array;
     }
 
-    $interval(function tick() {  // todo: move to GAME?
+    var dT = 1;
+    var timer = $interval(function tick() {  // todo: move to GAME?
       if (!main.pause) {
         //console.log(GAME.bots);
         mezclar2(GAME.bots.slice(0)).forEach(function(_bot) {
           _bot.takeTurn(dT, GAME);
         });
-        main.tick++;
+        main.tick++;  // remove in favor of GAME.turn?
+        GAME.turn++;
+        if (GAME.turn % 20 === 0) {  // only save if changed?  don't autosave until autoload added.
+          GAME.save();
+        }
       }
-    }, dT*200); // todo: make variable speed, use setTimeout instead of interval
+    }, dT*500); // todo: make variable speed, use setTimeout instead of interval
+
+    $scope.$on("$destroy", function( event ) {
+      console.log('destroy');
+      $interval.cancel( timer );
+    });
 
   })
 

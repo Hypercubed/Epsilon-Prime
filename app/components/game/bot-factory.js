@@ -47,11 +47,11 @@ collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
 
 angular.module('myApp')
   .constant('defaultScripts', [   // make a servioce, add Construct script
-    { name: 'Debug', code: '$log($bot.name, $bot.x, $bot.y);' },
-    { name: 'Upgrade', code: '$bot.upgrade();' },
-    { name: 'Go Home', code: '$bot.moveTo($home.x,$home.y);' },
-    { name: 'Collect', code: collect },
-    { name: 'Test', code: '$log($bot.list())' }
+    //{ name: 'Debug', code: '$log($bot.name, $bot.x, $bot.y);' },
+    //{ name: 'Upgrade', code: '$bot.upgrade();' },
+    //{ name: 'Go Home', code: '$bot.moveTo($home.x,$home.y);' },
+    { name: 'Collect', code: collect }//,
+    //{ name: 'Test', code: '$log($bot.list())' }
   ])
   .factory('SandBox', function($log, Interpreter) {
 

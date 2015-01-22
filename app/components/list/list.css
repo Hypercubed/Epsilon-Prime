@@ -35,7 +35,7 @@
 
 .panel-list .list-group-item {
   background-color: #fff;
-  padding: 3px 16px;
+  padding: 3px 32px 3px 16px;
 }
 
 .panel-list .list-group-item.panel-active {

@@ -2,7 +2,7 @@ function ListController($scope) {
 
   $scope.page = 1;
 
-  console.log($scope.openItem.name);
+  //console.log($scope.openItem.name);
 
   $scope.item = $scope.openItem;
   $scope.opened = false;
@@ -81,7 +81,8 @@ angular.module('myApp')
       var lhs = match[1];
       var rhs = match[2];
 
-      $scope.items = $parse(rhs)($scope.$parent);
+      //$scope.items = $parse(rhs)($scope.$parent);
+      $scope.items = $scope.$parent.$eval(rhs);
 
       /* if ($attrs.ngModel) {
           $scope.openItem = $parse($attrs.ngModel)($scope.$parent);

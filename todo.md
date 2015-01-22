@@ -2,16 +2,17 @@
 
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
-## Milestones
+## Preview Milestones
 - [ ] Scrolling map. By chunk?
 - [ ] D*
-- [ ] Save game
 - [ ] End game
 
 ## Bugs
 - [ ] JS-interpretor scanning broken
-- [ ] Incorrect bot highlighting
+- [x] Incorrect bot highlighting
 - [ ] Map not square
+- [ ] Upgrade using base resources
+- [ ] Bots can go off map
 
 ## Next
 - [ ] Ensure bot starts in plain
@@ -27,6 +28,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Need to indicate when unit is on mine.
 
 ## Decisions
+- [ ] Autosave
 - [ ] Start with just rover? Upgrade self?
 - [ ] Script panel
 - [ ] D* for moveTo

@@ -18,24 +18,33 @@ angular
     'ui.ace',
     'ui.bootstrap',
     'xeditable',
-    'LocalStorageModule'
+    'cfp.hotkeys',
+    'LocalForageModule'
   ])
+  .constant('debug', true)
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'components/main/main.html',
-        controller: 'MainCtrl as main'
+        controller: 'MainCtrl as main',
+        resolve: {
+          savedGame: function(GAME) {
+            //console.log('resolve');
+            return GAME.load();
+          }
+        }
       })
       .otherwise({
         redirectTo: '/'
       });
   })
-  .config(function($logProvider){
-    $logProvider.debugEnabled(true);
+  .config(function($logProvider, debug){
+    $logProvider.debugEnabled(debug);
   })
-  .config(function (localStorageServiceProvider) {
-    localStorageServiceProvider
-      .setPrefix('myApp');
+  .config(function ($localForageProvider) {
+    $localForageProvider.config({
+      name : 'eprime'
+    });
   })
   .run(function(editableOptions) {
     editableOptions.theme = 'bs3';

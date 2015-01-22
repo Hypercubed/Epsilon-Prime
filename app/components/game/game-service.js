@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('myApp')
-.service('GAME', function(World, Bot, TILES, defaultScripts, localStorageService) {
+.service('GAME', function($log, World, Bot, Chunk, TILES, defaultScripts, $localForage) {
   var GAME = this;
 
   GAME.scripts = defaultScripts;
@@ -12,18 +12,47 @@ angular.module('myApp')
 
   GAME.save = function() {
 
-    var G = {
-      world: GAME.world,
-      bots: GAME.bots,
-      scripts: GAME.scripts
+    var chunkData = {};
+    angular.forEach(GAME.world.$$chunks, function(chunk, key) {
+      chunkData[key] = Array.prototype.slice.call(chunk.view);  //todo: better, convert to string?
+    });
+
+    var bots = GAME.bots.map(ssCopy);
+    //console.log(bots);
+
+    //console.log(chunkData);
+
+    function ssCopy(src) {
+
+      var dst = {};
+      for (var key in src) {
+        if (src.hasOwnProperty(key) && !(key.charAt(0) === '$')) {
+          dst[key] = src[key];
+        }
+      }
+
+      return dst;
     }
 
-    localStorageService.set('saveGame', G);
+    var G = {
+      T: GAME.turn,
+      E: GAME.E,
+      S: GAME.S,
+      world: ssCopy(GAME.world),
+      bots: bots,
+      scripts: GAME.scripts,
+      chunks: chunkData
+    }
+
+    //localStorageService.set('saveGame', G);
+    return $localForage.setItem('saveGame', G).then(function() {
+      $log.debug('saved');
+    });
 
     //console.log(angular.toJson(G));
   }
 
-  function ab2str(arr) {
+  /* function ab2str(arr) {
     return String.fromCharCode.apply(null, arr);
   }
 
@@ -34,32 +63,56 @@ angular.module('myApp')
       bufView[i] = str.charCodeAt(i);
     }
     return buf;
-  }
+  } */
 
   GAME.load = function() {
 
-    var G = localStorageService.get('saveGame');
+    return $localForage.getItem('saveGame').then(function(G) {
+      if (!G) { return console.log('saveGame not found'); }
 
-    angular.extend(GAME.world, G.world);
+      $log.debug('game loaded',arguments);
 
-    G.bots.forEach(function(_bot, i) {
-      var bot = GAME.bots[i];
-      if (!bot) {
-        bot = new Bot('', 0, 1, GAME);
-        GAME.bots.push(bot);
-      }
-      angular.extend(bot, _bot);
+      angular.extend(GAME.world, G.world);
+
+      GAME.world.$$chunks = {};
+      angular.forEach(G.chunks, function(chunkView, key) {
+        GAME.world.$$chunks[key] = new Chunk(chunkView);
+      });
+
+      G.bots.forEach(function(_bot, i) {
+        var bot = GAME.bots[i];
+        if (!bot) {
+          bot = new Bot('', 0, 1, GAME);
+          GAME.bots.push(bot);
+        }
+        angular.extend(bot, _bot);
+      });
+
+      //console.log(GAME.bots);
+
+      angular.copy(G.scripts, GAME.scripts);
+
+      GAME.E = G.E;
+      GAME.S = G.S;
+      GAME.turn = G.T;
     });
 
-    console.log(GAME.bots);
-
-    angular.extend(GAME.scripts, G.scripts);
-
-    //console.log(angular.toJson(G));
   }
 
+  GAME.clear = function() {
+    return $localForage.clear();
+  };
+
   GAME.reset = function setup() {
-    GAME.world = new World(60);
+
+    if (GAME.world) {
+      GAME.world.$$chunks = {};
+    } else {
+      GAME.world = new World(60);
+    }
+
+    //GAME.world = new World(60);
+    //console.log(GAME.world);
 
     var home = new Bot('Base', 30, 10, GAME);
     home.code = defaultScripts.Upgrade; // todo: only key
@@ -81,8 +134,9 @@ angular.module('myApp')
 
     GAME.bots = [home, bot];
 
-    GAME.E = 0;
+    GAME.E = 0;  // todo: create stats object
     GAME.S = 0;
+    GAME.turn = 0;
 
   }
 

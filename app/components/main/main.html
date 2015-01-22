@@ -12,7 +12,7 @@
     </div>
 
     <div class="col-md-6 ctrl unit-ctrl">
-      <div sliding-list="bot in main.bots" item="main.bot">
+      <div sliding-list="bot in main.game.bots" item="main.bot">
         <div class="small" bot-panel="bot" show-controls="opened"></div>
       </div>
     </div>
@@ -28,11 +28,14 @@
 
 <div id="footer">
   <div class="container muted credit">
+    Turn: {{main.game.turn}}
     <i class="glyphicon glyphicon-flash"></i> {{main.game.E | number:0}}
     <i class="glyphicon glyphicon-asterisk"></i> {{main.game.S | number:0}}
-    <!-- a href='./' >reset</a -->
-    <a href ng-click="main.game.save()">save</a>
-    <a ng-click="main.game.load()">load</a>
-    {{main.bot.name}}
-  </div>
+    <span class="pull-right">
+      <!-- a href='./' >reset</a -->
+      <button class="btn btn-xs btn-link" ng-click="main.reset()">restart</buttona>
+      <button class="btn btn-xs btn-link" ng-click="main.game.save()">save</button>
+      <!-- button class="btn btn-xs btn-link" ng-click="main.game.load()">load</button -->
+    </span>
+ </div>
 </div>

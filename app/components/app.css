@@ -68,6 +68,14 @@ body {
   padding: 5px 10px;
 }
 
+.btn {
+  margin: 0;
+}
+
+.btn-group, .btn-group-vertical {
+  margin: 0;
+}
+
 
 
 /* Sticky footer styles
