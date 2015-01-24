@@ -1,4 +1,4 @@
-function ListController($scope) {
+function ListController($scope, hotkeys) {
 
   $scope.page = 1;
 
@@ -26,6 +26,24 @@ function ListController($scope) {
   $scope.close = function() {
     $scope.opened = false;
   };
+
+  hotkeys.bindTo($scope)
+    .add({
+      combo: 'k',
+      //description: 'next bot',
+      callback: function() {
+        $scope.page = Math.min($scope.page+1, $scope.items.length);
+        $scope.pageChanged($scope.page);
+      }
+    })
+    .add({
+      combo: 'j',
+      //description: 'prev bot',
+      callback: function() {
+        $scope.page = Math.max($scope.page-1, 1);
+        $scope.pageChanged($scope.page);
+      }
+    });
 
 }
 

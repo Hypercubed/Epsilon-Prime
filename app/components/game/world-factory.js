@@ -113,6 +113,10 @@ angular.module('myApp')
       this.$$chunks = {};
     }
 
+    World.prototype.getHash = function() {  // should be in chunk?
+      return d3.sum(this.$$chunks, _F('hash'));  // reduce dependancies
+    };
+
     World.prototype.getChunkId = function(x,y) {  // should be in chunk?
       var X = Math.floor(x / this.size);  // chunk
       var Y = Math.floor(y / this.size);
@@ -131,6 +135,10 @@ angular.module('myApp')
     };
 
     World.prototype.getIndex = function(x,y) {  // used?
+      if (angular.isObject(x)) {
+        y = x.y;
+        x = x.x;
+      }
       var X = Math.floor(x), Y = Math.floor(y);
       X = X % this.size; Y = Y % this.size;
       return Y*this.size+X;

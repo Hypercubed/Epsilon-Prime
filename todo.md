@@ -10,8 +10,9 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] favicon
 
 ## Bugs
-- [ ] d3 draw slow
-- [ ] Layers in d3 draw
+- [ ] Replace hotkek help with pause dialog
+- [ ] optimize d3 draw
+- [x] Layers in d3 draw
 - [ ] JS-interpretor scanning broken
 - [x] Incorrect bot highlighting
 - [x] Map not square

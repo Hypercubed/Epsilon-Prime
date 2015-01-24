@@ -1,5 +1,7 @@
 /* global ace:true */
 
+(function() {
+
 'use strict';
 
 /**
@@ -69,41 +71,26 @@ angular.module('myApp')
 
     //main.getTile = getTile;
 
-    main.drawWatch = function drawWatch() {  // Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
+    main.drawWatch = function drawWatch() {  // Move to GAME? Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
 
       //var xs = mapOffset[0], ys = mapOffset[1];
-      var s = d3.sum(GAME.world.$$chunks, _F('hash'));
-      //var s = GAME.world.getChunk(xs,ys).hash;  // todo: not ?
-      //console.log(s);
+      var s = ''+GAME.world.getHash();
 
-      /* var xs = mapOffset[0], ys = mapOffset[1];
-      var xe = xs+mapDisplaySize[0], ye = ys+mapDisplaySize[1];
-
-      for(var y = ys; y < ye; y++) {  // need to iterate over rows first
-        for(var x = xs; x < xe; x++) {
-          var tile = main.world.get(x,y);
-          if (tile.s && (tile.t === TILES.MINE || tile.t === TILES.HOLE)) {
-            s += tile.t;
-          }
-        }
-      } */
-
-      var ke = GAME.bots.length;  // do better
+      var ke = GAME.bots.length;  // do better, move to GAME service
       var ws = GAME.world.size;
       for(var k = 0; k < ke; k++) {
         var bot = GAME.bots[k];
-        s += bot.t+ws*bot.x+bot.y+(bot === main.bot ? '!' : '');
+        var index = GAME.world.getIndex(bot);
+        console.log(index);
+        s += bot.t+index+(bot === main.bot ? '!' : '');
       }
 
-      //s+=mapOffset[0]+mapOffset[1];
-
       return s;
-      //return main.world.chunk.hash;
     };
 
     $scope.$watch(main.drawWatch, d3Draw); // don't do this
 
-    function Grid() {
+    function Grid() {  // TODO: move
       var margin = {top: -5, right: -5, bottom: -5, left: -5},
           width = 500 - margin.left - margin.right,
           height = 500 - margin.top - margin.bottom;
@@ -144,8 +131,8 @@ angular.module('myApp')
       function my(selection) {
         selection.each(function(d, i) {
 
-          var tiles = GAME.world.scanList();  // todo: chunk
-          var bots = GAME.bots;
+          var tiles = d[0];  // TODO: not this
+          var bots = d[1];
 
           //d3.select('#grid').select('svg').remove();
 
@@ -179,7 +166,9 @@ angular.module('myApp')
           }
 
           var tiles = gTilesLayer
-            .selectAll('.tile').data(tiles).enter()
+            .selectAll('.tile').data(tiles);
+
+          tiles.enter()
               .append('g')
                 .attr('class', 'tile')
                 .attr('transform', function(d) {
@@ -189,21 +178,20 @@ angular.module('myApp')
                   .attr(textAttr)
                   .text(_tile);
 
-          var gBots = gBotsLayer
-            .selectAll('.bot').data(bots).enter()
-            .append('g')
-              .attr('class', function(d) {
-                var _class = 'bot bot-'+d.name.toLowerCase();
-                if (d === main.bot) {
-                  _class += ' active';
-                }
-                return _class;
-              })
-              .attr('transform', function(d) {
-                return 'translate('+[_X(d),_Y(d)]+')';
-              });
+          tiles
+            .attr('transform', function(d) {
+              return 'translate('+[_X(d),_Y(d)]+')';
+            })
+            .select('text')
+              .text(_tile);
 
-          gBots
+          var gBots = gBotsLayer
+            .selectAll('.bot').data(bots);
+
+          var gBotsEnter = gBots.enter()
+            .append('g');
+
+          gBotsEnter
               .append('circle')
               .attr({
                 r: 1.2*dx,
@@ -211,10 +199,29 @@ angular.module('myApp')
                 cy: 0
               });
 
+          gBotsEnter
+              .append('text')
+                .attr(textAttr)
+                .text(_tile);
+
           gBots
-            .append('text')
-              .attr(textAttr)
-              .text(_tile);
+              .attr('class', function(d) {
+                var _class = 'bot bot-'+d.name.toLowerCase();
+                if (d === main.bot) {  // this is not good
+                  _class += ' active';
+                }
+                return _class;
+              })
+              .attr('transform', function(d) {
+                return 'translate('+[_X(d),_Y(d)]+')';
+              })
+              .select('text')
+                .text(_tile);
+
+          //gBots
+          //  .append('text')
+          //    .attr(textAttr)
+          //    .text(_tile);
 
         });
       }
@@ -227,9 +234,10 @@ angular.module('myApp')
     function d3Draw() {
       $log.debug('d3 draw');
 
-      d3.select('#grid').call(grid);
+      var tiles = GAME.world.scanList();  // todo: chunk
+      var bots = GAME.bots;
 
-      return;
+      d3.select('#grid').datum([tiles,bots]).call(grid);
 
     }
 
@@ -357,16 +365,7 @@ angular.module('myApp')
       }
     };
 
-    var d = [  // move
-      ['q','NW',-1,-1],
-      ['w','N' , 0,-1],
-      ['e','NE', 1,-1],
-      ['a','W' ,-1, 0],
-      ['d','E' , 1, 0],
-      ['z','SW',-1, 1],
-      ['x','S' , 0, 1],
-      ['c','SE', 1, 1]
-    ]
+
 
     /* cheat */
     if (debug) {
@@ -385,7 +384,7 @@ angular.module('myApp')
 
     /* global */
     hotkeys.bindTo($scope)
-      .add({
+      /* .add({
         combo: 'k',
         //description: 'next bot',
         callback: function() {
@@ -400,7 +399,7 @@ angular.module('myApp')
           var i = GAME.bots.indexOf(main.bot);
           main.bot = GAME.bots[i-1] || GAME.bots[GAME.bots.length-1];
         }
-      })
+      }) */
       .add({
         combo: 'esc',
         description: 'Pause game',
@@ -409,7 +408,18 @@ angular.module('myApp')
         }
       });
 
-    /* bot directions */
+    var d = [  // move somewhere else
+      ['q','NW',-1,-1],
+      ['w','N' , 0,-1],
+      ['e','NE', 1,-1],
+      ['a','W' ,-1, 0],
+      ['d','E' , 1, 0],
+      ['z','SW',-1, 1],
+      ['x','S' , 0, 1],
+      ['c','SE', 1, 1]
+    ]
+
+    /* bot directions */  // move somewhere else
     d.forEach(function(k) {
       hotkeys.bindTo($scope)
         .add({
@@ -421,12 +431,12 @@ angular.module('myApp')
         });
     });
 
-    /* bot actions */
+    /* bot actions */  // move somewhere else
     hotkeys.bindTo($scope)
-      .add({
-        combo: 'q w e a d z x c',
-        description: 'Move bot'
-      })
+      //.add({
+      //  combo: 'q w e a d z x c',
+      //  description: 'Move bot'
+      //})
       .add({
         combo: 's',
         description: 'Action (Unload/load/mine)',
@@ -444,8 +454,7 @@ angular.module('myApp')
       .add({
         combo: 'j k',
         description: 'Prev/next bot'
-      })
-      ;
+      });
 
     /* main.keypress = function(bot, $event) {  // TODO: cheat code
       console.log($event.keyCode);
@@ -518,11 +527,11 @@ angular.module('myApp')
       main.play(0);
 
       return $modal.open({
-        templateUrl: 'components/main/end-model.html',
+        templateUrl: 'components/main/confirm-model.html',
         backdrop: 'static',
         keyboard: false,
         size: 'lg',
-        controller: 'EndModalInstanceCtrl',
+        controller: 'ConfirmInstanceCtrl',
         resolve: {
           data: function() {
             return {
@@ -608,7 +617,7 @@ angular.module('myApp')
 
   })
 
-  .controller('EndModalInstanceCtrl', function ($scope, data, GAME) {
+  .controller('ConfirmInstanceCtrl', function ($scope, data, GAME) {
 
     $scope.game = GAME;
     $scope.message = data.message;
@@ -617,7 +626,7 @@ angular.module('myApp')
   })
 
   // todo: combine bindHtmlCompile and kcdRecompile
-  .directive('bindHtmlCompile', function ($sce, $parse, $compile) {  //https://github.com/incuna/angular-bind-html-compile/blob/master/angular-bind-html-compile.js
+  /* .directive('bindHtmlCompile', function ($sce, $parse, $compile) {  //https://github.com/incuna/angular-bind-html-compile/blob/master/angular-bind-html-compile.js
     return {
       restrict: 'A',
       compile: function (tElement, tAttrs) {
@@ -637,7 +646,7 @@ angular.module('myApp')
         };
       }
     };
-  })
+  }) */
 
   .directive('botPanel', function ($parse) {  //https://github.com/incuna/angular-bind-html-compile/blob/master/angular-bind-html-compile.js
     return {
@@ -650,6 +659,10 @@ angular.module('myApp')
         return function link(scope, element, attrs) {
           scope.bot = scope.$parent.$eval(tAttrs.botPanel);
           scope.showControls = angular.isDefined(attrs.showControls) && scope.$parent.$eval(tAttrs.showControls);
+
+          if (scope.showControls) {
+
+          }
 
           scope.$parent.$watch(tAttrs.botPanel, function(val) {
             scope.bot = val;
@@ -673,7 +686,7 @@ angular.module('myApp')
     };
   }) */
 
-  .directive('kcdRecompile', function($compile, $parse) {
+  /* .directive('kcdRecompile', function($compile, $parse) {
 
     function removeChildrenWatchers(element) {
       angular.forEach(element.children(), function(childElement) {
@@ -713,4 +726,8 @@ angular.module('myApp')
       }
     };
 
-  });
+  }) */;
+
+
+})();
+
