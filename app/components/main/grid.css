@@ -1,0 +1,34 @@
+
+
+#grid svg {
+  font-family: "Courier New", Courier, monospace;
+}
+
+#grid text {
+  fill: #000;
+  font-size: 12px;
+  pointer-events: none;
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+
+#grid .bot rect, #grid .bot circle {
+  fill: #eee;
+  opacity: 0;
+}
+
+#grid .bot text {
+  fill: #a94442;
+}
+
+#grid .bot-base text {
+  fill: #428bca;
+}
+
+#grid .bot.active text {
+  font-weight: bold;
+}
+
+#grid .bot.active rect, #grid .bot.active circle {
+  fill: #2DFF00;
+  opacity: 0.4;
+}

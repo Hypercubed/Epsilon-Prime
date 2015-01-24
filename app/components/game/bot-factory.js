@@ -16,7 +16,6 @@ return res;
 */
 
 var collect = (function random($bot) {
-
 $bot.unload();
 $bot.charge();
 
@@ -36,7 +35,6 @@ if ($bot.S >=  $bot.mS) {
       y = 3*Math.random()-1+$bot.y;
     }
     $bot.moveTo(x,y);
-
   }
 }
 
@@ -48,7 +46,8 @@ collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
 angular.module('myApp')
   .constant('defaultScripts', [   // make a servioce, add Construct script
     //{ name: 'Debug', code: '$log($bot.name, $bot.x, $bot.y);' },
-    //{ name: 'Upgrade', code: '$bot.upgrade();' },
+    { name: 'Upgrade', code: '$bot.upgrade();' },
+    { name: 'Construct', code: '$bot.construct();' },
     //{ name: 'Go Home', code: '$bot.moveTo($home.x,$home.y);' },
     { name: 'Collect', code: collect }//,
     //{ name: 'Test', code: '$log($bot.list())' }
@@ -257,6 +256,10 @@ angular.module('myApp')
         bot.upgrade();
       }
 
+      function $$construct() {  // not working in acorn
+        bot.construct('Collect');
+      }
+
       function $$list() {  // not working in acorn
         var r = bot.scanList();
         return createArray(r);
@@ -292,7 +295,8 @@ angular.module('myApp')
       setMethod('unload',$$unload);
       setMethod('charge',$$charge);
       setMethod('upgrade',$$upgrade);
-      setMethod('list',$$list);
+      setMethod('construct',$$construct);
+      //setMethod('list',$$list);
       setMethod('find',$$find);
 
       //setMethod('$x',$$x);
@@ -386,7 +390,7 @@ angular.module('myApp')
       this.message = '';
       this.scriptName = '';
 
-      this.$$script = null;
+      this.$$script = null;  // used
       this.$$sandBox = new SandBox(this, GAME);
     }
 
@@ -518,7 +522,7 @@ angular.module('myApp')
     };
 
     Bot.prototype.run = function() {
-      //this.setCode(this.script);
+      this.message = '';
       this.manual = false;
     };
 
@@ -576,13 +580,15 @@ angular.module('myApp')
       }
     };
 
-    Bot.prototype.construct = function() {
+    Bot.prototype.construct = function(script) {
       if (this.S >= 100) {
         var bot = new Bot('Rover', this.x, this.y);
-        bot.scriptName = defaultScripts[0].name;  // todo: should keep key?
+        bot.scriptName = script || 'Collect';
+        bot.manual = angular.isDefined(script);
         bot.$home = this;
 
         this.S -= 100;
+        GAME.bots.push(bot);
         return bot;
       }
       return null;

@@ -15,14 +15,14 @@ angular.module('myApp')
 
     var main = this;
 
-    main.construct = function(home) {
+    /* main.construct = function(home) {
       var bot = home.construct();
       if (bot) {
         GAME.bots.push(bot);  // need to move this somewhere, needed in Bot.prototype.construct
       }
-    };
+    }; */
 
-    main.setBot = function(index) {  // still used?
+    /* main.setBot = function(index) {  // still used?
       //if (arguments.length < 1) {
       //  index = main.index;
       //}
@@ -31,9 +31,9 @@ angular.module('myApp')
       //main.code = bot.code;
       //main.manual = bot.manual;
       //main.refresh++;
-    };
+    }; */
 
-    function getTile(x,y) {  // todo: create map directive
+    /* function getTile(x,y) {  // todo: create map directive
 
       var tile = GAME.world.get(x,y);
 
@@ -65,14 +65,15 @@ angular.module('myApp')
         return '&nbsp;';
       }
       return '*';
-    }
+    } */
 
-    main.getTile = getTile;
+    //main.getTile = getTile;
 
     main.drawWatch = function drawWatch() {  // Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
 
-      var xs = mapOffset[0], ys = mapOffset[1];
-      var s = GAME.world.getChunk(xs,ys).hash;  // todo: not ?
+      //var xs = mapOffset[0], ys = mapOffset[1];
+      var s = d3.sum(GAME.world.$$chunks, _F('hash'));
+      //var s = GAME.world.getChunk(xs,ys).hash;  // todo: not ?
       //console.log(s);
 
       /* var xs = mapOffset[0], ys = mapOffset[1];
@@ -94,17 +95,149 @@ angular.module('myApp')
         s += bot.t+ws*bot.x+bot.y+(bot === main.bot ? '!' : '');
       }
 
-      s+=mapOffset[0]+mapOffset[1];
+      //s+=mapOffset[0]+mapOffset[1];
 
       return s;
       //return main.world.chunk.hash;
     };
 
-    $scope.range = function(n) {
+    $scope.$watch(main.drawWatch, d3Draw); // don't do this
+
+    function Grid() {
+      var margin = {top: -5, right: -5, bottom: -5, left: -5},
+          width = 500 - margin.left - margin.right,
+          height = 500 - margin.top - margin.bottom;
+
+      var _tile = _F('t');
+      var _x = _F('x');
+      var _y = _F('y');
+
+      var xScale = d3.scale.linear()
+        .range([0, width])
+        .domain([0,60]);
+      var yScale = d3.scale.linear()
+        .range([0, height])
+        .domain([0,60]);
+
+      var dx = xScale(1), dy = yScale(1);
+
+      var _X = _F('x', xScale),
+          _Y = _F('y', yScale);
+
+      var textAttr = {
+        "text-anchor": "middle",
+        "alignment-baseline": "middle",
+        x: 0,
+        y: 0
+      }
+
+      var container = null;
+
+      function zoomed() {
+        container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+      }
+
+      var zoom = d3.behavior.zoom()
+        .scaleExtent([0.5, 10])
+        .on("zoom", zoomed);
+
+      function my(selection) {
+        selection.each(function(d, i) {
+
+          var tiles = GAME.world.scanList();  // todo: chunk
+          var bots = GAME.bots;
+
+          //d3.select('#grid').select('svg').remove();
+
+          if (!container) {
+            console.log('draw new');
+
+            var svg = d3.select(this)
+              .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append("g")
+                  .attr("transform", "translate(" + margin.left + "," + margin.right + ")")
+                  .call(zoom);
+
+            svg.append("rect")
+                .attr("width", width)
+                .attr("height", height)
+                .style("fill", "none")
+                .style("pointer-events", "all");
+
+            container = svg.append("g");
+
+            var gTilesLayer = container.append('g').attr('class','tilesLayer');
+            var gBotsLayer = container.append('g').attr('class','botsLayer');
+          } else {
+            var gBotsLayer = container.select('.botsLayer');
+            var gTilesLayer = container.select('.tilesLayer');
+
+            gTilesLayer.selectAll('.tile').remove();  // todo: not this
+            gBotsLayer.selectAll('.bot').remove();  // todo: not this
+          }
+
+          var tiles = gTilesLayer
+            .selectAll('.tile').data(tiles).enter()
+              .append('g')
+                .attr('class', 'tile')
+                .attr('transform', function(d) {
+                  return 'translate('+[_X(d),_Y(d)]+')';
+                })
+                .append('text')
+                  .attr(textAttr)
+                  .text(_tile);
+
+          var gBots = gBotsLayer
+            .selectAll('.bot').data(bots).enter()
+            .append('g')
+              .attr('class', function(d) {
+                var _class = 'bot bot-'+d.name.toLowerCase();
+                if (d === main.bot) {
+                  _class += ' active';
+                }
+                return _class;
+              })
+              .attr('transform', function(d) {
+                return 'translate('+[_X(d),_Y(d)]+')';
+              });
+
+          gBots
+              .append('circle')
+              .attr({
+                r: 1.2*dx,
+                cx: 0,
+                cy: 0
+              });
+
+          gBots
+            .append('text')
+              .attr(textAttr)
+              .text(_tile);
+
+        });
+      }
+
+      return my;
+    }
+
+    var grid = Grid();
+
+    function d3Draw() {
+      $log.debug('d3 draw');
+
+      d3.select('#grid').call(grid);
+
+      return;
+
+    }
+
+    /* $scope.range = function(n) {  // still needed?
       return new Array(n);
     };
 
-    main.draw = function() {  // todo: create map directive
+    main.draw = function() {  // still needed?
       $log.debug('draw');
 
       var b = '';
@@ -128,11 +261,9 @@ angular.module('myApp')
       mapOffset[1] += dy;
     }
 
-    main.panTo = function(x,y) {
-      console.log('pan');
-      mapOffset[0] = x+mapDisplaySize[0]/2;
-      mapOffset[1] = y+mapDisplaySize[1]/2;
-    }
+    main.panTo = function(x,y) { // TODO: tbd
+
+    } */
 
     main.relocate = function(bot) { // TODO: do something with rovers, move to bot class
       if (bot.E >= 1000) {
@@ -274,7 +405,7 @@ angular.module('myApp')
         combo: 'esc',
         description: 'Pause game',
         callback: function() {
-          main.pause = !main.pause;
+          pauseDialog('Paused', false);
         }
       });
 
@@ -293,8 +424,12 @@ angular.module('myApp')
     /* bot actions */
     hotkeys.bindTo($scope)
       .add({
+        combo: 'q w e a d z x c',
+        description: 'Move bot'
+      })
+      .add({
         combo: 's',
-        description: 'Unload/load/mine',
+        description: 'Action (Unload/load/mine)',
         callback: function() {
           main.mineOrUnload(main.bot);
         }
@@ -307,11 +442,7 @@ angular.module('myApp')
         }
       })
       .add({
-        combo: 'q/w/e/a/d/z/x/c',
-        description: 'Move bot'
-      })
-      .add({
-        combo: 'j/k',
+        combo: 'j k',
         description: 'Prev/next bot'
       })
       ;
@@ -375,49 +506,73 @@ angular.module('myApp')
       main.pause = true;
     }
 
-    main.reset = function() {
+    function reset() {
       clearTimer();
       GAME.clear().then(function() {
         $window.location.reload();
-        //$route.reload
       });
-    };
+    }
 
-    main.showEnd = function() {
+    function pauseDialog(message,showReset) {
+      var _dT = main.dT;
+      main.play(0);
 
-      main.dT = 0;
-      var modalInstance = $modal.open({
+      return $modal.open({
         templateUrl: 'components/main/end-model.html',
         backdrop: 'static',
         keyboard: false,
         size: 'lg',
-        controller: 'EndModalInstanceCtrl'
-      });
-
-      modalInstance.result.then(main.reset);
+        controller: 'EndModalInstanceCtrl',
+        resolve: {
+          data: function() {
+            return {
+              message: message,
+              showReset: showReset
+            };
+          }
+        }
+      })
+      .result
+        .then(reset, function() {
+          GAME.save();
+          main.play(_dT);
+        });
     }
 
-    main.showScripts = function() {
-      var pause = main.pause;
-      main.pause = true;
+    main.reset = function() {
+      pauseDialog('Are you sure?', true);
+    };
 
-      var modalInstance = $modal.open({
+    main.showEnd = function() {
+      pauseDialog('Congratulations', true);
+    };
+
+    main.save = function() {
+      GAME.save();
+      pauseDialog('Game saved.', false);
+    };
+
+    main.showScripts = function() {
+      var _dT = main.dT;
+      main.play(0);
+
+      function done() {
+        GAME.save();
+        main.play(_dT);
+      }
+
+      $modal.open({
         templateUrl: 'components/editor/editor.html',
         size: 'lg',
         controller: 'EditorCtrl as editor'
-      });
-
-      function done() {
-        main.pause = pause;
-        GAME.save();
-      }
-
-      modalInstance.result.then(done,done);
+      }).result.then(done,done);
     }
 
     setup();
 
-    var mapDisplaySize = [GAME.world.size,GAME.world.size]; // todo: chunk size
+    d3Draw();
+
+    var mapDisplaySize = [GAME.world.size,GAME.world.size]; // not used anymore?
     var mapOffset = [0,0];  // TODO: focus on
 
     main.dT = 0;   // move all this to GAME service?
@@ -439,6 +594,7 @@ angular.module('myApp')
     }
 
     main.play = function(_dT) {
+      clearTimer();
       main.dT = _dT;
       if (_dT > 0) {
         main.takeTurn();
@@ -452,9 +608,11 @@ angular.module('myApp')
 
   })
 
-  .controller('EndModalInstanceCtrl', function ($scope, GAME) {
+  .controller('EndModalInstanceCtrl', function ($scope, data, GAME) {
 
     $scope.game = GAME;
+    $scope.message = data.message;
+    $scope.showReset = data.showReset;
 
   })
 

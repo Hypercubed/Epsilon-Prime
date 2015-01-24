@@ -1,7 +1,15 @@
+(function() {
+
 'use strict';
 
+function mezclar2(arr) {  // fast shuffle
+  for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp) {}
+  return arr;
+}
+
 angular.module('myApp')
-.service('GAME', function($log, World, Bot, Chunk, TILES, defaultScripts, $localForage) {
+.service('GAME', function($log, $localForage, World, Bot, Chunk, TILES, defaultScripts) {
+
   var GAME = this;
 
   GAME.scripts = defaultScripts;
@@ -14,8 +22,14 @@ angular.module('myApp')
 
     var chunkData = {};
     angular.forEach(GAME.world.$$chunks, function(chunk, key) {
-      chunkData[key] = Array.prototype.slice.call(chunk.view);  //todo: better, convert to string?
+      chunkData[key] = {  // not sure why I need this, $localForage doesnt like typed arrays
+        X: chunk.X,
+        Y: chunk.Y,
+        view: Array.prototype.slice.call(chunk.view)  //todo: better, convert to string?
+      }
     });
+
+    //console.log(chunkData);
 
     var bots = GAME.bots.map(ssCopy);
     //console.log(bots);
@@ -75,8 +89,8 @@ angular.module('myApp')
       angular.extend(GAME.world, G.world);
 
       GAME.world.$$chunks = {};
-      angular.forEach(G.chunks, function(chunkView, key) {
-        GAME.world.$$chunks[key] = new Chunk(chunkView);
+      angular.forEach(G.chunks, function(chunk, key) {
+         GAME.world.$$chunks[key] = new Chunk(chunk.view, chunk.X, chunk.Y);
       });
 
       G.bots.forEach(function(_bot, i) {
@@ -115,7 +129,8 @@ angular.module('myApp')
     //console.log(GAME.world);
 
     var home = new Bot('Base', 30, 10, GAME);
-    home.scriptName = 'Upgrade'; // todo: only key
+    home.scriptName = 'Construct'; // todo: only key
+    home.manual = false;
     home.S = 100;
     home.E = 0;
     home.dE = 0.1;
@@ -139,11 +154,8 @@ angular.module('myApp')
     GAME.S = 0;
     GAME.turn = 0;
 
-  }
+    return GAME;
 
-  function mezclar2(arr) {  // fast shuffle
-    for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp) {}
-    return arr;
   }
 
   GAME.takeTurn = function() {
@@ -159,3 +171,9 @@ angular.module('myApp')
   GAME.reset();
 
 });
+
+})();
+
+
+
+

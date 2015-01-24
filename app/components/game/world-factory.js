@@ -5,6 +5,10 @@
 
   /* Private functions */
 
+  function modulo(x,n) {
+    return ((x%n)+n)%n;
+  }
+
   function perlin(x,y,N) {
     var z = 0, s = 0;
     for (var i = 0; i < N; i++) {
@@ -39,7 +43,7 @@ angular.module('myApp')
   .value('TILES', {
     EMPTY: String.fromCharCode(0),
     MOUNTAIN: '#',
-    FIELD: '.',
+    FIELD: '·',
     MINE: 'X',
     HILL: ',',
     BOT: 'A',
@@ -47,7 +51,7 @@ angular.module('myApp')
     HOLE: 'O'
   })
   .factory('Chunk', function () {
-    function Chunk(_) {
+    function Chunk(_, X, Y) {
 
       //console.log(_);
 
@@ -61,13 +65,19 @@ angular.module('myApp')
         this.view = new Uint8ClampedArray(this.length);
       }
 
+      this.X = Math.floor(X);  // store offset rather than index?
+      this.Y = Math.floor(Y);
       this.hash = 0;
+    }
+
+    Chunk.prototype.id = function() {
+      return this.X+','+this.Y;
     }
 
     Chunk.prototype.index = function(x,y) {
       var s = this.size;
-      x = Math.floor(x) % s;
-      y = Math.floor(y) % s;
+      x = modulo(Math.floor(x),s); //Math.floor(x) % s;   // not working when x < -2*s
+      y = modulo(Math.floor(y),s); //Math.floor(y) % s;
       return y*s+x;
     };
 
@@ -103,10 +113,10 @@ angular.module('myApp')
       this.$$chunks = {};
     }
 
-    World.prototype.getChunkId = function(x,y) {
+    World.prototype.getChunkId = function(x,y) {  // should be in chunk?
       var X = Math.floor(x / this.size);  // chunk
       var Y = Math.floor(y / this.size);
-      return Y+';'+X;
+      return X+','+Y;
     };
 
     World.prototype.getChunk = function(x,y) {  // todo: chunks object
@@ -114,12 +124,13 @@ angular.module('myApp')
       var chunk = this.$$chunks[id];
       if (!chunk) {
         $log.debug('new chunk',id);
-        chunk = this.$$chunks[id] = new Chunk(this.size);
+        chunk = new Chunk(this.size, x / this.size, y / this.size);
+        this.$$chunks[chunk.id()] = chunk;
       }
       return chunk;
     };
 
-    World.prototype.getIndex = function(x,y) {
+    World.prototype.getIndex = function(x,y) {  // used?
       var X = Math.floor(x), Y = Math.floor(y);
       X = X % this.size; Y = Y % this.size;
       return Y*this.size+X;
@@ -170,8 +181,8 @@ angular.module('myApp')
         y = x.y;
         x = x.x;
       }
-      if (x < 0 || x >= this.size) { return null; } // Git rid of this...
-      if (y < 0 || y >= 40) { return null; }
+      //if (x < 0 || x >= this.size) { return null; } // Git rid of this...
+      //if (y < 0 || y >= 40) { return null; }
 
       var z = this._get(x,y);
 
@@ -201,7 +212,7 @@ angular.module('myApp')
       return r;
     };
 
-    World.prototype.scanList = function() {
+    World.prototype._scanList = function() {
       var xs = this.size;  // need to limit region??
       var ys = this.size;
       var r = [];
@@ -213,6 +224,30 @@ angular.module('myApp')
           }
         }
       }
+      return r;
+    };
+
+    World.prototype.scanList = function() {  // list of all excisting tiles
+      var self = this;
+
+      var xs = this.size;
+      var ys = this.size;
+
+      var r = [];
+      angular.forEach(this.$$chunks,function(chunk,key) {  // do better, need to limit range
+        //console.log(key);
+        var X = chunk.X*xs;
+        var Y = chunk.Y*ys;
+        for(var i = X; i < X+xs; i++) {
+          for(var j = Y; j < Y+ys; j++) {
+            var t = self.get(i,j);
+            //console.log(t);
+            if (t !== null && t.t !== TILES.EMPTY) {
+              r.push(t);
+            }
+          }
+        }
+      });
       return r;
     };
 
