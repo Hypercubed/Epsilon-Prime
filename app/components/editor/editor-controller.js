@@ -12,18 +12,67 @@
 */
 
 angular.module('myApp')
-  .controller('EditorCtrl', function($log, GAME) {
+  .controller('EditorCtrl', function($log, $modalInstance, GAME) {
 
     var editor = this;
 
-    editor.scripts = GAME.scripts;
-    editor.master = editor.scripts[0];
+    editor.set = function(script) {
+      editor.script = script;
+    };
+
+    editor.reset = function(form) {
+      if (form) {
+        form.$setPristine();
+        form.$setUntouched();
+        form.code.$error = {};
+      }
+      editor.scripts = angular.copy(GAME.scripts);
+      editor.script = editor.scripts[0];
+    };
 
     editor.new = function() {
-      editor.master = {name: '', code: '$log($bot.name, $bot.x, $bot.y);' };
-      editor.scripts.push(editor.master);
-      editor.reset();
+      editor.script = {name: 'new', code: '$log($bot.name, $bot.x, $bot.y);' };
+      editor.scripts.push(editor.script);
     };
+
+    editor.update = function(script, form) {
+
+      try {
+        $log.debug('Validate');
+
+        acorn.parse(script.code);
+
+        if (form) {
+          form.$setPristine();
+          form.$setUntouched();
+        }
+
+      } catch(err) {
+        form.code.$error.syntaxError = err.message;
+      }
+
+    };
+
+    //editor.cancel = function(form) {
+    //  $modalInstance.dismiss('cancel');
+    //};
+
+    editor.save = function(form) {
+      GAME.scripts = angular.copy(editor.scripts);
+      console.log(GAME.scripts, editor.scripts);
+      $modalInstance.close();
+    };
+
+    /* editor.reset = function(form) {
+      if (form) {
+        form.$setPristine();
+        form.$setUntouched();
+        form.code.$error = {};
+      }
+      editor.script = angular.copy(editor.master);
+    };
+
+
 
     editor.set = function(script) {
       editor.master = script;
@@ -33,7 +82,7 @@ angular.module('myApp')
     editor.update = function(script, form) {
 
       try {
-        $log.debug('Validate', script.code);
+        $log.debug('Validate');
 
         editor.master.ast = acorn.parse(script.code);
         angular.extend(editor.master, script);
@@ -47,26 +96,12 @@ angular.module('myApp')
         form.code.$error.syntaxError = err.message;
       }
 
-    };
-
-    editor.reset = function(form) {
-      if (form) {
-        form.$setPristine();
-        form.$setUntouched();
-        form.code.$error = {};
-      }
-      editor.script = angular.copy(editor.master);
-    };
+    }; */
 
     editor.aceLoaded = function(_editor){
-      // Editor part
-      var _session = _editor.getSession();
-      //var _renderer = _editor.renderer;
-
-      // Options
-      //_session.setOption('firstLineNumber', 3);
-      _session.setUndoManager(new ace.UndoManager());
-
+      _editor
+        .getSession()
+        .setUndoManager(new ace.UndoManager());
     };
 
     editor.reset();

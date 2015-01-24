@@ -115,7 +115,7 @@ angular.module('myApp')
     //console.log(GAME.world);
 
     var home = new Bot('Base', 30, 10, GAME);
-    home.code = defaultScripts.Upgrade; // todo: only key
+    home.scriptName = 'Upgrade'; // todo: only key
     home.S = 100;
     home.E = 0;
     home.dE = 0.1;
@@ -131,6 +131,7 @@ angular.module('myApp')
     GAME.world.scanRange(home);
 
     var bot = home.construct();
+    bot.scriptName = 'Collect';
 
     GAME.bots = [home, bot];
 
@@ -138,6 +139,21 @@ angular.module('myApp')
     GAME.S = 0;
     GAME.turn = 0;
 
+  }
+
+  function mezclar2(arr) {  // fast shuffle
+    for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp) {}
+    return arr;
+  }
+
+  GAME.takeTurn = function() {
+    mezclar2(GAME.bots.slice(0)).forEach(function(_bot) {
+      _bot.takeTurn(1);
+    });
+    GAME.turn++;
+    if (GAME.turn % 20 === 0) {  // only save if changed?
+      GAME.save();
+    }
   }
 
   GAME.reset();

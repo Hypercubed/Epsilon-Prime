@@ -300,11 +300,22 @@ angular.module('myApp')
     };
 
     SandBox.prototype.run = function() {
+      //console.log('SandBox.prototype.run');
       var self = this;
       //var bot = this.bot;
       //var GAME = GAME;
 
-      var code = this.bot.script.code;
+      var scriptName = this.bot.scriptName;
+      var scripts = GAME.scripts.filter(function(script) {  // todo: move this.
+        return script.name === scriptName;
+      });
+
+      if (scripts.length < 1) {
+        $log.error('Script not found');
+        return;
+      }
+
+      var code = scripts[0].code;
 
       //this.home = this.bot.$home;  // hack
 
@@ -373,8 +384,9 @@ angular.module('myApp')
 
 
       this.message = '';
+      this.scriptName = '';
 
-      this.$$code = '';
+      this.$$script = null;
       this.$$sandBox = new SandBox(this, GAME);
     }
 
@@ -500,12 +512,13 @@ angular.module('myApp')
     };
 
     Bot.prototype.setCode = function(script) {
-      script = script || this.script;
-      this.script = script;  // todo: do initial check
+      //script = script || this.script;
+      this.scriptName = script.name;
+      //this.script = script;  // todo: do initial check
     };
 
     Bot.prototype.run = function() {
-      this.setCode(this.script);
+      //this.setCode(this.script);
       this.manual = false;
     };
 
@@ -566,7 +579,7 @@ angular.module('myApp')
     Bot.prototype.construct = function() {
       if (this.S >= 100) {
         var bot = new Bot('Rover', this.x, this.y);
-        bot.script = defaultScripts[3];  // todo: should keep key?
+        bot.scriptName = defaultScripts[0].name;  // todo: should keep key?
         bot.$home = this;
 
         this.S -= 100;

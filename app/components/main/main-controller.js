@@ -11,31 +11,31 @@
  */
 
 angular.module('myApp')
-  .controller('MainCtrl', function ($scope, $log, $route, $window, $interval, hotkeys, debug, isAt, TILES, GAME) {
+  .controller('MainCtrl', function ($scope, $log, $route, $window, $timeout, $modal, hotkeys, debug, isAt, TILES, GAME) {
 
     var main = this;
 
     main.construct = function(home) {
       var bot = home.construct();
       if (bot) {
-        main.bots.push(bot);  // need to move this somewhere, needed in Bot.prototype.construct
+        GAME.bots.push(bot);  // need to move this somewhere, needed in Bot.prototype.construct
       }
     };
 
     main.setBot = function(index) {  // still used?
-      if (arguments.length < 1) {
-        index = main.index;
-      }
-      main.index = index;
-      main.bot = main.bots[index];  // todo: rename main.bot -> main.curbot
-      main.code = bot.code;
-      main.manual = bot.manual;
-      main.refresh++;
+      //if (arguments.length < 1) {
+      //  index = main.index;
+      //}
+      //main.index = index;
+      main.bot = GAME.bots[index];  // todo: rename main.bot -> main.curbot
+      //main.code = bot.code;
+      //main.manual = bot.manual;
+      //main.refresh++;
     };
 
     function getTile(x,y) {  // todo: create map directive
 
-      var tile = main.world.get(x,y);
+      var tile = GAME.world.get(x,y);
 
       //console.log(tile);
 
@@ -46,7 +46,7 @@ angular.module('myApp')
           _class += ' active';
         }
 
-        var bots = main.bots.filter(function(bot) {
+        var bots = GAME.bots.filter(function(bot) {
           return isAt(bot,x,y);
         });
 
@@ -67,10 +67,12 @@ angular.module('myApp')
       return '*';
     }
 
+    main.getTile = getTile;
+
     main.drawWatch = function drawWatch() {  // Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
 
       var xs = mapOffset[0], ys = mapOffset[1];
-      var s = main.world.getChunk(xs,ys).hash;  // todo: not this
+      var s = GAME.world.getChunk(xs,ys).hash;  // todo: not ?
       //console.log(s);
 
       /* var xs = mapOffset[0], ys = mapOffset[1];
@@ -85,15 +87,21 @@ angular.module('myApp')
         }
       } */
 
-      var ke = main.bots.length;  // do better
-      var ws = main.world.size;
+      var ke = GAME.bots.length;  // do better
+      var ws = GAME.world.size;
       for(var k = 0; k < ke; k++) {
-        var bot = main.bots[k];
+        var bot = GAME.bots[k];
         s += bot.t+ws*bot.x+bot.y+(bot === main.bot ? '!' : '');
       }
 
+      s+=mapOffset[0]+mapOffset[1];
+
       return s;
       //return main.world.chunk.hash;
+    };
+
+    $scope.range = function(n) {
+      return new Array(n);
     };
 
     main.draw = function() {  // todo: create map directive
@@ -114,11 +122,22 @@ angular.module('myApp')
       return b;
     };
 
+    main.pan = function(dx,dy) {
+      console.log('pan');
+      mapOffset[0] += dx;
+      mapOffset[1] += dy;
+    }
+
+    main.panTo = function(x,y) {
+      console.log('pan');
+      mapOffset[0] = x+mapDisplaySize[0]/2;
+      mapOffset[1] = y+mapDisplaySize[1]/2;
+    }
+
     main.relocate = function(bot) { // TODO: do something with rovers, move to bot class
       if (bot.E >= 1000) {
         bot.E -= 1000;
-        main.world.generate();
-        main.world.scan(home);
+        main.showEnd();
       }
     };
 
@@ -134,7 +153,7 @@ angular.module('myApp')
     };
 
     main.canMine = function() {  // TODO: move to bot class?
-      return main.world.get(bot.x,bot.y).t === TILES.MINE;
+      return GAME.world.get(bot.x,bot.y).t === TILES.MINE;
     };
 
     /* main.chargeBot = function(bot) {
@@ -184,7 +203,7 @@ angular.module('myApp')
 
     main.canUnload = function(bot) {
       bot = bot || main.bot;
-      return isAt(bot,main.home) && bot.S > 0 && main.home.S < main.home.mS;
+      return isAt(bot,main.home) && bot.S > 0 && main.home.S < main.home.mS;  // ??
     };
 
     main.canCharge = function(bot) {
@@ -239,16 +258,16 @@ angular.module('myApp')
         combo: 'k',
         //description: 'next bot',
         callback: function() {
-          var i = main.bots.indexOf(main.bot);
-          main.bot = main.bots[i+1] || main.bots[0];
+          var i = GAME.bots.indexOf(main.bot);
+          main.bot = GAME.bots[i+1] || main.game.bots[0];
         }
       })
       .add({
         combo: 'j',
         //description: 'prev bot',
         callback: function() {
-          var i = main.bots.indexOf(main.bot);
-          main.bot = main.bots[i-1] || main.bots[main.bots.length-1];
+          var i = GAME.bots.indexOf(main.bot);
+          main.bot = GAME.bots[i-1] || GAME.bots[GAME.bots.length-1];
         }
       })
       .add({
@@ -337,40 +356,63 @@ angular.module('myApp')
 
     }; */
 
-    main.save = GAME.save;
-
-    // Init
-
-    main.refresh = 1;
-    main.cheat = false;
-
     function setup() {
-      main.refresh = 1; // still used?
+      //main.refresh = 1; // still used?
       main.cheat = false;
 
 
       //GAME.reset();
       main.game = GAME;
 
-      main.world = GAME.world;  // delete this
+      //main.world = GAME.world;  // delete this
 
-      var home = main.home = GAME.bots[0];  // remove these
-      main.bots = GAME.bots;
-      main.scripts = GAME.scripts;
+      main.home = GAME.bots[0];  // remove this??
+      //main.game.bots = GAME.bots;
+      //main.scripts = GAME.scripts;
 
       main.bot = GAME.bots[1];  // dont do this
 
-      main.tick = 0;   // needed?
-      main.pause = false;
+      main.pause = true;
     }
 
     main.reset = function() {
-      console.log('reset');
-      $interval.cancel(timer);
+      clearTimer();
       GAME.clear().then(function() {
         $window.location.reload();
         //$route.reload
       });
+    };
+
+    main.showEnd = function() {
+
+      main.dT = 0;
+      var modalInstance = $modal.open({
+        templateUrl: 'components/main/end-model.html',
+        backdrop: 'static',
+        keyboard: false,
+        size: 'lg',
+        controller: 'EndModalInstanceCtrl'
+      });
+
+      modalInstance.result.then(main.reset);
+    }
+
+    main.showScripts = function() {
+      var pause = main.pause;
+      main.pause = true;
+
+      var modalInstance = $modal.open({
+        templateUrl: 'components/editor/editor.html',
+        size: 'lg',
+        controller: 'EditorCtrl as editor'
+      });
+
+      function done() {
+        main.pause = pause;
+        GAME.save();
+      }
+
+      modalInstance.result.then(done,done);
     }
 
     setup();
@@ -378,51 +420,41 @@ angular.module('myApp')
     var mapDisplaySize = [GAME.world.size,GAME.world.size]; // todo: chunk size
     var mapOffset = [0,0];  // TODO: focus on
 
-    //main.world.scanRange(0,0,1000);  // for testing
+    main.dT = 0;   // move all this to GAME service?
 
-    function mezclar2(arr) {
-      for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp) {}
-      return arr;
+    var timer = undefined;
+
+    function clearTimer() {
+      if (angular.isDefined(timer)) {
+        $timeout.cancel( timer );
+      }
     }
 
-    function shuffle(array) {
-      var currentIndex = array.length, temporaryValue, randomIndex ;
-
-      // While there remain elements to shuffle...
-      while (0 !== currentIndex) {
-
-        // Pick a remaining element...
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-
-        // And swap it with the current element.
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
+    main.takeTurn = function() {
+      clearTimer();
+      GAME.takeTurn();
+      if (main.dT > 0) {
+        timer = $timeout(main.takeTurn, main.dT);
       }
-
-      return array;
     }
 
-    var dT = 1;
-    var timer = $interval(function tick() {  // todo: move to GAME?
-      if (!main.pause) {
-        //console.log(GAME.bots);
-        mezclar2(GAME.bots.slice(0)).forEach(function(_bot) {
-          _bot.takeTurn(dT, GAME);
-        });
-        main.tick++;  // remove in favor of GAME.turn?
-        GAME.turn++;
-        if (GAME.turn % 20 === 0) {  // only save if changed?  don't autosave until autoload added.
-          GAME.save();
-        }
+    main.play = function(_dT) {
+      main.dT = _dT;
+      if (_dT > 0) {
+        main.takeTurn();
       }
-    }, dT*500); // todo: make variable speed, use setTimeout instead of interval
+    }
 
     $scope.$on("$destroy", function( event ) {
       console.log('destroy');
-      $interval.cancel( timer );
+      clearTimer();
     });
+
+  })
+
+  .controller('EndModalInstanceCtrl', function ($scope, GAME) {
+
+    $scope.game = GAME;
 
   })
 

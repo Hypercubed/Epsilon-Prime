@@ -5,7 +5,9 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 ## Preview Milestones
 - [ ] Scrolling map. By chunk?
 - [ ] D*
-- [ ] End game
+- [x] End game
+- [ ] Confirm restart dialog
+- [ ] favicon
 
 ## Bugs
 - [ ] JS-interpretor scanning broken
@@ -13,11 +15,15 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Map not square
 - [ ] Upgrade using base resources
 - [ ] Bots can go off map
+- [ ] j/k should work in bot panel
+- [ ] j/k should only cycle filtered bots
 
 ## Next
+- [ ] Script construct/set inital orders
+- [ ] Indicate stuck bots?
 - [ ] Ensure bot starts in plain
 - [ ] Clean up classes
-- [ ] Implement $bot.log()
+- [ ] Implement $bot.log() (or hide log tab)
 - [x] Improve map code, use chunks.
 - [ ] Improve drawing (isDirty flag?/faster hash). Use d3?
 - [ ] Scan returns list? List of pieces and terrain?
@@ -28,6 +34,8 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Need to indicate when unit is on mine.
 
 ## Decisions
+- [ ] Continue after end game?
+- [ ] Set max number of bots for performance?
 - [ ] Autosave
 - [ ] Start with just rover? Upgrade self?
 - [ ] Script panel

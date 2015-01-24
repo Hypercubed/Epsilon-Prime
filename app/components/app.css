@@ -83,8 +83,20 @@ body {
 
 #wrap {
   margin-bottom: 20px;
+  margin-top: 20px;
   width: 100%;
   overflow-x: hidden;
+}
+
+#header {
+  position: fixed;
+  height: 20px;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: #f5f5f5;
+  color: #999999;
+  border-bottom: 1px solid #e3e3e3;
 }
 
 #footer {

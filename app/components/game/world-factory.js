@@ -1,7 +1,39 @@
 /* global noise:true */
 
+(function() {
+  'use strict';
 
-'use strict';
+  /* Private functions */
+
+  function perlin(x,y,N) {
+    var z = 0, s = 0;
+    for (var i = 0; i < N; i++) {
+      var pp = 1/Math.pow(2,i)/4
+      var e = Math.PI/2*pp;  // rotate angle
+      var ss = Math.sin(e);
+      var cc = Math.cos(e);
+      var xx = (x*ss+y*cc);  // rotation
+      var yy = (-x*cc+y*ss);
+      s += pp; // total amplitude
+      z += pp*Math.abs(noise.perlin2(xx/pp,yy/pp));
+    }
+    return 2*z/s;
+  }
+
+  function poisson(mean) {
+    var limit = Math.exp(-mean);
+
+    return function() {
+      var n = 0,
+      x = Math.random();
+
+      while(x > limit){
+        n++;
+        x *= Math.random();
+      }
+      return n;
+    };
+  }
 
 angular.module('myApp')
   .value('TILES', {
@@ -33,9 +65,10 @@ angular.module('myApp')
     }
 
     Chunk.prototype.index = function(x,y) {
-      var X = Math.floor(x), Y = Math.floor(y);
-      X = X % this.size; Y = Y % this.size;
-      return Y*this.size+X;
+      var s = this.size;
+      x = Math.floor(x) % s;
+      y = Math.floor(y) % s;
+      return y*s+x;
     };
 
     Chunk.prototype.get = function(x,y) {
@@ -60,11 +93,14 @@ angular.module('myApp')
   })
   .factory('World', function ($log, TILES, Chunk) {
 
+    /* constants */
+    var digYield = poisson(1.26);
+    var mineMTTF = 0.05;
+
     function World(size, seed) {  // todo: landmarks
       this.size = size = size || 60;
       this.seed = seed || Math.random();
       this.$$chunks = {};
-      //this.chunk = new Chunk(size);
     }
 
     World.prototype.getChunkId = function(x,y) {
@@ -83,9 +119,25 @@ angular.module('myApp')
       return chunk;
     };
 
+    World.prototype.getIndex = function(x,y) {
+      var X = Math.floor(x), Y = Math.floor(y);
+      X = X % this.size; Y = Y % this.size;
+      return Y*this.size+X;
+    };
+
     World.prototype.getHeight = function(x,y) {
       noise.seed(this.seed);  // move this
       return perlin((x-30)/this.size,(y-10)/this.size,5);
+    };
+
+    World.prototype._get = function(x,y) {
+      var chunk = this.getChunk(x,y);
+      return chunk.get(x,y);
+    };
+
+    World.prototype._set = function(x,y) {
+      var chunk = this.getChunk(x,y);
+      return chunk.set(x,y,z);
     };
 
     World.prototype.scanTile = function(x,y) {
@@ -108,21 +160,20 @@ angular.module('myApp')
       return {x: x, y: y, t: tile, s: true};   // todo: improve storage, store only strings again?
     };
 
-    World.prototype.set = function(x,y,z) {
+    World.prototype.set = function(x,y,z) {  // used?
       var chunk = this.getChunk(x,y);
       chunk.set(x,y,z);
     };
 
-    World.prototype.get = function(x,y) {
+    World.prototype.get = function(x,y) {  // rename getTile
       if (arguments.length === 1) {
         y = x.y;
         x = x.x;
       }
       if (x < 0 || x >= this.size) { return null; } // Git rid of this...
-      if (y < 0 || y >= this.size) { return null; }
+      if (y < 0 || y >= 40) { return null; }
 
-      var chunk = this.getChunk(x,y);
-      var z = chunk.get(x,y);
+      var z = this._get(x,y);
 
       if (z === TILES.EMPTY) {
         return {x: x, y: y, t: z, s: false};
@@ -150,43 +201,6 @@ angular.module('myApp')
       return r;
     };
 
-    function perlin(x,y,N) {
-      var z = 0, s = 0;
-      for (var i = 0; i < N; i++) {
-        var pp = 1/Math.pow(2,i)/4
-        var e = Math.PI/2*pp;  // rotate angle
-        var ss = Math.sin(e);
-        var cc = Math.cos(e);
-        var xx = (x*ss+y*cc);  // rotation
-        var yy = (-x*cc+y*ss);
-        s += pp; // total amplitude
-        z += pp*Math.abs(noise.perlin2(xx/pp,yy/pp));
-      }
-      return 2*z/s;
-    }
-
-    /* World.prototype._chooseTile = function(x,y) {  // old
-      var pm = 0.01;  // Probability of a mountain
-      if (y > 0 && this.map[x][y-1].t === TILES.MOUNTAIN) {
-        pm += 0.4;
-      }
-      if (x > 0 && this.map[x-1][y].t === TILES.MOUNTAIN) {
-        pm += 0.4;
-      }
-
-      var p;
-      var r = Math.random();
-      if (r < pm) {
-        p = TILES.MOUNTAIN;
-      } else if (r > 0.98) {
-        p = TILES.MINE;
-      } else {
-        p = TILES.FIELD;
-      }
-
-      return {x: x, y: y, t: p, s: false};   // todo: improve storage, store only strings again?
-    }; */
-
     World.prototype.scanList = function() {
       var xs = this.size;  // need to limit region??
       var ys = this.size;
@@ -201,24 +215,6 @@ angular.module('myApp')
       }
       return r;
     };
-
-    function poisson(mean) {
-      var limit = Math.exp(-mean);
-
-      return function() {
-        var n = 0,
-        x = Math.random();
-
-        while(x > limit){
-          n++;
-          x *= Math.random();
-        }
-        return n;
-      };
-    }
-
-    var digYield = poisson(1.26);
-    var mineMTTF = 0.05;
 
     World.prototype.dig = function(x,y) {
       if (arguments.length === 1) {
@@ -247,3 +243,6 @@ angular.module('myApp')
 
     return World;
   });
+})();
+
+

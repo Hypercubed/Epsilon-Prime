@@ -1,14 +1,41 @@
+<div id="header">
+  <div class="container muted credit">
+    Turn: {{main.game.turn}}
+    <button class="btn btn-link btn-xs" ng-click="main.play(0)" xxxtooltip="Pause game" ng-disabled="main.dT === 0">
+      <i class="glyphicon glyphicon-pause">
+      </i>
+    </button>
+    <button class="btn btn-link btn-xs" ng-click="main.play(1000)" xxxtooltip="Play game" ng-disabled="main.dT === 1000">
+      <i class="glyphicon glyphicon-play">
+      </i>
+    </button>
+    <button class="btn btn-link btn-xs" ng-click="main.play(100)" xxxtooltip="Play game" ng-disabled="main.dT === 100">
+      <i class="glyphicon glyphicon-forward">
+      </i>
+    </button>
+    <button class="btn btn-link btn-xs" ng-click="main.game.takeTurn()" ng-disabled="!main.pause" xxxtooltip="Take turn">
+      <i class="glyphicon glyphicon glyphicon-step-forward">
+      </i>
+    </button>
+
+    <span class="pull-right">
+      <i class="glyphicon glyphicon-flash"></i> {{main.game.E | number:0}}
+      <i class="glyphicon glyphicon-asterisk"></i> {{main.game.S | number:0}}
+    </span>
+ </div>
+</div>
+
 <div id="wrap">
   <div class="container">
 
     <div class="col-md-6 grid-ctrl">
-      <div class="grid well small" tabindex="0"  kcd-recompile="main.drawWatch()">
+      <div id="grid" class="grid well small" tabindex="0"  kcd-recompile="main.drawWatch()">
         <div bind-html-compile="::main.draw()"></div>
       </div>
-      <!-- button ng-click="main.mapOffset[0] = main.mapOffset[0] - 1">&lt;</button>
-      <button ng-click="main.mapOffset[1] = main.mapOffset[1] - 1">^</button>
-      <button ng-click="main.mapOffset[1] = main.mapOffset[1] + 1">|</button>
-      <button ng-click="main.mapOffset[0] = main.mapOffset[0] + 1">&gt;</button -->
+      <!-- button ng-click="main.pan(-10,0)">&lt;</button>
+      <button ng-click="main.pan(0,10)">^</button>
+      <button ng-click="main.pan(0,-10)">|</button>
+      <button ng-click="main.pan(10,0)">&gt;</button -->
     </div>
 
     <div class="col-md-6 ctrl unit-ctrl">
@@ -18,24 +45,20 @@
     </div>
 
 
-    <div id="script-panel" class="col-md-12"
+    <!-- div id="script-panel" class="col-md-12"
       ng-controller="EditorCtrl as editor"
       ng-include="'components/editor/editor.html'">
-    </div>
+    </div -->
 
   </div>
 </div>
 
 <div id="footer">
   <div class="container muted credit">
-    Turn: {{main.game.turn}}
-    <i class="glyphicon glyphicon-flash"></i> {{main.game.E | number:0}}
-    <i class="glyphicon glyphicon-asterisk"></i> {{main.game.S | number:0}}
+    <button class="btn btn-xs btn-link" ng-click="main.showScripts()">scripts</button>
     <span class="pull-right">
-      <!-- a href='./' >reset</a -->
-      <button class="btn btn-xs btn-link" ng-click="main.reset()">restart</buttona>
+      <button class="btn btn-xs btn-link" ng-click="main.reset()">restart</button>
       <button class="btn btn-xs btn-link" ng-click="main.game.save()">save</button>
-      <!-- button class="btn btn-xs btn-link" ng-click="main.game.load()">load</button -->
     </span>
  </div>
 </div>
