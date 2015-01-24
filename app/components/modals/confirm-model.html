@@ -5,6 +5,6 @@
   <h4>You collected {{::game.E | number:0}} units of energy.</h4>
 </div>
 <div class="modal-footer">
+  <button class="btn btn-warning pull-left" ng-click="$close()" ng-if="showReset">Restart</button>
   <button class="btn btn-primary" ng-click="$dismiss()">Continue</button>
-  <button class="btn btn-warning" ng-click="$close()" ng-if="showReset">Restart</button>
 </div>

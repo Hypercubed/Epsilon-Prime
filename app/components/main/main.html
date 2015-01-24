@@ -1,24 +1,20 @@
 <div id="header">
   <div class="container muted credit">
     Turn: {{main.game.turn}}
-    <button class="btn btn-link btn-xs" ng-click="main.play(0)" xxxtooltip="Pause game" ng-disabled="main.dT === 0">
-      <i class="glyphicon glyphicon-pause">
-      </i>
+    <button class="btn btn-link btn-xs" ng-click="main.play(0)" tooltip="Stop auto turn" ng-disabled="main.dT === 0">
+      <i class="glyphicon glyphicon-stop"></i>
     </button>
-    <button class="btn btn-link btn-xs" ng-click="main.play(1000)" xxxtooltip="Play game" ng-disabled="main.dT === 1000">
-      <i class="glyphicon glyphicon-play">
-      </i>
+    <button class="btn btn-link btn-xs" ng-click="main.play(1000)" tooltip="Play game" ng-disabled="main.dT === 1000">
+      <i class="glyphicon glyphicon-play"></i>
     </button>
-    <button class="btn btn-link btn-xs" ng-click="main.play(100)" xxxtooltip="Play game" ng-disabled="main.dT === 100">
-      <i class="glyphicon glyphicon-forward">
-      </i>
+    <button class="btn btn-link btn-xs" ng-click="main.play(100)" tooltip="Play game (fast)" ng-disabled="main.dT === 100">
+      <i class="glyphicon glyphicon-forward"></i>
     </button>
-    <button class="btn btn-link btn-xs" ng-click="main.game.takeTurn()" ng-disabled="!main.pause" xxxtooltip="Take turn">
-      <i class="glyphicon glyphicon glyphicon-step-forward">
-      </i>
+    <button class="btn btn-link btn-xs" ng-click="main.game.takeTurn()" ng-disabled="!main.pause" tooltip="Take turn">
+      <i class="glyphicon glyphicon glyphicon-step-forward"></i>
     </button>
 
-    <span class="pull-right">
+    <span class="pull-right" ng-click="main.pause()">
       <i class="glyphicon glyphicon-flash"></i> {{main.game.E | number:0}}
       <i class="glyphicon glyphicon-asterisk"></i> {{main.game.S | number:0}}
     </span>
