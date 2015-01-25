@@ -385,7 +385,7 @@ angular.module('myApp')
       this.mE = 10;   // Maximum
 
       this.manual = true;  // rename auto?
-
+      this.active = false;
 
       this.message = '';
       this.scriptName = '';
@@ -434,7 +434,7 @@ angular.module('myApp')
       return GAME.world.canMove(this.x + dx,this.y + dy) && this.E >= dE;
     };
 
-    Bot.prototype._move = function(dx,dy) {  // TODO: check range
+    Bot.prototype.move = function(dx,dy) {  // TODO: check range
 
       dx = Math.sign(dx);
       dy = Math.sign(dy);  // max +/-1
@@ -444,22 +444,18 @@ angular.module('myApp')
 
       if (GAME.world.canMove(this.x + dx,this.y + dy)) {  // Need to check bot skills, check path
         if (this.E >= dE) {
+          this.last = {x: this.x, y: this.y};
+          this.heading = {x: dx, y:dy};
+
           this.x += dx;
           this.y += dy;
           this.E -= dE;
 
           GAME.world.scanRange(this);
+
           return true;
         }
       }
-      return false;
-    };
-
-    Bot.prototype.move = function(dx,dy) {  // TODO: check range
-
-      if (this._move(dx,dy))  { return true };
-      //if (this._move(0,dy))   { return true };
-      //if (this._move(0,dy))   { return true };
       return false;
     };
 
@@ -486,7 +482,28 @@ angular.module('myApp')
       var dx = x - this.x;
       var dy = y - this.y;
 
-      return this.move(dx,dy);
+      for (var i = 0; i < 7; i++) {
+
+        dx = Math.sign(dx);
+        dy = Math.sign(dy);
+
+        //console.log(i, dx,dy);
+
+        if (!this.obs || !isAt(this.last, this.x + dx, this.y + dy)) {
+          if (this.move(dx,dy)) {
+            this.obs = i > 0;
+            return true;
+          }
+        }
+
+        var tmp = (dx+dy);  // turn left
+        dy = (dy-dx);
+        dx = tmp;
+
+        //console.log(i, dx,dy);
+      }
+
+      return false;
     };
 
     Bot.prototype.canMine = function() {

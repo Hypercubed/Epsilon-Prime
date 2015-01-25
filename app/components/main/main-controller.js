@@ -51,7 +51,7 @@
           //d3.select('#grid').select('svg').remove();
 
           if (!container) {
-            console.log('draw new');
+            //$log.debug('draw new');
 
             var svg = d3.select(this)
               .append('svg')
@@ -318,7 +318,7 @@ angular.module('myApp')
 
       main.home = GAME.bots[0];  // remove this??
       main.bot = GAME.bots[1];  // dont do this
-      main.bot.active = true;
+      //main.bot.active = true;
     }
 
     function reset() {
@@ -426,4 +426,3 @@ angular.module('myApp')
   })
 
 })();
-

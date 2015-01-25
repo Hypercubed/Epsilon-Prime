@@ -4,12 +4,16 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Preview Milestones
 - [ ] Limit map size.
-- [ ] Unit pathfinding/obsticle avoidance
+- [x] Unit pathfinding/obsticle avoidance
 - [x] End game
 - [x] Confirm restart dialog
 - [ ] favicon
 
 ## Bugs
+- [ ] Too slow!
+- [ ] Responsiveness bugs
+  - [ ] Bot-panel disappears on small screens
+  - [ ] Movement buttons distorted on small screen
 - [ ] Replace hotkey help with modal dialog
 - [ ] Disable hotkeys when paused dialog is shown
 - [?] optimize d3 draw
@@ -23,27 +27,28 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] j/k should only cycle filtered bots
 
 ## Next
-- [ ] d3 hover dispatch
+- [ ] Improve efficiency of JS-interpretor
+- [ ] Clean Sandbox code
+- [ ] d3 hover/click dispatch
 - [ ] Pan to unit on select
-- [ ] Scroll to panel on select
 - [x] Script construct/set inital orders
 - [ ] Indicate stuck bots?
-- [ ] Ensure bot starts in plain
+- [ ] Ensure bot starts on plain
 - [ ] Clean up classes
 - [ ] Implement $bot.log() (or hide log tab)
-- [x] Improve map code, use chunks.
+- [ ] Improve map code, draw in chunks?
 - [x] Improve drawing (isDirty flag?/faster hash). Use d3?
 - [x] Scan returns list? List of pieces and terrain?
 - [x] Bots store key of script not code.
 - [ ] Bot memory?
 - [ ] More balancing of gameplay.
 - [ ] More Tooltips?
-- [ ] Need to indicate when unit is on mine.
-- [ ] Clean terminology (bots, resorces, energy units, etc)
+- [ ] Need to indicate when unit is on mine.  Indicate overlapping units.
+- [ ] Clean terminology (bots, resources, energy units, etc)
 
 ## Decisions
 - [ ] Bot tile based on size?
-- [ ] End game shows rendered map or explored terrain
+- [ ] End game shows easter egg?
 - [x] Continue after end game?
 - [ ] Set max number of bots for performance?
 - [x] Autosave
@@ -60,11 +65,12 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [x] Save state
 - [x] Store total E/S found/spent.
 - [ ] More terrain types (various movement costs?)
+- [ ] replace progress bars with sparkline
 
 ## Superficial
 - [ ] Rename bots -> units?
 - [x] User rename bots?
-  - [ ]Assign labels (A,B,C,...,@)
+  - [ ] Assign labels (A,B,C,...,@)
 - [x] Improve readability of progress bars
 - [ ] Map directive?
 

@@ -143,7 +143,8 @@ angular.module('myApp')
 
     GAME.world.scanRange(home);
 
-    home.construct('Collect');
+    var bot = home.construct('Collect');
+    bot.active = true;
 
     GAME.E = 0;  // todo: create stats object
     GAME.S = 0;
@@ -168,7 +169,3 @@ angular.module('myApp')
 });
 
 })();
-
-
-
-
