@@ -2,7 +2,7 @@
   <h1 class="text-center">{{::message}}</h1>
   <h4>You completed {{::game.turn}} turns.</h4>
   <h4>You collected {{::game.S | number:0}} resources.</h4>
-  <h4>You collected {{::game.E | number:0}} units of energy.</h4>
+  <h4>You harvested {{::game.E | number:0}} units of energy.</h4>
 </div>
 <div class="modal-footer">
   <button class="btn btn-warning pull-left" ng-click="$close()" ng-if="showReset">Restart</button>

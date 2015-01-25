@@ -384,7 +384,7 @@ angular.module('myApp')
       //this.dE = 0.01;    // Charging rate
       this.mE = 10;   // Maximum
 
-      this.manual = true;
+      this.manual = true;  // rename auto?
 
 
       this.message = '';
@@ -434,7 +434,7 @@ angular.module('myApp')
       return GAME.world.canMove(this.x + dx,this.y + dy) && this.E >= dE;
     };
 
-    Bot.prototype.move = function(dx,dy) {  // TODO: check range
+    Bot.prototype._move = function(dx,dy) {  // TODO: check range
 
       dx = Math.sign(dx);
       dy = Math.sign(dy);  // max +/-1
@@ -452,6 +452,14 @@ angular.module('myApp')
           return true;
         }
       }
+      return false;
+    };
+
+    Bot.prototype.move = function(dx,dy) {  // TODO: check range
+
+      if (this._move(dx,dy))  { return true };
+      //if (this._move(0,dy))   { return true };
+      //if (this._move(0,dy))   { return true };
       return false;
     };
 
@@ -584,7 +592,7 @@ angular.module('myApp')
       if (this.S >= 100) {
         var bot = new Bot('Rover', this.x, this.y);
         bot.scriptName = script || 'Collect';
-        bot.manual = angular.isDefined(script);
+        bot.manual = !angular.isDefined(script);
         bot.$home = this;
 
         this.S -= 100;

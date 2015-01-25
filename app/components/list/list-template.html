@@ -10,7 +10,9 @@
           </form>
         </div>
         <ul class="list-group">
-          <li class="list-group-item" ng-repeat="item in items | filter:search" ng-class="{'panel-active': openItem === item }" ng-click="select(item)">
+          <li class="list-group-item" ng-repeat="item in items | filter:search"
+              ng-class="{'panel-active': item.active }"
+              ng-click="select(item)">
             <span sliding-list-inject><span ng-transclude></span></span>
             <button type="button" class="select-button clearfix btn btn-link btn-sm pull-right" ng-click="open(item)">
               <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>

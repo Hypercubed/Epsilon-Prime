@@ -4,36 +4,6 @@
 
 'use strict';
 
-/**
- * @ngdoc function
- * @name myApp.controller:MainCtrl
- * @description
- * # MainCtrl
- * Controller of the myApp
- */
-
-angular.module('myApp')
-  .controller('MainCtrl', function ($scope, $log, $route, $window, $timeout, $modal, hotkeys, modals, debug, isAt, TILES, GAME) {
-
-    var main = this;
-
-    main.drawWatch = function drawWatch() {  // Move to GAME? Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
-
-      var s = ''+GAME.world.getHash();
-
-      var ke = GAME.bots.length;  // do better, move to GAME service
-      var ws = GAME.world.size;
-      for(var k = 0; k < ke; k++) {
-        var bot = GAME.bots[k];
-        var index = GAME.world.getIndex(bot);
-        s += bot.t+index+(bot === main.bot ? '!' : '');
-      }
-
-      return s;
-    };
-
-    $scope.$watch(main.drawWatch, d3Draw); // don't do this
-
     function Grid() {  // TODO: move
       var margin = {top: -5, right: -5, bottom: -5, left: -5},
           width = 500 - margin.left - margin.right,
@@ -151,7 +121,7 @@ angular.module('myApp')
           gBots
               .attr('class', function(d) {
                 var _class = 'bot bot-'+d.name.toLowerCase();
-                if (d === main.bot) {  // this is not good
+                if (d.active) {  // this is not good
                   _class += ' active';
                 }
                 return _class;
@@ -172,6 +142,38 @@ angular.module('myApp')
 
       return my;
     }
+
+/**
+ * @ngdoc function
+ * @name myApp.controller:MainCtrl
+ * @description
+ * # MainCtrl
+ * Controller of the myApp
+ */
+
+angular.module('myApp')
+  .controller('MainCtrl', function ($scope, $log, $route, $window, $timeout, $modal, hotkeys, modals, debug, isAt, TILES, GAME) {
+
+    var main = this;
+
+    main.drawWatch = function drawWatch() {  // Move to GAME? Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
+
+      var s = ''+GAME.world.getHash();
+
+      var ke = GAME.bots.length;  // do better, move to GAME service
+      var ws = GAME.world.size;
+      for(var k = 0; k < ke; k++) {
+        var bot = GAME.bots[k];
+        var index = GAME.world.getIndex(bot);
+        s += bot.t+index+(bot === main.bot ? '!' : '');
+      }
+
+      return s;
+    };
+
+    $scope.$watch(main.drawWatch, d3Draw); // don't do this
+
+
 
     var grid = Grid();
 
@@ -200,9 +202,12 @@ angular.module('myApp')
       return GAME.world.get(bot.x,bot.y).t === TILES.MINE;
     };
 
-    main.toggleBot = function(bot) {
+    main.toggleBot = function(bot, flag) {
+      if (arguments.length < 2) {
+        flag = bot.manual;
+      }
       bot = bot || main.bot;
-      if (bot.manual) {
+      if (flag) {
         bot.run();
       } else {
         bot.stop();
@@ -250,14 +255,14 @@ angular.module('myApp')
     }
 
     /* global */
-    hotkeys.bindTo($scope)
+    /* hotkeys.bindTo($scope)  // esc doesn't play nice with modals
       .add({
         combo: 'esc',
         description: 'Pause game',
         callback: function() {
           main.pause();
         }
-      });
+      }); */
 
     var d = [  // move somewhere else
       ['q','NW',-1,-1],
@@ -313,6 +318,7 @@ angular.module('myApp')
 
       main.home = GAME.bots[0];  // remove this??
       main.bot = GAME.bots[1];  // dont do this
+      main.bot.active = true;
     }
 
     function reset() {
@@ -326,10 +332,16 @@ angular.module('myApp')
       var _dT = main.dT;
       main.play(0);
 
+      //var previousEsc = hotkeys.get('esc');
+      //hotkeys.del('esc');
+
+      //console.log(previousEsc);
+
       modals.pauseConfirm(message,showReset).result
         .then(reset, function() {
           GAME.save();
           main.play(_dT);
+          //hotkeys.add(previousEsc);
         });
     }
 
@@ -350,10 +362,10 @@ angular.module('myApp')
     };
 
     main.pause = function() {
-      pauseDialog('Paused', false);
+      pauseDialog('', false);
     };
 
-    main.showScripts = function() {
+    main.showScripts = function(initialScriptId) {
       var _dT = main.dT;
       main.play(0);
 
@@ -365,7 +377,11 @@ angular.module('myApp')
       $modal.open({
         templateUrl: 'components/editor/editor.html',
         size: 'lg',
-        controller: 'EditorCtrl as editor'
+        backdrop: 'static',
+        controller: 'EditorCtrl as editor',
+        resolve: {
+          initialScriptId: function() { return initialScriptId; }
+        }
       }).result.then(done,done);
     }
 

@@ -9,7 +9,7 @@ angular.module('myApp')
         return $modal.open({
           templateUrl: 'components/modals/confirm-model.html',
           backdrop: 'static',
-          keyboard: false,
+          keyboard: true,
           size: 'lg',
           controller: 'ConfirmInstanceCtrl',
           resolve: {

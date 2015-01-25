@@ -10,6 +10,9 @@ function ListController($scope, hotkeys) {
 
   $scope.select = function(item) {
     $scope.openItem = $scope.item = item;
+    $scope.items.forEach(function(d) {
+      d.active = d === item;
+    });
   };
 
   $scope.open = function(item){

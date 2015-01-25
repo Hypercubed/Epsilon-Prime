@@ -12,7 +12,7 @@
 */
 
 angular.module('myApp')
-  .controller('EditorCtrl', function($log, $modalInstance, GAME) {
+  .controller('EditorCtrl', function($log, $modalInstance, initialScriptId, GAME) {
 
     var editor = this;
 
@@ -27,7 +27,7 @@ angular.module('myApp')
         form.code.$error = {};
       }
       editor.scripts = angular.copy(GAME.scripts);
-      editor.script = editor.scripts[0];
+      editor.script = editor.scripts[initialScriptId || 0];
     };
 
     editor.new = function() {
@@ -59,7 +59,7 @@ angular.module('myApp')
 
     editor.save = function(form) {
       GAME.scripts = angular.copy(editor.scripts);
-      console.log(GAME.scripts, editor.scripts);
+      //console.log(GAME.scripts, editor.scripts);
       $modalInstance.close();
     };
 

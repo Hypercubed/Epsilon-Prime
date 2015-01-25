@@ -46,7 +46,7 @@ angular.module('myApp')
     FIELD: '·',
     MINE: 'X',
     HILL: ',',
-    BOT: 'A',
+    BOT: 'r',
     BASE: '@',
     HOLE: 'O'
   })

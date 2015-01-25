@@ -131,7 +131,7 @@ angular.module('myApp')
     var home = new Bot('Base', 30, 10, GAME);
     home.scriptName = 'Construct'; // todo: only key
     home.manual = false;
-    home.S = 100;
+    home.S = 100;  //enough for first bot
     home.E = 0;
     home.dE = 0.1;
     home.mE = 100;
@@ -139,16 +139,11 @@ angular.module('myApp')
     home.dEdX = 1000;
     home.t = TILES.BASE;
 
-    //GAME.world.get(home).t = TILES.FIELD;  // todo: make sure home is on plain
-
     GAME.bots = [home];
 
     GAME.world.scanRange(home);
 
-    var bot = home.construct();
-    bot.scriptName = 'Collect';
-
-    GAME.bots = [home, bot];
+    home.construct('Collect');
 
     GAME.E = 0;  // todo: create stats object
     GAME.S = 0;

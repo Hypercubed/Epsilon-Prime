@@ -72,8 +72,8 @@ body {
   margin: 0;
 }
 
-.btn-group, .btn-group-vertical {
-  margin: 0;
+.btn-group-vertical {
+  margin: 5px 1px;
 }
 
 

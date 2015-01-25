@@ -84,8 +84,28 @@
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move( 0,1)" ng-disabled="!bot.canMove( 0,1)">X</button>
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move( 1,1)" ng-disabled="!bot.canMove( 1,1)">C</button>
         </div>
-        <div class="col-md-4">
-          <button class="btn btn-primary btn-block"
+        <div class="col-md-5 script-btns">
+
+          <div class="btn-group text-small"
+                ng-repeat="script in main.game.scripts"
+                ng-class="{ active: bot.scriptName === script.name}">
+            <button type="button" class="btn btn-sm btn-primary"
+                ng-click="bot.setCode(script);">
+              {{script.name}}
+            </button>
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+              <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href ng-click="bot.setCode(script); main.toggleBot(bot, true)">Set and run</a></li>
+              <li class="divider"></li>
+              <li><a href ng-click="main.showScripts($index)">Edit</a></li>
+            </ul>
+          </div>
+
+
+          <!-- button class="btn btn-primary btn-block"
             ng-repeat="script in main.game.scripts"
             ng-class="{ active: bot.scriptName === script.name}"
             ng-click="bot.setCode(script); main.toggleBot(bot)">
@@ -93,7 +113,7 @@
           <i class="glyphicon glyphicon-play"
             ng-if="bot.scriptName === script.name"
             ng-class="{ true: 'glyphicon-play', false: 'glyphicon-pause'}[bot.manual]"></i>
-        </button>
+        </button -->
       </div>
     </div>
   </tab>

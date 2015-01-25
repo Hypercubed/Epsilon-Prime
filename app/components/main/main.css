@@ -78,3 +78,13 @@
 .bot-panel {
   outline:0;
 }
+
+.bot-panel .btn-group {
+  margin-bottom: 2px;
+}
+
+.bot-panel .btn-group.active {
+  opacity: .65;
+  box-shadow: inset 0 3px 5px rgba(0,0,0,0.125);
+}
+
