@@ -52,7 +52,35 @@ angular.module('myApp')
     { name: 'Collect', code: collect }//,
     //{ name: 'Test', code: '$log($bot.list())' }
   ])
-  .factory('SandBox', function($log, Interpreter) {
+  .service('sandBox', function($log) {  // move, create tests
+
+    var sandBox = this;
+
+    var $logInterface = function() {
+      console.log.apply(console, arguments);
+    };
+
+    sandBox.run = function(code, $bot) {
+
+      try {  // move try/catch to sandbox
+        /*jshint -W054 */
+        var fn = new Function('$log', '$bot', code);  // todo: move to setup?, trap infinite loops?  don't create each time.
+        /*jshint +W054 */
+
+        fn.call(this,$logInterface,$bot);  // todo: safer sandbox
+      } catch(err) {
+        var m = err.stack;
+        console.log('User script error', err.message, m);
+        return err.message+', '+m;
+      }
+
+      return true;
+
+    };
+
+    return sandBox;
+  })
+/*  .factory('_SandBox', function($log, Interpreter) {
 
     var GAME = null;  // later the game service
 
@@ -60,6 +88,12 @@ angular.module('myApp')
     var N = 1000;  // Maximum execution steps per turn, used only when acorn is enabled
 
     $log.debug(acorn ? 'Using acorn' : 'Using Function');
+
+    function createInterface(bot) {
+      var $bot = {};
+
+      return $bot;
+    }
 
     function SandBox(bot, _GAME) {
       var self = this;
@@ -276,17 +310,6 @@ angular.module('myApp')
         }
       }
 
-      /* function $$x() {  // not working in acorn
-        //var r = interpreter.createObject(interpreter.ARRAY);
-        var r = self.bot.x;
-        return createPrimitive(r);
-      }
-
-      function $$y() {  // not working in acorn
-        //var r = interpreter.createObject(interpreter.ARRAY);
-        var r = self.bot.y;
-        return createPrimitive(r);
-      } */
 
       setMethod('move',$$move);
       setMethod('moveTo',$$moveTo);
@@ -344,9 +367,9 @@ angular.module('myApp')
 
         self.update();
 
-        /*jshint -W054 */
+        /*jshint -W054 *
         var fn = new Function('$log', '$bot', code);  // todo: move to setup?, trap infinite loops?
-        /*jshint +W054 */
+        /*jshint +W054 *
 
         fn.call(this,self.$log,self.$bot);
       }
@@ -354,17 +377,65 @@ angular.module('myApp')
     };
 
     return SandBox;
-  })
+  }) */
   .value('isAt', function isAt(obj,x,y) {
     if (angular.isObject(x)) {
       return x.x === obj.x && x.y === obj.y;
     }
     return x === obj.x && y === obj.y;
   })
-  .value('Interpreter', window.Interpreter)
-  .factory('Bot', function (isAt, TILES, Interpreter, $log, SandBox, defaultScripts) {
+  //.value('Interpreter', window.Interpreter)
+  .factory('Bot', function (isAt, TILES, $log, sandBox, defaultScripts) {
 
     var GAME = null;  // later the GAME service
+
+    function createInterface(bot) {  // move?
+      var $bot = {};
+
+      ['name','x','y','S','mS','E','mE'].forEach(function(prop) {
+        Object.defineProperty($bot, prop, {
+          get: function() {return bot[prop]; }
+        });
+      });
+
+      $bot.move = function $$move(x,y) {
+        return bot.move(x,y);
+      };
+
+      $bot.moveTo = function $$moveTo(x,y) {
+        return bot.moveTo(x,y);
+      };
+
+      $bot.mine = function $$mine() {
+        return bot.mine();
+      };
+
+      $bot.unload = function $$unload() {  // should unload to co-located @
+        var home = GAME.bots[0];
+        return bot.unloadTo(home);
+      };
+
+      $bot.charge = function $$charge() {  // should charge to co-located @
+        var home = GAME.bots[0];
+        return home.chargeBot(bot);
+      };
+
+      $bot.upgrade = function $$upgrade() {
+        bot.upgrade();
+      };
+
+      $bot.construct = function $$construct() {
+        bot.construct('Collect');
+      };
+
+      $bot.find = function $$find(_) {
+        var r = bot.scanList().filter(function(d) { return d.t === _; }); // move, speed up
+        return (r.length > 0) ? r[0] : null;
+      };
+
+      return $bot;
+    }
+
 
     function Bot(name,x,y,_GAME) {  // TODO: move speed, mine speed, storage cap, energy cap, carge rate
       this.name = name;
@@ -390,8 +461,9 @@ angular.module('myApp')
       this.message = '';
       this.scriptName = '';
 
-      this.$$script = null;  // used
-      this.$$sandBox = new SandBox(this, GAME);
+      this.$script = null;
+      this.$bot = createInterface(this);
+
     }
 
     Bot.prototype.charge = function(dE) {
@@ -540,10 +612,26 @@ angular.module('myApp')
       return l;
     };
 
+    var _name = _F('name');
+
+    function findScript(name) {  // todo: move, default?
+      var scripts = GAME.scripts.filter(_name.eq(name));  // todo: find first or change scriots to hash
+      return (scripts.length > 0) ? scripts[0] : undefined;
+    }
+
     Bot.prototype.setCode = function(script) {
-      //script = script || this.script;
+
+      if (typeof script === 'string') {
+        script = findScript(script);
+      }
+
+      if (!script) {
+        $log.error('Script not found');
+        return;
+      }
+
       this.scriptName = script.name;
-      //this.script = script;  // todo: do initial check
+      return this.$script = script;
     };
 
     Bot.prototype.run = function() {
@@ -561,18 +649,22 @@ angular.module('myApp')
     };
 
     Bot.prototype.takeTurn = function(dT) {
+      var self = this;
+
+      if (!this.$script || this.$script.name !== this.scriptName) {
+        this.setCode(this.scriptName);
+      }
+      var code = this.$script.code;
+
       GAME.E += this.charge(this.chargeRate()*dT);
 
       if(!this.manual) {
 
-        try {
-          this.$$sandBox.run();
-        } catch(err) {
-          var m = err.stack;
-          console.log('User script error', err.message, m);
-          //m = m.match(/<anonymous>:[0-9]+:[0-9]+/)[0].replace('<anonymous>:','');  // TODO: fix line number
-          this.error(err.message+', '+m);
+        var ret = sandBox.run(code, this.$bot);
+        if (ret !== true) {
+          this.error(ret);
         }
+
       }
 
     };
