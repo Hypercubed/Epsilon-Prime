@@ -20,7 +20,8 @@
     "angular-hotkeys": "chieffancypants/angular-hotkeys#~1.4.5",
     "angular-localforage": "~1.2.2",
     "d3": "~3.5.3",
-    "_F": "Hypercubed/_F#~0.0.7"
+    "_F": "Hypercubed/_F#~0.0.7",
+    "SandboxJS": "TooTallNate/SandboxJS"
   },
   "devDependencies": {
     "angular-mocks": "~1.2.0",
@@ -29,6 +30,15 @@
   "overrides": {
     "noisejs": {
       "main": "perlin.js"
+    },
+    "SandboxJS": {
+      "main": "Sandbox.js"
+    },
+    "ace-builds": {
+      "main": "src-min-noconflict/ace.js"
+    },
+    "JS-Interpreter": {
+      "main": "acorn.js"
     }
   },
   "appPath": "app"
