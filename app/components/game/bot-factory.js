@@ -28,8 +28,6 @@ var collect = (function random($bot) {
       $bot.moveTo(x,y);
     }
   }
-
-
 }).toString();
 
 collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
@@ -61,13 +59,14 @@ collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
 
       try {
 
-        /*jshint -W054 */
+
         /*jshint -W061 */
         _sandBox.eval(code);
+        /*jshint +W061 */
 
+        /*jshint -W054 */
         //var fn = new Function('$log', '$bot', code);  // todo: move to setup?, trap infinite loops?  don't create each time.
         /*jshint +W054 */
-        /*jshint +W061 */
 
         //fn.call(this,$logInterface,$bot);  // todo: safer sandbox
       } catch(err) {

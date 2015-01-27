@@ -29,6 +29,7 @@
 }
 
 #grid .bot.active rect, #grid .bot.active circle {
-  fill: #2DFF00;
+  stroke: blue;
+  stroke-width: 1px;
   opacity: 0.4;
 }
