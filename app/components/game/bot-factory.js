@@ -1,312 +1,49 @@
-(function(window, document, undefined) {
 
-  // Helps minimization
-  var True = true;
-  var False = false;
-  var Eval = 'eval';
-
-  // A Boolean flag that, when set, determines whether or not the browser
-  // supports setting the '__proto__' property on the Window object.
-  // Firefox, for example, supports __proto__ on other Objects, but not Window.
-  var supportsProto;
-
-  // The list of properties that should NOT be removed from the global
-  // window instance, even if the "bare" parameter is set to `true`.
-  var INSTANCE_PROPERTIES_WHITELIST = {
-    "parseInt":undefined, "parseFloat":undefined,
-    "JSON":undefined,
-    "Array":undefined, "Boolean":undefined, "Date":undefined, "Function":undefined, "Number":undefined, "Object":undefined, "RegExp":undefined, "String":undefined,
-    "Error":undefined, "EvalError":undefined, "RangeError":undefined, "ReferenceError":undefined, "SyntaxError":undefined, "TypeError":undefined, "URIError":undefined,
-    "setTimeout":undefined, "clearTimeout":undefined, "setInterval":undefined, "clearInterval":undefined,
-    "eval":undefined, "execScript":undefined,
-    "undefined":undefined,
-    "escape":undefined, "unescape":undefined,
-    "encodeURI":undefined, "encodeURIComponent":undefined, "decodeURI":undefined, "decodeURIComponent":undefined,
-    "NaN":undefined, "Infinity":undefined, "Math":undefined,
-    "isNaN":undefined, "isFinite":undefined,
-    // Unfortunately, the 'location' property makes the 'iframe' attempt to go
-    // to a new URL if this is set, so we can't touch it. It must stay, and must
-    // not be a variable name used by scripts.
-    "location":undefined,
-    // 'document' is needed for the current "load" implementation.
-    // TODO: Figure out a better way to inject <script> tags into the iframe.
-    "document":undefined
-  };
-
-  var INSTANCE_PROPERTIES_BLACKLIST = [
-  'constructor',
-  'Window', 'DOMWindow',
-  'XMLHttpRequest'
-  ];
+(function() {
+  /* global Sandbox:true */
+  /* global _F:true */
 
 
-  /**
-  * The 'Sandbox' constructor. Accepts a 'bare' parameter, which defaults
-  * to 'true'. If set to true, the sandbox instance is attempted to be stripped
-  * of all additional browser/DOM objects and functions.
-  * @constructor
-  */
-  function Sandbox(bare) {
-
-    // The 'bare' parameter determines whether or not the sandbox scope should
-    // be attempted to be cleared out of any extra browser/DOM objects and functions.
-    // `true` attempts to make the sandbox as close to a 'bare' JavaScript
-    // environment as possible, and `false` leaves things like 'alert' available.
-    bare = bare !== False ? True : False;
-    this['bare'] = bare;
-
-    // Append to document so that 'contentWindow' is accessible
-    var iframe = document.createElement("iframe");
-    // Make the 'iframe' invisible, so it doesn't affect the HTML layout.
-    iframe.style.display = "none";
-
-    // use technique described here http://paulirish.com/2011/surefire-dom-element-insertion/
-    // to allow us to insert before the body tag has been loaded
-    var ref = document.getElementsByTagName('script')[0];
-    ref.parentNode.insertBefore(iframe, ref);
-
-    // Get a reference to the 'global' scope, and document instance
-    var windowInstance = iframe['contentWindow'], documentInstance = windowInstance['document'];
-    this['global'] = windowInstance;
-
-    // Get a 'binded' eval function so we can execute arbitary JS inside the
-    // new scope.
-    documentInstance['open']();
-    documentInstance['write'](
-      "<script>"+
-      "var MSIE/*@cc_on =1@*/;"+ // sniff
-      "_e=MSIE?this:{eval:function(s){return window.eval(s)}}"+
-      "<\/script>");
-      documentInstance['close']();
-      var evaler = windowInstance['_e'];
-      this[Eval] = function(s) {
-        return evaler[Eval](s);
-      }
-      try {
-        delete windowInstance['_e'];
-      } catch(ex) {
-        this[Eval]('delete _e');
-      }
-
-      // Define the "load" function, which returns a Script instance that
-      // will be executed inside the sandboxed 'scope'.
-      this['load'] = function(filename, callback) {
-        var str = "_s = document.createElement('script');"+
-        "_s.setAttribute('type','text/javascript');"+
-        "_s.setAttribute('src','"+filename.replace(/'/g, "\\'")+"');";
-        if (callback) {
-          function cb(e) {
-            if (cb.called) return; // Callback already executed...
-              if (!this.readyState || /complete|loaded/i.test(this.readyState)) {
-                cb.called = True;
-                callback(e);
-              }
-            }
-            this[Eval](str);
-            windowInstance['_s'].onload = windowInstance['_s'].onreadystatechange = cb;
-            str = "";
-          }
-          this[Eval](str + "document.getElementsByTagName('head')[0].appendChild(_s);delete _s;");
-        }
-
-        // Synchronous load using XHR. This is discouraged.
-        this['loadSync'] = function(filename) {
-          throw new Error("NOT YET IMPLEMENTED: Make a GitHub Issue if you need this...");
-        }
-
-        if (bare) {
-          // The scope that an iframe creates for us is polluted with a bunch of
-          // DOM and window properties. We need to try our best to remove access to
-          // as much of the default 'window' as possible, and provide the scope with
-          // as close to a 'bare' JS environment as possible. Especially 'parent'
-          // needs to be restricted, which provides access to the page's global
-          // scope (very bad!).
-
-          // Collect all the 'whitelisted' properties in an obj, we'll use it after
-          // the scope has been cleaned out to ensure they all exist
-          var allowed = {};
-          for (var i in INSTANCE_PROPERTIES_WHITELIST) {
-            allowed[i] = windowInstance[i];
-          }
-
-          if (supportsProto === True) {
-            windowInstance['__proto__'] = Object.prototype;
-          } else if (supportsProto === False) {
-            obliterateConstructor.call(this, windowInstance);
-          } else {
-            function fail() {
-              //console.log("browser DOES NOT support '__proto__'");
-              supportsProto = False;
-              obliterateConstructor.call(this, windowInstance);
-            }
-            try {
-              // We're gonna test if the browser supports the '__proto__' property
-              // on the Window object. If it does, then it makes cleaning up any
-              // properties inherited from the 'prototype' a lot easier.
-              if (windowInstance['__proto__']) {
-                var proto = windowInstance['__proto__'];
-                proto['_$'] = True;
-                if (windowInstance['_$'] !== True) {
-                  fail();
-                }
-                windowInstance['__proto__'] = Object.prototype;
-                if (!!windowInstance['_$']) {
-                  // If we set '__proto__', but '_$' still exists, then setting that
-                  // property is not supported on the 'Window' at least, resort to obliteration.
-                  delete proto['_$'];
-                  windowInstance['__proto__'] = proto;
-                  fail();
-                }
-                // If we got to here without any errors being thrown, and without "fail()"
-                // being called, then it seems as though the browser supports __proto__!
-                if (supportsProto !== False) {
-                  //console.log("browser supports '__proto__'!!");
-                  supportsProto = True;
-                }
-              }
-            } catch(e) {
-              fail();
-            }
-          }
-
-          // Go through all the iterable global properties in the sandboxed scope,
-          // and obliterate them as long as they're not on the whitelist.
-          for (var i in windowInstance) {
-            if (i in INSTANCE_PROPERTIES_WHITELIST) continue;
-            obliterate(windowInstance, i);
-          }
-
-          // Ensure that anything on the BLACKLIST is gone
-          for (var i=0, l=INSTANCE_PROPERTIES_BLACKLIST.length; i<l; i++) {
-            var prop = INSTANCE_PROPERTIES_BLACKLIST[i];
-            if (prop in INSTANCE_PROPERTIES_WHITELIST) continue;
-            obliterate(windowInstance, prop);
-          }
-
-          // We might have obliterated some whitelist properties on accident,
-          // copy over the global scope's copies if we did
-          for (var i in INSTANCE_PROPERTIES_WHITELIST) {
-            if (!!windowInstance[i]) continue;
-            windowInstance[i] = allowed[i];
-          }
-          allowed = null;
-
-        }
-
-        // Inside the sandbox scope, use the 'global' property if you MUST get a reference
-        // to the sandbox's global scope (in reality, the 'iframe's Window object). This is
-        // encouraged over the use of 'window', since that seems impossible to hide in all
-        // browsers.
-        windowInstance['global'] = windowInstance;
-      }
-
-      function obliterate(obj, prop) {
-        try {
-          delete obj[prop];
-          if (!obj[prop]) return;
-        } catch(e){}
-        try {
-          obj[prop] = undefined;
-          if (!obj[prop]) return;
-        } catch(e){}
-        var value;
-        if ("__defineGetter__" in obj) {
-          try {
-            obj.__defineGetter__(prop, function() {
-              return value;
-            });
-            obj.__defineSetter__(prop, function(v) {
-              value = v;
-            });
-          } catch(ex) {}
-        }
-        try {
-          obj[prop] = undefined;
-        } catch(ex) {}
-      }
-
-      function obliterateConstructor(windowInstance) {
-        //console.log("attempting to obliterate the constructor's prototype");
-        var windowConstructor = windowInstance['constructor'] || windowInstance['DOMWindow'] || windowInstance['Window'],
-        windowProto = windowConstructor ? windowConstructor.prototype : windowConstructor['__proto__'];
-        if (windowProto) {
-          for (var i in windowProto) {
-            try {
-              delete windowProto[i];
-            } catch(e){}
-          }
-          for (var i in windowProto) {
-            obliterate(windowProto, i);
-          }
-        } else {
-          //console.log("could not find 'prototype'");
-        }
-      }
-
-      // Make visible to the global scope.
-      window['Sandbox'] = Sandbox;
-
-    })(window, document)
-
-
-
-'use strict';
-
-
-
-/*
-function filter(t, fun) {
-var res = [];
-var len = t.length;
-for (var i = 0; i < len; i++) {
-var val = t[i];
-if (fun(val, i, t)) {
-res.push(val);
-}
-}
-
-return res;
-}
-*/
+  'use strict';
 
 var collect = (function random($bot) {
-$bot.unload();
-$bot.charge();
+  $bot.unload();
+  $bot.charge();
 
-if ($bot.S >=  $bot.mS) {
-  var home = $bot.find('@');
-  $bot.moveTo(home.x,home.y);
-} else {
-  if ($bot.E >= 1 && $bot.mine() === false) {
-    var mine = $bot.find('X');
+  if ($bot.S >=  $bot.mS) {
+    var home = $bot.find('@');
+    $bot.moveTo(home.x,home.y);
+  } else {
+    if ($bot.E >= 1 && $bot.mine() === false) {
+      var mine = $bot.find('X');
 
-    var x,y;
-    if (mine !== null) {
-      x = mine.x;
-      y = mine.y;
-    } else {
-      x = 3*Math.random()-1+$bot.x;
-      y = 3*Math.random()-1+$bot.y;
+      var x,y;
+      if (mine !== null) {
+        x = mine.x;
+        y = mine.y;
+      } else {
+        x = 3*Math.random()-1+$bot.x;
+        y = 3*Math.random()-1+$bot.y;
+      }
+      $bot.moveTo(x,y);
     }
-    $bot.moveTo(x,y);
   }
-}
 
 
 }).toString();
 
 collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
 
-angular.module('myApp')
+  angular.module('myApp')
   .constant('defaultScripts', [   // make a servioce, add Construct script
-    //{ name: 'Debug', code: '$log($bot.name, $bot.x, $bot.y);' },
-    { name: 'Upgrade', code: '$bot.upgrade();' },
-    { name: 'Construct', code: '$bot.construct();' },
-    //{ name: 'Go Home', code: '$bot.moveTo($home.x,$home.y);' },
-    { name: 'Collect', code: collect }//,
-    //{ name: 'Test', code: '$log($bot.list())' }
+  //{ name: 'Debug', code: '$log($bot.name, $bot.x, $bot.y);' },
+  { name: 'Upgrade', code: '$bot.upgrade();' },
+  { name: 'Construct', code: '$bot.construct();' },
+  //{ name: 'Go Home', code: '$bot.moveTo($home.x,$home.y);' },
+  { name: 'Collect', code: collect }//,
+  //{ name: 'Test', code: '$log($bot.list())' }
   ])
-  .service('sandBox', function($log) {  // move, create tests
+  .service('sandBox', function() {  // move, create tests
 
     var sandBox = this;
 
@@ -322,13 +59,15 @@ angular.module('myApp')
       _sandBox.global.$bot = $bot;
       //console.log(_sandBox.eval('$loggg($bot)'));
 
-      try {  // move try/catch to sandbox
-
-        _sandBox.eval(code);
+      try {
 
         /*jshint -W054 */
+        /*jshint -W061 */
+        _sandBox.eval(code);
+
         //var fn = new Function('$log', '$bot', code);  // todo: move to setup?, trap infinite loops?  don't create each time.
         /*jshint +W054 */
+        /*jshint +W061 */
 
         //fn.call(this,$logInterface,$bot);  // todo: safer sandbox
       } catch(err) {
@@ -343,303 +82,303 @@ angular.module('myApp')
 
     return sandBox;
   })
-/*  .factory('_SandBox', function($log, Interpreter) {
+  /*  .factory('_SandBox', function($log, Interpreter) {
 
-    var GAME = null;  // later the game service
+  var GAME = null;  // later the game service
 
-    var acorn = false;
-    var N = 1000;  // Maximum execution steps per turn, used only when acorn is enabled
+  var acorn = false;
+  var N = 1000;  // Maximum execution steps per turn, used only when acorn is enabled
 
-    $log.debug(acorn ? 'Using acorn' : 'Using Function');
+  $log.debug(acorn ? 'Using acorn' : 'Using Function');
 
-    function createInterface(bot) {
-      var $bot = {};
+  function createInterface(bot) {
+  var $bot = {};
 
-      return $bot;
-    }
+  return $bot;
+  }
 
-    function SandBox(bot, _GAME) {
-      var self = this;
+  function SandBox(bot, _GAME) {
+  var self = this;
 
-      GAME = GAME || _GAME;
+  GAME = GAME || _GAME;
 
-      this.interpreter = (acorn) ? new window.Interpreter(bot.$$code) : null;  // do I really need a new interpreter to create objects?
+  this.interpreter = (acorn) ? new window.Interpreter(bot.$$code) : null;  // do I really need a new interpreter to create objects?
 
-      this.bot = bot;
-      //GAME = GAME;
+  this.bot = bot;
+  //GAME = GAME;
 
-      //this.home = {x: 20, y: 10}; // hack
+  //this.home = {x: 20, y: 10}; // hack
 
-      if (acorn) {
-        this.$bot = this.interpreter.createObject(this.interpreter.OBJECT);
-        this.$home = this.interpreter.createObject(this.interpreter.OBJECT);
+  if (acorn) {
+  this.$bot = this.interpreter.createObject(this.interpreter.OBJECT);
+  this.$home = this.interpreter.createObject(this.interpreter.OBJECT);
 
-        this.$log = function() {
-          //$log.debug(arguments);
-          var args = Array.prototype.slice.call(arguments,0).map(function(arg) {
-            return arg.toString() || '';
-          });
-          var r = console.log.apply(console, args);
-          return self.interpreter.createPrimitive(r);
-        };
+  this.$log = function() {
+  //$log.debug(arguments);
+  var args = Array.prototype.slice.call(arguments,0).map(function(arg) {
+  return arg.toString() || '';
+  });
+  var r = console.log.apply(console, args);
+  return self.interpreter.createPrimitive(r);
+  };
 
-      } else {
-        this.$bot = {};
-        this.$home = {};
+  } else {
+  this.$bot = {};
+  this.$home = {};
 
-        this.$log = function() {
-          console.log.apply(console, arguments);
-        };
-      }
+  this.$log = function() {
+  console.log.apply(console, arguments);
+  };
+  }
 
-      this.setup();
+  this.setup();
 
-    }
+  }
 
-    SandBox.prototype.update = function() {
-      var interpreter = this.interpreter;
+  SandBox.prototype.update = function() {
+  var interpreter = this.interpreter;
 
-      function setProps($obj, obj) {
-        ['name','x','y','S','mS','E','mE'].forEach(function(prop) {
-          if (acorn) {
-            interpreter.setProperty($obj, prop, interpreter.createPrimitive(obj[prop]), false);
-          } else {
-            $obj[prop] = obj[prop];
-          }
-        });
-      }
+  function setProps($obj, obj) {
+  ['name','x','y','S','mS','E','mE'].forEach(function(prop) {
+  if (acorn) {
+  interpreter.setProperty($obj, prop, interpreter.createPrimitive(obj[prop]), false);
+  } else {
+  $obj[prop] = obj[prop];
+  }
+  });
+  }
 
-      setProps(this.$bot, this.bot);
-      //setProps(this.$home, this.home);
+  setProps(this.$bot, this.bot);
+  //setProps(this.$home, this.home);
 
-    };
+  };
 
-    SandBox.prototype.setup = function() {
-      var self = this;
-      var bot = this.bot;
-      //var GAME = GAME;
-      //var home = GAME.bots[0];  // todo: not this
+  SandBox.prototype.setup = function() {
+  var self = this;
+  var bot = this.bot;
+  //var GAME = GAME;
+  //var home = GAME.bots[0];  // todo: not this
 
-      var interpreter = this.interpreter;
+  var interpreter = this.interpreter;
 
-      function create(r) {
-        if (Array.isArray(r)) {
-          return createArray(r);
-        } else if (typeof r === 'object') {
-          return createObject(r);
-        } else {
-          return createPrimitive(r);
-        }
-      }
+  function create(r) {
+  if (Array.isArray(r)) {
+  return createArray(r);
+  } else if (typeof r === 'object') {
+  return createObject(r);
+  } else {
+  return createPrimitive(r);
+  }
+  }
 
-      function createPrimitive(r) {
-        return acorn ? interpreter.createPrimitive(r) : r;
-      }
+  function createPrimitive(r) {
+  return acorn ? interpreter.createPrimitive(r) : r;
+  }
 
-      function createArray(r) {
-        if (acorn) {
-          var newArray = self.interpreter.createObject(self.interpreter.ARRAY);
-          for (var i = 0; i < r.length; i++) {
-            newArray.properties[i] = create(r[i]);
-          }
-          newArray.length = i;
-          //console.log(o);
-          return newArray;
-        } else {
-          return angular.copy(r);
-        }
-      }
+  function createArray(r) {
+  if (acorn) {
+  var newArray = self.interpreter.createObject(self.interpreter.ARRAY);
+  for (var i = 0; i < r.length; i++) {
+  newArray.properties[i] = create(r[i]);
+  }
+  newArray.length = i;
+  //console.log(o);
+  return newArray;
+  } else {
+  return angular.copy(r);
+  }
+  }
 
-      function createObject(r) {
-        if (acorn) {
-          var o = interpreter.createObject(interpreter.OBJECT);
-          for (var prop in r) {
-            interpreter.setProperty(o, prop, create(r[prop]));
-          }
-          return o;
-        } else {
-          return angular.copy(r);
-        }
-      }
+  function createObject(r) {
+  if (acorn) {
+  var o = interpreter.createObject(interpreter.OBJECT);
+  for (var prop in r) {
+  interpreter.setProperty(o, prop, create(r[prop]));
+  }
+  return o;
+  } else {
+  return angular.copy(r);
+  }
+  }
 
-      function __createObject(r, p) {
-        if (acorn) {
-          var o = interpreter.createObject(interpreter.OBJECT);
-          p.forEach(function(prop) {
-            interpreter.setProperty(o, prop, create(r[prop]));
-          });
-          return o;
-        } else {
-          var o = {};
-          p.forEach(function(k) {
-            o[k] = r[k];
-          });
-          return o;
-        }
-      }
+  function __createObject(r, p) {
+  if (acorn) {
+  var o = interpreter.createObject(interpreter.OBJECT);
+  p.forEach(function(prop) {
+  interpreter.setProperty(o, prop, create(r[prop]));
+  });
+  return o;
+  } else {
+  var o = {};
+  p.forEach(function(k) {
+  o[k] = r[k];
+  });
+  return o;
+  }
+  }
 
-      function setMethod(prop, fn) {
-        if (acorn) {
-          interpreter.setProperty(self.$bot, prop, interpreter.createNativeFunction(fn));
-        } else {
-          self.$bot[prop] = fn;
-        }
-      }
+  function setMethod(prop, fn) {
+  if (acorn) {
+  interpreter.setProperty(self.$bot, prop, interpreter.createNativeFunction(fn));
+  } else {
+  self.$bot[prop] = fn;
+  }
+  }
 
-      function toNumber(x) {
-        if (acorn) {
-          return x.toNumber();
-        } else {
-          return x;
-        }
-      }
+  function toNumber(x) {
+  if (acorn) {
+  return x.toNumber();
+  } else {
+  return x;
+  }
+  }
 
-      function toString(x) {
-        if (acorn) {
-          return x.toString();
-        } else {
-          return x;
-        }
-      }
+  function toString(x) {
+  if (acorn) {
+  return x.toString();
+  } else {
+  return x;
+  }
+  }
 
-      function $$move(x,y) {
-        x = toNumber(x);
-        y = toNumber(y);
-        var r = bot.move(x,y);
+  function $$move(x,y) {
+  x = toNumber(x);
+  y = toNumber(y);
+  var r = bot.move(x,y);
 
-        self.update();
+  self.update();
 
-        return createPrimitive(r);
-      }
+  return createPrimitive(r);
+  }
 
-      function $$moveTo(x,y) {
-        x = toNumber(x);
-        y = toNumber(y);
-        var r = bot.moveTo(x,y);
+  function $$moveTo(x,y) {
+  x = toNumber(x);
+  y = toNumber(y);
+  var r = bot.moveTo(x,y);
 
-        self.update();
+  self.update();
 
-        return createPrimitive(r);
-      }
+  return createPrimitive(r);
+  }
 
-      function $$mine() {
-        var r = bot.mine();
-        self.update();
-        return createPrimitive(r);
-      }
+  function $$mine() {
+  var r = bot.mine();
+  self.update();
+  return createPrimitive(r);
+  }
 
-      function $$unload() {
-        var home = GAME.bots[0];
-        var r = bot.unloadTo(home); // todo: unload to where?
-        self.update();
-        return createPrimitive(r);
-      }
+  function $$unload() {
+  var home = GAME.bots[0];
+  var r = bot.unloadTo(home); // todo: unload to where?
+  self.update();
+  return createPrimitive(r);
+  }
 
-      function $$charge() {
-        var home = GAME.bots[0];
-        var r = home.chargeBot(bot);
-        self.update();
-        return createPrimitive(r);
-      }
+  function $$charge() {
+  var home = GAME.bots[0];
+  var r = home.chargeBot(bot);
+  self.update();
+  return createPrimitive(r);
+  }
 
-      function $$scan() {  // not working in acorn
-        //var r = interpreter.createObject(interpreter.ARRAY);
-        var r = self.scan();
-        self.update();
-        return createPrimitive(r);
-      }
+  function $$scan() {  // not working in acorn
+  //var r = interpreter.createObject(interpreter.ARRAY);
+  var r = self.scan();
+  self.update();
+  return createPrimitive(r);
+  }
 
-      function $$upgrade() {  // not working in acorn
-        bot.upgrade();
-      }
+  function $$upgrade() {  // not working in acorn
+  bot.upgrade();
+  }
 
-      function $$construct() {  // not working in acorn
-        bot.construct('Collect');
-      }
+  function $$construct() {  // not working in acorn
+  bot.construct('Collect');
+  }
 
-      function $$list() {  // not working in acorn
-        var r = bot.scanList();
-        return createArray(r);
-      }
+  function $$list() {  // not working in acorn
+  var r = bot.scanList();
+  return createArray(r);
+  }
 
-      function $$find(_) {  // not working in acorn
-        var r = bot.scanList().filter(function(d) { return d.t === _; });
-        //console.log(r);
-        if (r.length > 0) {
-          var o = __createObject(r[0], ['x','y']);
-          return o;
-        } else {
-          return create(null);
-        }
-      }
+  function $$find(_) {  // not working in acorn
+  var r = bot.scanList().filter(function(d) { return d.t === _; });
+  //console.log(r);
+  if (r.length > 0) {
+  var o = __createObject(r[0], ['x','y']);
+  return o;
+  } else {
+  return create(null);
+  }
+  }
 
 
-      setMethod('move',$$move);
-      setMethod('moveTo',$$moveTo);
-      setMethod('mine',$$mine);
-      setMethod('scan',$$scan);
-      setMethod('unload',$$unload);
-      setMethod('charge',$$charge);
-      setMethod('upgrade',$$upgrade);
-      setMethod('construct',$$construct);
-      //setMethod('list',$$list);
-      setMethod('find',$$find);
+  setMethod('move',$$move);
+  setMethod('moveTo',$$moveTo);
+  setMethod('mine',$$mine);
+  setMethod('scan',$$scan);
+  setMethod('unload',$$unload);
+  setMethod('charge',$$charge);
+  setMethod('upgrade',$$upgrade);
+  setMethod('construct',$$construct);
+  //setMethod('list',$$list);
+  setMethod('find',$$find);
 
-      //setMethod('$x',$$x);
-      //setMethod('$y',$$y);
-    };
+  //setMethod('$x',$$x);
+  //setMethod('$y',$$y);
+  };
 
-    SandBox.prototype.run = function() {
-      //console.log('SandBox.prototype.run');
-      var self = this;
-      //var bot = this.bot;
-      //var GAME = GAME;
+  SandBox.prototype.run = function() {
+  //console.log('SandBox.prototype.run');
+  var self = this;
+  //var bot = this.bot;
+  //var GAME = GAME;
 
-      var scriptName = this.bot.scriptName;
-      var scripts = GAME.scripts.filter(function(script) {  // todo: move this.
-        return script.name === scriptName;
-      });
+  var scriptName = this.bot.scriptName;
+  var scripts = GAME.scripts.filter(function(script) {  // todo: move this.
+  return script.name === scriptName;
+  });
 
-      if (scripts.length < 1) {
-        $log.error('Script not found');
-        return;
-      }
+  if (scripts.length < 1) {
+  $log.error('Script not found');
+  return;
+  }
 
-      var code = scripts[0].code;
+  var code = scripts[0].code;
 
-      //this.home = this.bot.$home;  // hack
+  //this.home = this.bot.$home;  // hack
 
-      function initScope(interpreter, scope) {
+  function initScope(interpreter, scope) {
 
-        //self.setup();
+  //self.setup();
 
-        interpreter.setProperty(scope, '$bot', self.$bot, true);
-        //interpreter.setProperty(scope, '$home', self.$home, true);
-        interpreter.setProperty(scope, '$log',interpreter.createNativeFunction(self.$log));
+  interpreter.setProperty(scope, '$bot', self.$bot, true);
+  //interpreter.setProperty(scope, '$home', self.$home, true);
+  interpreter.setProperty(scope, '$log',interpreter.createNativeFunction(self.$log));
 
-      }
+  }
 
-      if (acorn) {
-        self.update();
-        this.interpreter = new Interpreter(code, initScope);
+  if (acorn) {
+  self.update();
+  this.interpreter = new Interpreter(code, initScope);
 
-        var c = 0;
-        while(c < N && this.interpreter.step()) { c++; } // same as .run();, check for > 1000 steps adjust if needed
-        //console.log('steps', c);
-      } else {
+  var c = 0;
+  while(c < N && this.interpreter.step()) { c++; } // same as .run();, check for > 1000 steps adjust if needed
+  //console.log('steps', c);
+  } else {
 
-        self.update();
+  self.update();
 
-        /*jshint -W054 *
-        var fn = new Function('$log', '$bot', code);  // todo: move to setup?, trap infinite loops?
-        /*jshint +W054 *
+  /*jshint -W054 *
+  var fn = new Function('$log', '$bot', code);  // todo: move to setup?, trap infinite loops?
+  /*jshint +W054 *
 
-        fn.call(this,self.$log,self.$bot);
-      }
+  fn.call(this,self.$log,self.$bot);
+  }
 
-    };
+  };
 
-    return SandBox;
+  return SandBox;
   }) */
   .value('isAt', function isAt(obj,x,y) {
     if (angular.isObject(x)) {
@@ -648,7 +387,7 @@ angular.module('myApp')
     return x === obj.x && y === obj.y;
   })
   //.value('Interpreter', window.Interpreter)
-  .factory('Bot', function (isAt, TILES, $log, sandBox, defaultScripts) {
+  .factory('Bot', function (isAt, TILES, $log, sandBox) {
 
     var GAME = null;  // later the GAME service
 
@@ -894,7 +633,8 @@ angular.module('myApp')
       }
 
       this.scriptName = script.name;
-      return this.$script = script;
+      this.$script = script;
+      return script;
     };
 
     Bot.prototype.run = function() {
@@ -912,7 +652,7 @@ angular.module('myApp')
     };
 
     Bot.prototype.takeTurn = function(dT) {
-      var self = this;
+      //var self = this;
 
       if (!this.$script || this.$script.name !== this.scriptName) {
         this.setCode(this.scriptName);
@@ -992,3 +732,5 @@ angular.module('myApp')
 
     return Bot;
   });
+
+})();
