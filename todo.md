@@ -3,30 +3,35 @@
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Preview Milestones
-- [ ] Limit map size.
+- [ ] Limit map size?
 - [x] Unit pathfinding/obsticle avoidance
 - [x] End game
 - [x] Confirm restart dialog
-- [ ] favicon
+- [ ] Replace favicon
+- [ ] Readme
 
 ## Bugs
 - [ ] Too slow!
-- [ ] Responsiveness bugs
+  - [ ] findList & World.get needs optimization.
+  - [ ] Improve d3 drawing, don't remove elements
+- [ ] GUI Responsiveness bugs
   - [ ] Bot-panel disappears on small screens
   - [ ] Movement buttons distorted on small screen
 - [ ] Replace hotkey help with modal dialog
 - [ ] Disable hotkeys when paused dialog is shown
-- [?] optimize d3 draw
-- [x] Layers in d3 draw
-- [ ] JS-interpretor scanning broken
-- [x] Incorrect bot highlighting
-- [x] Map not square
+- [ ] JS-interpretor broken
 - [ ] Upgrade using base resources?
-- [x] Bots can go off map
-- [ ] j/k should work in bot panel
-- [ ] j/k should only cycle filtered bots
+- [x] j/k should work in bot panel
+- [ ] j/k should only cycle filtered bots?
 
 ## Next
+- [ ] Add tile text to bot panel
+- [ ] Change layout, map full screen, bot panel full height.
+- [ ] Change tile string with bot size
+- [ ] Upgrade using base resources?
+- [ ] Time played -> stats
+- [ ] $bot.find should search both time and name.  Wildcard?
+- [ ] Indicate bot's current target, (and heading?)
 - [ ] Improve efficiency of JS-interpretor
 - [ ] Clean Sandbox code
 - [ ] d3 hover/click dispatch
@@ -47,6 +52,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Clean terminology (bots, resources, energy units, etc)
 
 ## Decisions
+- [ ] Bots can carry bots?
 - [ ] Bot tile based on size?
 - [ ] End game shows easter egg?
 - [x] Continue after end game?
@@ -66,6 +72,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [x] Store total E/S found/spent.
 - [ ] More terrain types (various movement costs?)
 - [ ] replace progress bars with sparkline
+- [ ] add progress circle to map?
 
 ## Superficial
 - [ ] Rename bots -> units?
