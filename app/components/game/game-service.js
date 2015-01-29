@@ -7,6 +7,16 @@ function mezclar2(arr) {  // fast shuffle
   return arr;
 }
 
+function ssCopy(src) { // shallow copy
+  var dst = {};
+  for (var key in src) {
+    if (src.hasOwnProperty(key) && key.charAt(0) !== '$') {
+      dst[key] = src[key];
+    }
+  }
+  return dst;
+}
+
 angular.module('myApp')
 .service('GAME', function($log, $localForage, World, Bot, Chunk, TILES, defaultScripts) {
 
@@ -14,8 +24,15 @@ angular.module('myApp')
 
   GAME.scripts = defaultScripts;
 
-  GAME.scanList = function() {
-    return this.world.scanList().concat(this.bots);
+  GAME.scanList = function(_) {
+
+    function _nameOrTile(d) {
+      return d.t === _ || d.name === _;
+    }
+
+    var bots = (!_) ? this.bots : this.bots.filter(_nameOrTile);
+    var tiles = this.world.scanList(_);
+    return tiles.concat(bots);
   };
 
   GAME.save = function() {
@@ -26,7 +43,7 @@ angular.module('myApp')
         X: chunk.X,
         Y: chunk.Y,
         view: Array.prototype.slice.call(chunk.view)  //todo: better, convert to string?
-      }
+      };
     });
 
     //console.log(chunkData);
@@ -36,27 +53,18 @@ angular.module('myApp')
 
     //console.log(chunkData);
 
-    function ssCopy(src) {
 
-      var dst = {};
-      for (var key in src) {
-        if (src.hasOwnProperty(key) && !(key.charAt(0) === '$')) {
-          dst[key] = src[key];
-        }
-      }
-
-      return dst;
-    }
 
     var G = {
       T: GAME.turn,
       E: GAME.E,
       S: GAME.S,
+      start: GAME.start,
       world: ssCopy(GAME.world),
       bots: bots,
       scripts: GAME.scripts,
       chunks: chunkData
-    }
+    };
 
     //localStorageService.set('saveGame', G);
     return $localForage.setItem('saveGame', G).then(function() {
@@ -64,20 +72,7 @@ angular.module('myApp')
     });
 
     //console.log(angular.toJson(G));
-  }
-
-  /* function ab2str(arr) {
-    return String.fromCharCode.apply(null, arr);
-  }
-
-  function str2ab(str) {
-    var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
-    var bufView = new Uint16Array(buf);
-    for (var i=0, strLen=str.length; i<strLen; i++) {
-      bufView[i] = str.charCodeAt(i);
-    }
-    return buf;
-  } */
+  };
 
   GAME.load = function() {
 
@@ -109,9 +104,10 @@ angular.module('myApp')
       GAME.E = G.E;
       GAME.S = G.S;
       GAME.turn = G.T;
+      GAME.start = G.start;
     });
 
-  }
+  };
 
   GAME.clear = function() {
     return $localForage.clear();
@@ -149,10 +145,11 @@ angular.module('myApp')
     GAME.E = 0;  // todo: create stats object
     GAME.S = 0;
     GAME.turn = 0;
+    GAME.start = new Date();
 
     return GAME;
 
-  }
+  };
 
   GAME.takeTurn = function() {
     mezclar2(GAME.bots.slice(0)).forEach(function(_bot) {
@@ -162,7 +159,7 @@ angular.module('myApp')
     if (GAME.turn % 20 === 0) {  // only save if changed?
       GAME.save();
     }
-  }
+  };
 
   GAME.reset();
 

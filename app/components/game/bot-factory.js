@@ -22,8 +22,8 @@ var collect = (function random($bot) {
         x = mine.x;
         y = mine.y;
       } else {
-        x = 3*Math.random()-1+$bot.x;
-        y = 3*Math.random()-1+$bot.y;
+        x = 2*Math.random()-1+$bot.x;
+        y = 2*Math.random()-1+$bot.y;
       }
       $bot.moveTo(x,y);
     }
@@ -34,12 +34,12 @@ collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
 
   angular.module('myApp')
   .constant('defaultScripts', [   // make a servioce, add Construct script
-  //{ name: 'Debug', code: '$log($bot.name, $bot.x, $bot.y);' },
-  { name: 'Upgrade', code: '$bot.upgrade();' },
-  { name: 'Construct', code: '$bot.construct();' },
-  //{ name: 'Go Home', code: '$bot.moveTo($home.x,$home.y);' },
-  { name: 'Collect', code: collect }//,
-  //{ name: 'Test', code: '$log($bot.list())' }
+    //{ name: 'Debug', code: '$log($bot.name, $bot.x, $bot.y);' },
+    { name: 'Upgrade', code: '$bot.upgrade();' },
+    { name: 'Construct', code: '$bot.construct();' },
+    //{ name: 'Go Home', code: '$bot.moveTo($home.x,$home.y);' },
+    { name: 'Collect', code: collect }//,
+    //{ name: 'Test', code: '$log($bot.list())' }
   ])
   .service('sandBox', function() {  // move, create tests
 
@@ -429,8 +429,8 @@ collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
         bot.construct('Collect');
       };
 
-      $bot.find = function $$find(_) {
-        var r = bot.scanList().filter(function(d) { return d.t === _; }); // move, speed up
+      $bot.find = function $$find(_) {  // move?
+        var r = bot.scanList(_);
         return (r.length > 0) ? r[0] : null;
       };
 
@@ -546,6 +546,8 @@ collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
     };
 
     Bot.prototype.moveTo = function(x,y) {
+
+      this.target = {x:x, y:y};
 
       if (angular.isObject(x)) {  // TODO: Utility
         y = x.y;
@@ -696,6 +698,9 @@ collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
         this.S -= 10;
         this.mS += 5;
         this.mE += 5;
+        if (this.mS >= 100) {
+          this.t = '@';
+        }
       }
     };
 
@@ -717,9 +722,12 @@ collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
       return GAME.world.scan(this);
     };
 
-    Bot.prototype.scanList = function() {  // move, GAME.scanFrom?
+    Bot.prototype.scanList = function(_) {  // move, GAME.scanFrom?
       var self = this;
-      var l = GAME.scanList();
+      var l = GAME.scanList(_);
+
+      if (l.length === 0) { return []; }
+
       l.forEach(function(d) {
         var dx = d.x - self.x;
         var dy = d.y - self.y;

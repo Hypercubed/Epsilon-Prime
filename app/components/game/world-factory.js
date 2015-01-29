@@ -1,4 +1,6 @@
 /* global noise:true */
+/* global d3:true */
+/* global _F:true */
 
 (function() {
   'use strict';
@@ -12,7 +14,7 @@
   function perlin(x,y,N) {
     var z = 0, s = 0;
     for (var i = 0; i < N; i++) {
-      var pp = 1/Math.pow(2,i)/4
+      var pp = 1/Math.pow(2,i)/4;
       var e = Math.PI/2*pp;  // rotate angle
       var ss = Math.sin(e);
       var cc = Math.cos(e);
@@ -72,7 +74,7 @@ angular.module('myApp')
 
     Chunk.prototype.id = function() {
       return this.X+','+this.Y;
-    }
+    };
 
     Chunk.prototype.index = function(x,y) {
       var s = this.size;
@@ -154,7 +156,7 @@ angular.module('myApp')
       return chunk.get(x,y);
     };
 
-    World.prototype._set = function(x,y) {
+    World.prototype._set = function(x,y,z) {
       var chunk = this.getChunk(x,y);
       return chunk.set(x,y,z);
     };
@@ -235,23 +237,26 @@ angular.module('myApp')
       return r;
     };
 
-    World.prototype.scanList = function() {  // list of all excisting tiles
+    World.prototype.scanList = function(_) {  // list of all excisting tiles
+      if (angular.isDefined(_) && _.length > 1) { return []; }
+
       var self = this;
 
       var xs = this.size;
       var ys = this.size;
 
       var r = [];
-      angular.forEach(this.$$chunks,function(chunk,key) {  // do better, need to limit range
+      angular.forEach(this.$$chunks,function(chunk) {  // do better, need to limit range
         //console.log(key);
         var X = chunk.X*xs;
         var Y = chunk.Y*ys;
         for(var i = X; i < X+xs; i++) {
           for(var j = Y; j < Y+ys; j++) {
             var t = self.get(i,j);
-            //console.log(t);
             if (t !== null && t.t !== TILES.EMPTY) {
-              r.push(t);
+              if (!_ || t.t === _) {
+                r.push(t);
+              }
             }
           }
         }
@@ -287,5 +292,3 @@ angular.module('myApp')
     return World;
   });
 })();
-
-

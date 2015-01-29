@@ -11,10 +11,11 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Readme
 
 ## Bugs
+- [x] Fix bot panel
 - [ ] Too slow!
-  - [ ] findList & World.get needs optimization.
-  - [ ] Improve d3 drawing, don't remove elements
-- [ ] GUI Responsiveness bugs
+  - [?] $bot.find & World.get needs optimization.
+  - [x] Improve d3 drawing, don't remove elements
+- [?] GUI Responsiveness bugs
   - [ ] Bot-panel disappears on small screens
   - [ ] Movement buttons distorted on small screen
 - [ ] Replace hotkey help with modal dialog
@@ -25,15 +26,18 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] j/k should only cycle filtered bots?
 
 ## Next
-- [ ] Add tile text to bot panel
-- [ ] Change layout, map full screen, bot panel full height.
-- [ ] Change tile string with bot size
-- [ ] Upgrade using base resources?
-- [ ] Time played -> stats
-- [ ] $bot.find should search both time and name.  Wildcard?
+- [ ] Change svae rtae to time not turns?
+- [ ] Try Aether again.
+- [x] Ensure game is saved before showing save dialog, use localForage promise
+- [x] List panel play/pause should be a drop down with script names.
+- [x] Add tile text to bot panel
+- [ ] Change layout, map full screen, bot panel full height?
+- [x] Change tile string with bot size
+- [ ] Upgrade units using base resources?
+- [x] Time played -> stats
+- [x] $bot.find should search both time and name.
+  - [ ] Wildcard?
 - [ ] Indicate bot's current target, (and heading?)
-- [ ] Improve efficiency of JS-interpretor
-- [ ] Clean Sandbox code
 - [ ] d3 hover/click dispatch
 - [ ] Pan to unit on select
 - [x] Script construct/set inital orders
@@ -53,7 +57,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Decisions
 - [ ] Bots can carry bots?
-- [ ] Bot tile based on size?
+- [x] Bot tile based on size?
 - [ ] End game shows easter egg?
 - [x] Continue after end game?
 - [ ] Set max number of bots for performance?
@@ -61,7 +65,6 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Start with rover, upgrade to base?  Start with base, build first rover?
 - [x] Script panel
 - [ ] Use ui-router?
-- [ ] Any unit (rover, base) can mine, move, relocate, charge, upgrade?
 - [ ] Faster bot (drone)? mE = mS = 1 (Can never upgrade using current rules)
 - [ ] Allow scripting of change script?  Change, stop, include.
 - [x] Upgrade self or upgrade in base?
@@ -71,7 +74,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [x] Save state
 - [x] Store total E/S found/spent.
 - [ ] More terrain types (various movement costs?)
-- [ ] replace progress bars with sparkline
+- [ ] replace progress bars with sparkline?
 - [ ] add progress circle to map?
 
 ## Superficial

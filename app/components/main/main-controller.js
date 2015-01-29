@@ -1,4 +1,5 @@
-/* global ace:true */
+/* global _F:true */
+/* global d3:true */
 
 (function() {
 
@@ -10,8 +11,8 @@
           height = 500 - margin.top - margin.bottom;
 
       var _tile = _F('t');
-      var _x = _F('x');
-      var _y = _F('y');
+      //var _x = _F('x');
+      //var _y = _F('y');
 
       var xScale = d3.scale.linear()
         .range([0, width])
@@ -20,35 +21,37 @@
         .range([0, height])
         .domain([0,60]);
 
-      var dx = xScale(1), dy = yScale(1);
+      var dx = xScale(1); //, dy = yScale(1);
 
       var _X = _F('x', xScale),
           _Y = _F('y', yScale);
 
       var textAttr = {
-        "text-anchor": "middle",
-        "alignment-baseline": "middle",
+        'text-anchor': 'middle',
+        'alignment-baseline': 'middle',
         x: 0,
         y: 0
-      }
+      };
 
       var container = null;
 
       function zoomed() {
-        container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+        container.attr('transform', 'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')');
       }
 
       var zoom = d3.behavior.zoom()
         .scaleExtent([0.5, 10])
-        .on("zoom", zoomed);
+        .on('zoom', zoomed);
 
       function my(selection) {
-        selection.each(function(d, i) {
+        selection.each(function(d) {
 
           var tiles = d[0];  // TODO: not this
           var bots = d[1];
 
           //d3.select('#grid').select('svg').remove();
+
+          var gBotsLayer, gTilesLayer;
 
           if (!container) {
             //$log.debug('draw new');
@@ -57,32 +60,32 @@
               .append('svg')
                 .attr('width', width)
                 .attr('height', height)
-                .append("g")
-                  .attr("transform", "translate(" + margin.left + "," + margin.right + ")")
+                .append('g')
+                  .attr('transform', 'translate(' + margin.left + ',' + margin.right + ')')
                   .call(zoom);
 
-            svg.append("rect")
-                .attr("width", width)
-                .attr("height", height)
-                .style("fill", "none")
-                .style("pointer-events", "all");
+            svg.append('rect')
+                .attr('width', width)
+                .attr('height', height)
+                .style('fill', 'none')
+                .style('pointer-events', 'all');
 
-            container = svg.append("g");
+            container = svg.append('g');
 
-            var gTilesLayer = container.append('g').attr('class','tilesLayer');
-            var gBotsLayer = container.append('g').attr('class','botsLayer');
+            gTilesLayer = container.append('g').attr('class','tilesLayer');
+            gBotsLayer = container.append('g').attr('class','botsLayer');
           } else {
-            var gBotsLayer = container.select('.botsLayer');
-            var gTilesLayer = container.select('.tilesLayer');
+            gBotsLayer = container.select('.botsLayer');
+            gTilesLayer = container.select('.tilesLayer');
 
-            gTilesLayer.selectAll('.tile').remove();  // todo: not this
-            gBotsLayer.selectAll('.bot').remove();  // todo: not this
+            //gTilesLayer.selectAll('.tile').remove();  // todo: not this
+            //gBotsLayer.selectAll('.bot').remove();  // todo: not this
           }
 
-          var tiles = gTilesLayer
+          var tilesWrap = gTilesLayer
             .selectAll('.tile').data(tiles);
 
-          tiles.enter()
+          tilesWrap.enter()
               .append('g')
                 .attr('class', 'tile')
                 .attr('transform', function(d) {
@@ -92,18 +95,21 @@
                   .attr(textAttr)
                   .text(_tile);
 
-          tiles
+          tilesWrap
             .attr('transform', function(d) {
               return 'translate('+[_X(d),_Y(d)]+')';
             })
             .select('text')
               .text(_tile);
 
-          var gBots = gBotsLayer
+          var botsWrap = gBotsLayer
             .selectAll('.bot').data(bots);
 
-          var gBotsEnter = gBots.enter()
-            .append('g');
+          var gBotsEnter = botsWrap.enter()
+            .append('g')
+            .attr('class', function(d) {
+              return 'bot bot-'+d.name.toLowerCase();
+            });
 
           gBotsEnter
               .append('circle')
@@ -118,19 +124,13 @@
                 .attr(textAttr)
                 .text(_tile);
 
-          gBots
-              .attr('class', function(d) {
-                var _class = 'bot bot-'+d.name.toLowerCase();
-                if (d.active) {  // this is not good
-                  _class += ' active';
-                }
-                return _class;
+          botsWrap
+              .classed('active', function(d) {
+                return d.active;
               })
               .attr('transform', function(d) {
                 return 'translate('+[_X(d),_Y(d)]+')';
-              })
-              .select('text')
-                .text(_tile);
+              });
 
           //gBots
           //  .append('text')
@@ -161,7 +161,7 @@ angular.module('myApp')
       var s = ''+GAME.world.getHash();
 
       var ke = GAME.bots.length;  // do better, move to GAME service
-      var ws = GAME.world.size;
+      //var ws = GAME.world.size;
       for(var k = 0; k < ke; k++) {
         var bot = GAME.bots[k];
         var index = GAME.world.getIndex(bot);
@@ -171,11 +171,7 @@ angular.module('myApp')
       return s;
     };
 
-    $scope.$watch(main.drawWatch, d3Draw); // don't do this
-
-
-
-    var grid = Grid();
+    var grid = new Grid();
 
     function d3Draw() {
       $log.debug('d3 draw');
@@ -184,8 +180,9 @@ angular.module('myApp')
       var bots = GAME.bots;
 
       d3.select('#grid').datum([tiles,bots]).call(grid);
-
     }
+
+    $scope.$watch(main.drawWatch, d3Draw); // don't do this
 
     main.upgradeBot = function(bot) {  // TODO: delete
       bot.upgrade();
@@ -193,12 +190,13 @@ angular.module('myApp')
 
     // TODO: canMove, isHome, isFull
 
-    main.isAtHome = function(bot) {  // TODO: move to bot class?
+    main.isAtHome = function(bot) {  // TODO: move to bot class? used?
       bot = bot || main.bot;
-      return (bot !== main.home) && isAt(bot, home);
+      return (bot !== main.home) && isAt(bot, main.bots[0]);
     };
 
-    main.canMine = function() {  // TODO: move to bot class?
+    main.canMine = function(bot) {  // TODO: move to bot class?  used?
+      bot = bot || main.bot;
       return GAME.world.get(bot.x,bot.y).t === TILES.MINE;
     };
 
@@ -254,7 +252,7 @@ angular.module('myApp')
         });
     }
 
-    /* global */
+    /* _global */
     /* hotkeys.bindTo($scope)  // esc doesn't play nice with modals
       .add({
         combo: 'esc',
@@ -273,7 +271,7 @@ angular.module('myApp')
       ['z','SW',-1, 1],
       ['x','S' , 0, 1],
       ['c','SE', 1, 1]
-    ]
+    ];
 
     /* bot directions */  // move somewhere else
     d.forEach(function(k) {
@@ -357,15 +355,25 @@ angular.module('myApp')
     };
 
     main.save = function() {
-      GAME.save();
-      pauseDialog('Game saved.', false);
+      GAME.save().then(function() {
+        pauseDialog('Game saved.', false);
+      });
     };
 
     main.pause = function() {
       pauseDialog('', false);
     };
 
-    main.showScripts = function(initialScriptId) {
+    main.showScripts = function(_) {
+
+      if (typeof _ === 'string') {  //  move to dialog?
+        GAME.scripts.forEach(function(d, i) {  // improve this
+          if (d.name === _) {
+            _ = i;
+          }
+        });
+      }
+
       var _dT = main.dT;
       main.play(0);
 
@@ -373,17 +381,17 @@ angular.module('myApp')
         GAME.save();
         main.play(_dT);
       }
-
+      
       $modal.open({
         templateUrl: 'components/editor/editor.html',
         size: 'lg',
         backdrop: 'static',
         controller: 'EditorCtrl as editor',
         resolve: {
-          initialScriptId: function() { return initialScriptId; }
+          initialScriptId: function() { return _; }
         }
       }).result.then(done,done);
-    }
+    };
 
     setup();
 
@@ -394,7 +402,7 @@ angular.module('myApp')
 
     main.dT = 0;   // move all this to GAME service?
 
-    var timer = undefined;
+    var timer;
 
     function clearTimer() {
       if (angular.isDefined(timer)) {
@@ -408,7 +416,7 @@ angular.module('myApp')
       if (main.dT > 0) {
         timer = $timeout(main.takeTurn, main.dT);
       }
-    }
+    };
 
     main.play = function(_dT) {
       clearTimer();
@@ -416,13 +424,13 @@ angular.module('myApp')
       if (_dT > 0) {
         main.takeTurn();
       }
-    }
+    };
 
-    $scope.$on("$destroy", function( event ) {
+    $scope.$on('$destroy', function() {
       console.log('destroy');
       clearTimer();
     });
 
-  })
+  });
 
 })();

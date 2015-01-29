@@ -8,12 +8,12 @@
   margin-bottom: 5px;
   position: relative;
   max-height: 500px;
-  overflow: auto;
+  /* overflow: auto; */
 }
 
 .panel-item .panel-body {
   height: 400px;
-  overflow: auto;
+  /* overflow: auto; */
   padding-top: 5px;
 }
 

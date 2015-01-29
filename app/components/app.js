@@ -17,6 +17,7 @@ angular
     'ngTouch',
     'ui.ace',
     'ui.bootstrap',
+    'angularMoment',
     'xeditable',
     'cfp.hotkeys',
     'LocalForageModule'
