@@ -5,9 +5,12 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 ## Preview Milestones
 - [ ] Limit map and number of bots for demo?
 - [x] Create a favicon?
-- [ ] Readme
+- [x] Readme
 
 ## Bugs
+- [ ] Script defaults should be "@" not "Base", optimize serach to only serach map if '.X#'.
+- [ ] Prevent duplicate scripts with the same name.
+- [ ] Valid bot names have length > 1
 - [ ] Too slow!
   - [?] $bot.find & World.get needs optimization.
   - [x] Improve d3 drawing, don't remove elements
