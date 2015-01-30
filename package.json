@@ -30,7 +30,8 @@
     "jasmine-core": "^2.1.2",
     "karma-jasmine": "^0.3.0",
     "karma": "^0.12.25",
-    "grunt-karma": "^0.9.0"
+    "grunt-karma": "^0.9.0",
+    "grunt-gh-pages": "~0.9.1"
   },
   "engines": {
     "node": ">=0.10.0"
