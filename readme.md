@@ -2,11 +2,17 @@
 
 Epsilon-prime is inspired by the classic 4x game Empire.  In ε-prime a player will control units to εXplore a procedurally generated world (called ε-prime), εXploit the resource of ε-prime in order to εXpand their army of bots and eventually conquer (εXterminate?) the planet ε-prime.  The player uses units (or bots), controlled either manually or via JavaScript command scripts, to manage energy use and collect resources from the ε-prime environment.  These resources are used to create new units or upgrade existing units.  The players goal is to collect resources in the most efficient manner possible.
 
+## Development status
+* Epsilon-Prime is under active development.  It is playable now (at http://hypercubed.github.io/Epsilon-Prime/#/), however, many things are likely be broken or change in a future version.  Player and developer feedback is appreciated... and needed.  If you like the game or the idea please give feedback or encouragement.
+
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Hypercubed/Epsilon-Prime?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 ## Current Features
 * Fog of war
-* Bots scripted using player JavaScript
-* Production of new units, upgrade units
-* End game
+* "Infinte" map (although the browser may have issues).
+* Bots scripted using player JavaScript.
+* Production of new units, upgrade units.
+* End game!
 
 ## Install  (for developers)
 ```
@@ -20,9 +26,10 @@ grunt serve
 ## How to play
 In Epsilon-prime your goal is to conquer the planet of ε-prime.  You do this by commanding an army of bots to explore and exploit the resources or ε-prime.  You can control your bots individually using your mouse and keyboard or by writing command scripts in JavaScript.  The game begins with a simple (and very inefficient) set of scripts for exploring and collecting resources.  Using just these scripts you could complete the game in ~100,000 turns.  But you can you do better!
 
-### Unit list and Map
+### Unit list
 On the right of the browser window you will see a list of your units.  You begin the game with a base and a rover.  Selecting a bot in the panel will highlight the bot in the bot panel and in the map panel on the left with a blue circle.  Click the right chevron in the unit list to see additional details and control options for the selected bot.
 
+### The map
 When starting you will see your base (indicated by an `@` on the map) and a rover (indicated by a `r`).  Around the unit you will see the surrounding territory.  A `.` indicates an accessible space while `#` indicates a region where movement is impossible.  The map can be panned and zoomed using your mouse or touch screen.
 
 ### Energy
@@ -53,10 +60,12 @@ Upgrading a unit costs 10 resource units.  After an upgrade the units maximum en
 Constructing a new unit costs 100 resource units.  This will create a new unit with initial resource and energy storage capacity of 10 units each.  The constructed bot begins with zero energy but can charge from the base.
 
 ### Saving
-The game is automatically saved to your browser's local storage every 10 turns.  To ensure you don't lose any progress press the ~SAVE~ button in the lower right.  This will save your progress and pause the game (if it is running).  You may now close your browser without losing any progress.
+The game is automatically saved to your browser's local storage every 20 turns.  To ensure you don't lose any progress press the ~SAVE~ button in the lower right.  This will save your progress and pause the game (if it is running).  You may now close your browser without losing any progress.
 
 ### Scripts
 Pressing the ~Scripts~ button on the bottom left will pause the game and open the scripts panel.  If you modify a script in the script panel it will not be applied until you press the save button.  After pressing save any bots currently using this script will automatically start using the new version.  You may also create a new script to apply to select bots.
+
+In the bots list each bot has a dropdown button displaing teh name of teh currently active script. An arrow ">" indicates that this script will run on each turn (see taking turns above). Press the button to toggle the bot script off.  Use the drop-down menu (caret) to change the script. 
 
 The starting rover, and any bot created during the game, begin with the random collection script selected by default.  Here is the default collection script:
 
@@ -84,17 +93,74 @@ if ($bot.S >=  $bot.mS) {
 }
 ```
 
-The bot first try to unload it’s current storage and charge from a base.  If the bot is not located at a base nothing will happen.  The the script then checks if the bots storage is a max, if so it find the closest base and begins navigating towards that base.  Next the bot will attempt to mine, if there is no mine the bot will then either try to navigate to the closest mine or random walk if no mine is visible.  This script is very basic, you can do better.
+The bot first try to unload its current storage and charge from a base.  If the bot is not located at a base nothing will happen.  Then script then checks if the bots storage is at max, if so it finds the nearest heavy bot and begins navigating towards that position.  If storage is not full and if the bots energy is greater than 1 unit the bot will attempt to mine, if there is no mine the bot will then either try to navigate to the nearest mine or random walk if no mine is visible.  This script is very basic, you can do better.
 
-## $bor properties
-* .x, .y
-* .E, .mE
-* .S, .mS
+## $bot properties
+* .x, .y   -- Bot x and y positions
+* .E, .mE  -- Bot current and maximum energy capacity
+* .S, .mS  -- Bot current and maximum storage capacity
 
 ## $bot methods
-* $bot.unload
-* $bot.charge
-* $bot.find
-* $bot.moveTo
-* $bot.move
-* $bot.mine
+
+### unload({string="Base"})
+Attempts to unload storage to another bot.  Unloading is only successful if the units are located in the same space. If a string is provided the bot will attempt to unload to another bot with the matching name, otherwise "Base" is assumed.  If unloading is not possible this method has no effect.
+
+Example:
+```
+$bot.unload(); 		  // Tries to unload to the base unit
+$bot.unload('bob'); // Tries to unload to a bot named 'bob.
+```
+
+### charge({string="Base"})
+Attempts to charge batteries from another bot.  Charging is only successful if the units are located in the same space. If a string is provided will attempt to unload to a bot with the matching name.  Otherwise "Base" is assumed.  If charging is not possible this method has no effect.
+
+Example:
+```
+$bot.charge(); 		  // Tries to charge from the base unit
+$bot.unload('bob'); // Tries to charge from a bot named 'bob.
+```
+
+### mine()
+Attempts to mine at the current location.  Returns the number of resources collected or false if no resource are available.  If mining is not possible this method has no effect.
+
+Example:
+```
+$bot.mine(); 
+```
+
+### upgrade()
+Attempts to upgrade the bot using current resources.  If upgrading is not possible this method has no effect.
+
+Example:
+```
+$bot.upgrade(); 
+```
+
+### construct({string})
+Attempts to construct a new bot using current resources.  If a string is provided the constructed bot will start with the named script, otherwise "Collect" is assumed.  If construction is not possible this method has no effect.
+
+Example:
+```
+$bot.construct();
+$bot.construct("my script"); 
+```
+
+### find({string})
+Finds the nearest bot or tile whose name or tile character matches the string.
+
+Example:
+```
+$bot.find('@');    // Finds the nearest heavy bot
+$bot.find('X');	   // Finds the nearest resource cache
+$bot.find('bob');  // Finds the nearest unit named "bob"
+```
+
+### moveTo({number},{number})
+Moves towards the given x,y position.  Will perform very basic obstacle avoidance.
+
+Example:
+```
+$bot.moveTo($bot.x + 5,$bot.y + 5);
+var bob = $bot.find('bob');
+$bot.moveTo(bob.x,bob.y);
+```
