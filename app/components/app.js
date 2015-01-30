@@ -14,7 +14,7 @@ angular
     'cfp.hotkeys',
     'LocalForageModule'
   ])
-  .constant('debug', true)  // todo: make config object
+  .constant('debug', false)  // todo: make config object
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {

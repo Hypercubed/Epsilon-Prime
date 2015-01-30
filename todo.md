@@ -8,6 +8,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [x] Readme
 
 ## Bugs
+- [x] icon and title missing
 - [ ] Script defaults should be "@" not "Base", optimize serach to only serach map if '.X#'.
 - [ ] Prevent duplicate scripts with the same name.
 - [ ] Valid bot names have length > 1

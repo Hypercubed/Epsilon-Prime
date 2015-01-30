@@ -1,10 +1,10 @@
-/* global Sandbox:true */
 /* global _F:true */
 /* global Aether: true */
 
 (function() {
   'use strict';
 
+/*jshint -W110 */
 var collect =
 "$bot.unload();\n" +
 "$bot.charge();\n" +
@@ -27,6 +27,7 @@ var collect =
 "    $bot.moveTo(x,y);\n"+
 "  }\n" +
 "}";
+/*jshint +W110 */
 
 //collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
 
@@ -347,7 +348,7 @@ var collect =
           this.E--;
           var dS = GAME.world.dig(this);  // TODO: bot effeciency
           dS = this.load(dS);
-          GAME.S += dS;
+          GAME.stats.S += dS;
           return dS;
         }
       }
@@ -406,7 +407,7 @@ var collect =
     Bot.prototype.takeTurn = function(dT) {
       //var self = this;
 
-      GAME.E += this.charge(this.chargeRate()*dT);
+      GAME.stats.E += this.charge(this.chargeRate()*dT);
 
       if(!this.manual && this.E > 1) {
 
