@@ -168,3 +168,8 @@ $bot.moveTo($bot.x + 5,$bot.y + 5);
 var bob = $bot.find('bob');
 $bot.moveTo(bob.x,bob.y);
 ```
+
+## License
+Copyright (c) 2015 Jayson Harshbarger [![Gittip donate button](http://img.shields.io/gratipay/Hypercubed.svg)](https://www.gittip.com/hypercubed/ "Donate weekly to this project using Gittip")
+
+[MIT License](http://en.wikipedia.org/wiki/MIT_License)
