@@ -46,18 +46,20 @@
         mode: 'javascript',
         firstLineNumber: 1,
         onLoad : editor.aceLoaded
-      }" ng-model="editor.script.code" name="code" required ng-change="form.code.$error.syntaxError = false"></textarea>
+      }" ng-model="editor.script.code" name="code" required ng-change="editor.update(editor.script, form)"></textarea>
     </div>
     <div ng-messages="form.code.$error" class="bg-danger">
       <div ng-message="required">required</div>
       <div ng-message="syntaxError">{{form.code.$error.syntaxError}}</div>
     </div>
-    <div class="panel-footer row">
-      <div class="pull-right">
+    <div class="panel-footer">
+      <div class="button-group pull-right">
+        <button class="btn btn-default" ng-click="editor.update(editor.script, form)">Validate</button>
         <button class="btn btn-default" ng-click="editor.reset(form)">Reset</button>
         <button class="btn btn-default" ng-click="$close()">Cancel</button>
         <button class="btn btn-primary" ng-click="editor.save()">Save</button>
       </div>
+      <div class="clearfix"></div>
     </div>
 
   </div>

@@ -1,13 +1,5 @@
 'use strict';
 
-/**
- * @ngdoc overview
- * @name myApp
- * @description
- * # myApp
- *
- * Main module of the application.
- */
 angular
   .module('myApp', [
     'ngAnimate',
@@ -22,7 +14,7 @@ angular
     'cfp.hotkeys',
     'LocalForageModule'
   ])
-  .constant('debug', true)
+  .constant('debug', true)  // todo: make config object
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {

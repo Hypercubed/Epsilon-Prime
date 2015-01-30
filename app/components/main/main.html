@@ -1,6 +1,6 @@
 <div id="header">
   <div class="container-fluid muted credit">
-    Turn: {{main.game.turn}}
+    Turn: {{main.game.stats.turn}}
     <button class="btn btn-link btn-xs" ng-click="main.play(0)" tooltip="Stop auto turn" ng-disabled="main.dT === 0">
       <i class="glyphicon glyphicon-stop"></i>
     </button>
@@ -15,8 +15,8 @@
     </button>
 
     <span class="pull-right" ng-click="main.pause()">
-      <i class="glyphicon glyphicon-flash"></i> {{main.game.E | number:0}}
-      <i class="glyphicon glyphicon-asterisk"></i> {{main.game.S | number:0}}
+      <i class="glyphicon glyphicon-flash"></i> {{main.game.stats.E | number:0}}
+      <i class="glyphicon glyphicon-asterisk"></i> {{main.game.stats.S | number:0}}
     </span>
  </div>
 </div>

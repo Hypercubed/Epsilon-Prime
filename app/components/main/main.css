@@ -7,26 +7,6 @@
   font-family: "Courier New", Courier, monospace;
 }
 
-.grid .bot {
-  color: #a94442;
-  cursor: pointer;
-}
-
-.grid .bot-base {
-  color: #428bca;
-}
-
-.grid .bot.active {
-  background-color: #2DFF00;
-}
-
-.grid {
-  overflow: hidden;
-  height: 100%;
-  font-size: 14px;
-  line-height: 12px;
-}
-
 .ctrl hr {
   margin-top: 4px;
   margin-bottom: 4px;

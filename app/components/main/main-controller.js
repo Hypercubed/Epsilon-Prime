@@ -5,152 +5,6 @@
 
 'use strict';
 
-    function Grid() {  // TODO: move
-      var margin = {top: -5, right: -5, bottom: -5, left: -5},
-          width = 500 - margin.left - margin.right,
-          height = 500 - margin.top - margin.bottom;
-
-      var _tile = _F('t');
-      //var _x = _F('x');
-      //var _y = _F('y');
-
-      var xScale = d3.scale.linear()
-        .range([0, width])
-        .domain([0,60]);
-      var yScale = d3.scale.linear()
-        .range([0, height])
-        .domain([0,60]);
-
-      var dx = xScale(1); //, dy = yScale(1);
-
-      var _X = _F('x', xScale),
-          _Y = _F('y', yScale);
-
-      var textAttr = {
-        'text-anchor': 'middle',
-        'alignment-baseline': 'middle',
-        x: 0,
-        y: 0
-      };
-
-      var container = null;
-
-      function zoomed() {
-        container.attr('transform', 'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')');
-      }
-
-      var zoom = d3.behavior.zoom()
-        .scaleExtent([0.5, 10])
-        .on('zoom', zoomed);
-
-      function my(selection) {
-        selection.each(function(d) {
-
-          var tiles = d[0];  // TODO: not this
-          var bots = d[1];
-
-          //d3.select('#grid').select('svg').remove();
-
-          var gBotsLayer, gTilesLayer;
-
-          if (!container) {
-            //$log.debug('draw new');
-
-            var svg = d3.select(this)
-              .append('svg')
-                .attr('width', width)
-                .attr('height', height)
-                .append('g')
-                  .attr('transform', 'translate(' + margin.left + ',' + margin.right + ')')
-                  .call(zoom);
-
-            svg.append('rect')
-                .attr('width', width)
-                .attr('height', height)
-                .style('fill', 'none')
-                .style('pointer-events', 'all');
-
-            container = svg.append('g');
-
-            gTilesLayer = container.append('g').attr('class','tilesLayer');
-            gBotsLayer = container.append('g').attr('class','botsLayer');
-          } else {
-            gBotsLayer = container.select('.botsLayer');
-            gTilesLayer = container.select('.tilesLayer');
-
-            //gTilesLayer.selectAll('.tile').remove();  // todo: not this
-            //gBotsLayer.selectAll('.bot').remove();  // todo: not this
-          }
-
-          var tilesWrap = gTilesLayer
-            .selectAll('.tile').data(tiles);
-
-          tilesWrap.enter()
-              .append('g')
-                .attr('class', 'tile')
-                .attr('transform', function(d) {
-                  return 'translate('+[_X(d),_Y(d)]+')';
-                })
-                .append('text')
-                  .attr(textAttr)
-                  .text(_tile);
-
-          tilesWrap
-            .attr('transform', function(d) {
-              return 'translate('+[_X(d),_Y(d)]+')';
-            })
-            .select('text')
-              .text(_tile);
-
-          var botsWrap = gBotsLayer
-            .selectAll('.bot').data(bots);
-
-          var gBotsEnter = botsWrap.enter()
-            .append('g')
-            .attr('class', function(d) {
-              return 'bot bot-'+d.name.toLowerCase();
-            });
-
-          gBotsEnter
-              .append('circle')
-              .attr({
-                r: 1.2*dx,
-                cx: 0,
-                cy: 0
-              });
-
-          gBotsEnter
-              .append('text')
-                .attr(textAttr)
-                .text(_tile);
-
-          botsWrap
-              .classed('active', function(d) {
-                return d.active;
-              })
-              .attr('transform', function(d) {
-                return 'translate('+[_X(d),_Y(d)]+')';
-              });
-
-          //gBots
-          //  .append('text')
-          //    .attr(textAttr)
-          //    .text(_tile);
-
-        });
-      }
-
-      return my;
-    }
-
-/**
- * @ngdoc function
- * @name myApp.controller:MainCtrl
- * @description
- * # MainCtrl
- * Controller of the myApp
- */
-
 angular.module('myApp')
   .controller('MainCtrl', function ($scope, $log, $route, $window, $timeout, $modal, hotkeys, modals, debug, isAt, TILES, GAME) {
 
@@ -171,7 +25,7 @@ angular.module('myApp')
       return s;
     };
 
-    var grid = new Grid();
+    var grid = new d3.charts.Grid();
 
     function d3Draw() {
       $log.debug('d3 draw');
@@ -248,6 +102,15 @@ angular.module('myApp')
             GAME.bots.forEach(function(d) {
               d.E = d.mE;
             });
+          }
+        })
+        .add({
+          combo: 'g',
+          //description: '',
+          callback: function() {
+            main.cheat = true;
+            main.game.world.scanRange(main.bot.x,main.bot.y,40);
+            d3Draw();
           }
         });
     }
@@ -381,7 +244,7 @@ angular.module('myApp')
         GAME.save();
         main.play(_dT);
       }
-      
+
       $modal.open({
         templateUrl: 'components/editor/editor.html',
         size: 'lg',

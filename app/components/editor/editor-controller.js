@@ -5,7 +5,7 @@
   'use strict';
 
   angular.module('myApp')
-  .controller('EditorCtrl', function($log, $modalInstance, initialScriptId, GAME) {
+  .controller('EditorCtrl', function($log, $modalInstance, initialScriptId, GAME, aether) {
 
     var editor = this;
 
@@ -30,32 +30,34 @@
 
     editor.update = function(script, form) {
 
-      try {
-        $log.debug('Validate');
+      form.code.$error.syntaxError = false;
+      if (script.code && script.code.length > 0) {
+        aether.transpile(script.code);
 
-        acorn.parse(script.code);
+        //console.log(aether.problems);
 
-        if (form) {
-          form.$setPristine();
-          form.$setUntouched();
+        if (aether.problems.errors.length > 0) {
+          form.code.$error.syntaxError = aether.problems.errors.map(_F('message')).join('\n');
         }
-
-      } catch(err) {
-        form.code.$error.syntaxError = err.message;
       }
 
     };
 
     editor.save = function() {
       GAME.scripts = angular.copy(editor.scripts);
-      //console.log(GAME.scripts, editor.scripts);
+      GAME.scripts.forEach(function(d) {
+        d.$method = null;
+      });
       $modalInstance.close();
     };
-    
+
     editor.aceLoaded = function(_editor){
-      _editor
-      .getSession()
-      .setUndoManager(new ace.UndoManager());
+      var _session = _editor.getSession();
+      _session
+          .setUndoManager(new ace.UndoManager());
+
+      _session
+        .setTabSize(2);
     };
 
     editor.reset();

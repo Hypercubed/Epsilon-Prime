@@ -46,23 +46,15 @@ angular.module('myApp')
       };
     });
 
-    //console.log(chunkData);
-
-    var bots = GAME.bots.map(ssCopy);
-    //console.log(bots);
-
-    //console.log(chunkData);
-
-
-
     var G = {
       T: GAME.turn,
       E: GAME.E,
       S: GAME.S,
       start: GAME.start,
+      stats: ssCopy(GAME.stats),
       world: ssCopy(GAME.world),
-      bots: bots,
-      scripts: GAME.scripts,
+      bots: GAME.bots.map(ssCopy),
+      scripts: GAME.scripts.map(ssCopy),
       chunks: chunkData
     };
 
@@ -83,6 +75,9 @@ angular.module('myApp')
 
       angular.extend(GAME.world, G.world);
 
+      angular.copy(G.scripts, GAME.scripts);
+      angular.copy(G.stats, GAME.stats);
+
       GAME.world.$$chunks = {};
       angular.forEach(G.chunks, function(chunk, key) {
          GAME.world.$$chunks[key] = new Chunk(chunk.view, chunk.X, chunk.Y);
@@ -99,12 +94,8 @@ angular.module('myApp')
 
       //console.log(GAME.bots);
 
-      angular.copy(G.scripts, GAME.scripts);
 
-      GAME.E = G.E;
-      GAME.S = G.S;
-      GAME.turn = G.T;
-      GAME.start = G.start;
+
     });
 
   };
@@ -142,10 +133,17 @@ angular.module('myApp')
     var bot = home.construct('Collect');
     bot.active = true;
 
-    GAME.E = 0;  // todo: create stats object
-    GAME.S = 0;
-    GAME.turn = 0;
-    GAME.start = new Date();
+    //GAME.E = 0;  // todo: create stats object
+    //GAME.S = 0;
+    //GAME.turn = 0;
+    //GAME.start = new Date();
+
+    GAME.stats = {
+      E: 0,
+      S: 0,
+      turn: 0,
+      start: new Date()
+    }
 
     return GAME;
 
@@ -155,8 +153,8 @@ angular.module('myApp')
     mezclar2(GAME.bots.slice(0)).forEach(function(_bot) {
       _bot.takeTurn(1);
     });
-    GAME.turn++;
-    if (GAME.turn % 20 === 0) {  // only save if changed?
+    GAME.stats.turn++;
+    if (GAME.stats.turn % 20 === 0) {  // only save if changed?  Move to different timer
       GAME.save();
     }
   };

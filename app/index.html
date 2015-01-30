@@ -60,7 +60,6 @@
     <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
     <script src="bower_components/ace-builds/src-min-noconflict/ace.js"></script>
     <script src="bower_components/angular-ui-ace/ui-ace.js"></script>
-    <script src="bower_components/JS-Interpreter/acorn.js"></script>
     <script src="bower_components/angular-messages/angular-messages.js"></script>
     <script src="bower_components/noisejs/perlin.js"></script>
     <script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
@@ -74,10 +73,13 @@
     <script src="bower_components/SandboxJS/Sandbox.js"></script>
     <script src="bower_components/moment/moment.js"></script>
     <script src="bower_components/angular-moment/angular-moment.js"></script>
+    <script src="bower_components/lodash/dist/lodash.compat.js"></script>
+    <script src="bower_components/aether/build/aether.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
         <!-- build:js({.tmp,app}) components/scripts.js -->
+        <script src="components/main/grid.js"></script>
         <script src="components/app.js"></script>
         <script src="components/game/world-factory.js"></script>
         <script src="components/game/bot-factory.js"></script>

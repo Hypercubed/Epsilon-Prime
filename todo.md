@@ -3,12 +3,11 @@
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Preview Milestones
-- [ ] Limit map size?
-- [ ] Replace favicon
+- [ ] Limit map and number of bots for demo?
+- [x] Create a favicon?
 - [ ] Readme
 
 ## Bugs
-- [ ] Script panel overflow
 - [ ] Too slow!
   - [?] $bot.find & World.get needs optimization.
   - [x] Improve d3 drawing, don't remove elements
@@ -17,10 +16,17 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Disable hotkeys when paused dialog is shown
 - [ ] Upgrade using base resources?
 - [ ] j/k should only cycle filtered bots?
+- [ ] SVG size
 
 ## Next
+- [ ] Move bot hot keyts to different controller?
+- [ ] Option to reset scripts to default
+- [ ] Improve editor save/validation
+- [ ] ! icon should open log
+- [ ] Remove references to main.home in MainCtrl
 - [ ] Change save rate to time not turns?
-- [ ] Try Aether again.
+- [ ] Better handling Aether errors
+- [ ] Try other Aether supported languages?
 - [ ] Upgrade units using base resources?
 - [x] $bot.find should search both time and name.
   - [ ] Wildcard?
@@ -30,8 +36,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Indicate stuck bots?
 - [ ] Ensure bot starts on plain
 - [ ] Clean up classes
-- [ ] Implement $bot.log() (or hide log tab)
-- [ ] Improve map code, draw in chunks?
+- [ ] Implement $bot.log()
 - [ ] Improve drawing more?  Draw by chunk.
 - [ ] Bot memory?
 - [ ] More balancing of gameplay.

@@ -1,9 +1,8 @@
+/* global Sandbox:true */
+/* global _F:true */
+/* global Aether: true */
 
 (function() {
-  /* global Sandbox:true */
-  /* global _F:true */
-
-
   'use strict';
 
 var collect = (function random($bot) {
@@ -41,7 +40,28 @@ collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
     { name: 'Collect', code: collect }//,
     //{ name: 'Test', code: '$log($bot.list())' }
   ])
-  .service('sandBox', function() {  // move, create tests
+  .service('aether', function() {
+    /*jshint -W106 */
+    var aetherOptions = {
+      executionLimit: 1000,
+      functionName: 'tick',
+      functionParameters: ['$log','$bot'],
+      problems: {
+        jshint_W040: {level: 'ignore'},
+        aether_MissingThis: {level: 'ignore'}
+      },
+      noSerializationInFlow: true,
+      includeFlow: false,
+      includeMetrics: false,
+      includeStyle: false,
+      protectAPI: false,
+      yieldAutomatically: true
+    };
+    /*jshint +W106 */
+
+    return new Aether(aetherOptions);
+  })
+  .service('sandBox', function(aether) {  // move, create tests
 
     var sandBox = this;
 
@@ -49,19 +69,49 @@ collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
       console.log.apply(console, arguments);
     };
 
-    var _sandBox = new Sandbox();
-    _sandBox.global.$log = $logInterface;
+    //var aether = new Aether(aetherOptions);  // move
 
-    sandBox.run = function(code, $bot) {
 
-      _sandBox.global.$bot = $bot;
-      //console.log(_sandBox.eval('$loggg($bot)'));
+    sandBox.run = function(script, $bot) {
+
+      /* var thisValue = {
+        $log: $logInterface,
+        $bot: $bot
+      }; */
+
+      aether.depth = 1; //hack to avoid rebuilding globals
+      var code = script.code;
+
+      if (!script.$method) { // maybe this should be done in the editor
+        aether.transpile(code);  // todo: catch transpile problems here
+        script.$method = aether.createMethod();
+      }
+      var method = script.$method;
 
       try {
 
+        //aether.transpile(code);  // todo: catch transpile problems here
+        //var method = aether.createMethod(thisValue);
+        //aether.run(method);
+
+        var generator = method($logInterface, $bot);
+        aether.sandboxGenerator(generator);
+
+        var c = 0;
+        var result = { done: false };
+        while (!result.done && c++ < 100000) {
+          result = generator.next();
+        }
+
+        if (!result.done) {  // todo: throw error?
+          throw new Error('User script execution limit'+c);
+          //var m = 'User script execution limit';
+          //console.log(m);
+          //return m;
+        }
 
         /*jshint -W061 */
-        _sandBox.eval(code);
+        //_sandBox.eval(code);
         /*jshint +W061 */
 
         /*jshint -W054 */
@@ -70,9 +120,9 @@ collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
 
         //fn.call(this,$logInterface,$bot);  // todo: safer sandbox
       } catch(err) {
-        var m = err.stack;
+        var m = err.stack || '';
         console.log('User script error', err.message, m);
-        return err.message+', '+m;
+        return err.message;
       }
 
       return true;
@@ -81,304 +131,6 @@ collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
 
     return sandBox;
   })
-  /*  .factory('_SandBox', function($log, Interpreter) {
-
-  var GAME = null;  // later the game service
-
-  var acorn = false;
-  var N = 1000;  // Maximum execution steps per turn, used only when acorn is enabled
-
-  $log.debug(acorn ? 'Using acorn' : 'Using Function');
-
-  function createInterface(bot) {
-  var $bot = {};
-
-  return $bot;
-  }
-
-  function SandBox(bot, _GAME) {
-  var self = this;
-
-  GAME = GAME || _GAME;
-
-  this.interpreter = (acorn) ? new window.Interpreter(bot.$$code) : null;  // do I really need a new interpreter to create objects?
-
-  this.bot = bot;
-  //GAME = GAME;
-
-  //this.home = {x: 20, y: 10}; // hack
-
-  if (acorn) {
-  this.$bot = this.interpreter.createObject(this.interpreter.OBJECT);
-  this.$home = this.interpreter.createObject(this.interpreter.OBJECT);
-
-  this.$log = function() {
-  //$log.debug(arguments);
-  var args = Array.prototype.slice.call(arguments,0).map(function(arg) {
-  return arg.toString() || '';
-  });
-  var r = console.log.apply(console, args);
-  return self.interpreter.createPrimitive(r);
-  };
-
-  } else {
-  this.$bot = {};
-  this.$home = {};
-
-  this.$log = function() {
-  console.log.apply(console, arguments);
-  };
-  }
-
-  this.setup();
-
-  }
-
-  SandBox.prototype.update = function() {
-  var interpreter = this.interpreter;
-
-  function setProps($obj, obj) {
-  ['name','x','y','S','mS','E','mE'].forEach(function(prop) {
-  if (acorn) {
-  interpreter.setProperty($obj, prop, interpreter.createPrimitive(obj[prop]), false);
-  } else {
-  $obj[prop] = obj[prop];
-  }
-  });
-  }
-
-  setProps(this.$bot, this.bot);
-  //setProps(this.$home, this.home);
-
-  };
-
-  SandBox.prototype.setup = function() {
-  var self = this;
-  var bot = this.bot;
-  //var GAME = GAME;
-  //var home = GAME.bots[0];  // todo: not this
-
-  var interpreter = this.interpreter;
-
-  function create(r) {
-  if (Array.isArray(r)) {
-  return createArray(r);
-  } else if (typeof r === 'object') {
-  return createObject(r);
-  } else {
-  return createPrimitive(r);
-  }
-  }
-
-  function createPrimitive(r) {
-  return acorn ? interpreter.createPrimitive(r) : r;
-  }
-
-  function createArray(r) {
-  if (acorn) {
-  var newArray = self.interpreter.createObject(self.interpreter.ARRAY);
-  for (var i = 0; i < r.length; i++) {
-  newArray.properties[i] = create(r[i]);
-  }
-  newArray.length = i;
-  //console.log(o);
-  return newArray;
-  } else {
-  return angular.copy(r);
-  }
-  }
-
-  function createObject(r) {
-  if (acorn) {
-  var o = interpreter.createObject(interpreter.OBJECT);
-  for (var prop in r) {
-  interpreter.setProperty(o, prop, create(r[prop]));
-  }
-  return o;
-  } else {
-  return angular.copy(r);
-  }
-  }
-
-  function __createObject(r, p) {
-  if (acorn) {
-  var o = interpreter.createObject(interpreter.OBJECT);
-  p.forEach(function(prop) {
-  interpreter.setProperty(o, prop, create(r[prop]));
-  });
-  return o;
-  } else {
-  var o = {};
-  p.forEach(function(k) {
-  o[k] = r[k];
-  });
-  return o;
-  }
-  }
-
-  function setMethod(prop, fn) {
-  if (acorn) {
-  interpreter.setProperty(self.$bot, prop, interpreter.createNativeFunction(fn));
-  } else {
-  self.$bot[prop] = fn;
-  }
-  }
-
-  function toNumber(x) {
-  if (acorn) {
-  return x.toNumber();
-  } else {
-  return x;
-  }
-  }
-
-  function toString(x) {
-  if (acorn) {
-  return x.toString();
-  } else {
-  return x;
-  }
-  }
-
-  function $$move(x,y) {
-  x = toNumber(x);
-  y = toNumber(y);
-  var r = bot.move(x,y);
-
-  self.update();
-
-  return createPrimitive(r);
-  }
-
-  function $$moveTo(x,y) {
-  x = toNumber(x);
-  y = toNumber(y);
-  var r = bot.moveTo(x,y);
-
-  self.update();
-
-  return createPrimitive(r);
-  }
-
-  function $$mine() {
-  var r = bot.mine();
-  self.update();
-  return createPrimitive(r);
-  }
-
-  function $$unload() {
-  var home = GAME.bots[0];
-  var r = bot.unloadTo(home); // todo: unload to where?
-  self.update();
-  return createPrimitive(r);
-  }
-
-  function $$charge() {
-  var home = GAME.bots[0];
-  var r = home.chargeBot(bot);
-  self.update();
-  return createPrimitive(r);
-  }
-
-  function $$scan() {  // not working in acorn
-  //var r = interpreter.createObject(interpreter.ARRAY);
-  var r = self.scan();
-  self.update();
-  return createPrimitive(r);
-  }
-
-  function $$upgrade() {  // not working in acorn
-  bot.upgrade();
-  }
-
-  function $$construct() {  // not working in acorn
-  bot.construct('Collect');
-  }
-
-  function $$list() {  // not working in acorn
-  var r = bot.scanList();
-  return createArray(r);
-  }
-
-  function $$find(_) {  // not working in acorn
-  var r = bot.scanList().filter(function(d) { return d.t === _; });
-  //console.log(r);
-  if (r.length > 0) {
-  var o = __createObject(r[0], ['x','y']);
-  return o;
-  } else {
-  return create(null);
-  }
-  }
-
-
-  setMethod('move',$$move);
-  setMethod('moveTo',$$moveTo);
-  setMethod('mine',$$mine);
-  setMethod('scan',$$scan);
-  setMethod('unload',$$unload);
-  setMethod('charge',$$charge);
-  setMethod('upgrade',$$upgrade);
-  setMethod('construct',$$construct);
-  //setMethod('list',$$list);
-  setMethod('find',$$find);
-
-  //setMethod('$x',$$x);
-  //setMethod('$y',$$y);
-  };
-
-  SandBox.prototype.run = function() {
-  //console.log('SandBox.prototype.run');
-  var self = this;
-  //var bot = this.bot;
-  //var GAME = GAME;
-
-  var scriptName = this.bot.scriptName;
-  var scripts = GAME.scripts.filter(function(script) {  // todo: move this.
-  return script.name === scriptName;
-  });
-
-  if (scripts.length < 1) {
-  $log.error('Script not found');
-  return;
-  }
-
-  var code = scripts[0].code;
-
-  //this.home = this.bot.$home;  // hack
-
-  function initScope(interpreter, scope) {
-
-  //self.setup();
-
-  interpreter.setProperty(scope, '$bot', self.$bot, true);
-  //interpreter.setProperty(scope, '$home', self.$home, true);
-  interpreter.setProperty(scope, '$log',interpreter.createNativeFunction(self.$log));
-
-  }
-
-  if (acorn) {
-  self.update();
-  this.interpreter = new Interpreter(code, initScope);
-
-  var c = 0;
-  while(c < N && this.interpreter.step()) { c++; } // same as .run();, check for > 1000 steps adjust if needed
-  //console.log('steps', c);
-  } else {
-
-  self.update();
-
-  /*jshint -W054 *
-  var fn = new Function('$log', '$bot', code);  // todo: move to setup?, trap infinite loops?
-  /*jshint +W054 *
-
-  fn.call(this,self.$log,self.$bot);
-  }
-
-  };
-
-  return SandBox;
-  }) */
   .value('isAt', function isAt(obj,x,y) {
     if (angular.isObject(x)) {
       return x.x === obj.x && x.y === obj.y;
@@ -411,22 +163,22 @@ collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
         return bot.mine();
       };
 
-      $bot.unload = function $$unload() {  // should unload to co-located @
-        var home = GAME.bots[0];
-        return bot.unloadTo(home);
+      $bot.unload = function $$unload(_) {  // should unload to co-located @
+        var home = $bot.find(_ || 'Base');  // gets closest
+        return (home) ? bot.unloadTo(home) : null;
       };
 
-      $bot.charge = function $$charge() {  // should charge to co-located @
-        var home = GAME.bots[0];
-        return home.chargeBot(bot);
+      $bot.charge = function $$charge(_) {  // should charge to co-located @
+        var home = $bot.find(_ || 'Base');  // gets closest
+        return (home) ? home.chargeBot(bot) : null;
       };
 
       $bot.upgrade = function $$upgrade() {
         bot.upgrade();
       };
 
-      $bot.construct = function $$construct() {
-        bot.construct('Collect');
+      $bot.construct = function $$construct(_) {
+        bot.construct(_ || 'Collect');
       };
 
       $bot.find = function $$find(_) {  // move?
@@ -658,13 +410,15 @@ collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
       GAME.E += this.charge(this.chargeRate()*dT);
 
       if(!this.manual && this.E > 1) {
-        
-        if (!this.$script || this.$script.name !== this.scriptName) {
-          this.setCode(this.scriptName);
-        }
-        var code = this.$script.code;
 
-        var ret = sandBox.run(code, this.$bot);
+        //if (!this.$script || this.$script.name !== this.scriptName) {
+        var script =  this.setCode(this.scriptName);  // should only need to do when scritName changes
+        //}
+        //var code = this.$script.code;
+
+        //console.log(this, GAME.scripts);
+
+        var ret = sandBox.run(script, this.$bot);
         if (ret !== true) {
           this.error(ret);
         }
@@ -722,9 +476,11 @@ collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
       return GAME.world.scan(this);
     };
 
-    Bot.prototype.scanList = function(_) {  // move, GAME.scanFrom?
+    Bot.prototype.scanList = function(_) {  // TODO: move, GAME.scanFrom?, optimize
       var self = this;
-      var l = GAME.scanList(_);
+      var l = GAME.scanList(_).filter(function(r) {
+        return r !== self;
+      });
 
       if (l.length === 0) { return []; }
 

@@ -48,7 +48,7 @@ angular.module('myApp')
     FIELD: '·',
     MINE: 'X',
     HILL: ',',
-    BOT: 'r',
+    BOT: 'A',
     BASE: '@',
     HOLE: 'O'
   })
@@ -148,7 +148,7 @@ angular.module('myApp')
 
     World.prototype.getHeight = function(x,y) {
       noise.seed(this.seed);  // move this
-      return perlin((x-30)/this.size,(y-10)/this.size,5);
+      return perlin((x-30)/this.size,(y-10)/this.size,3);
     };
 
     World.prototype._get = function(x,y) {

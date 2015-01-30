@@ -1,14 +1,26 @@
 
+.grid {
+  overflow: hidden;
+  height: 100%;
+  font-size: 14px;
+  line-height: 12px;
+  padding: 0;
+}
 
 #grid svg {
   font-family: "Courier New", Courier, monospace;
+  cursor: move;
 }
 
 #grid text {
   fill: #000;
   font-size: 12px;
-  pointer-events: none;
+  /* pointer-events: none; */
   text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+
+#grid .bot {
+  cursor: pointer;
 }
 
 #grid .bot rect, #grid .bot circle {

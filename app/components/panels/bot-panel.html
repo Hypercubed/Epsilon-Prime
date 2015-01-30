@@ -8,7 +8,7 @@
         <span ng-switch-when="true"><a href editable-text="bot.name">{{ bot.name }}</a></span>
         <span ng-switch-default>{{ bot.name }}</span>
       </span>
-      <span class="badge alert-danger" ng-show="bot.message.length">!</span>
+      <span class="badge alert-danger" ng-show="bot.message.length"  ng-click="main.bot = bot; showControls = !showControls; logActive = true;">!</span>
     </h4>
     <div class="row">
       <!-- label class="col-sm-2">MC</label-->
@@ -164,7 +164,7 @@
       </div>
     </div>
   </tab>
-  <tab heading="Log">
+  <tab heading="Log" active="logActive">
     <div class="alert alert-danger clear-fix" role="alert" ng-show="bot.message.length">
       {{bot.message}}
     </div>
