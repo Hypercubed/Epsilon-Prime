@@ -22,7 +22,7 @@
 
 .grid {
   overflow: hidden;
-  height: 500px;
+  height: 100%;
   font-size: 14px;
   line-height: 12px;
 }
@@ -53,12 +53,23 @@
   font-weight: bold;
 }
 
+.unit-ctrl {
+  z-index: 99;
+}
+
 .unit-ctrl h4 {
   margin: 0;
 }
 
+.unit-ctrl > [sliding-list] {
+  height: 100%;
+}
+
 .unit-ctrl .panel, .unit-list .panel {
   margin-bottom: 5px;
+  height: 100%;
+  overflow-y: scroll;
+  background-color: #fff;
 }
 
 .unit-ctrl .panel-heading, .unit-list .panel-heading {

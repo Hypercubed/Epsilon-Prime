@@ -655,14 +655,14 @@ collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
     Bot.prototype.takeTurn = function(dT) {
       //var self = this;
 
-      if (!this.$script || this.$script.name !== this.scriptName) {
-        this.setCode(this.scriptName);
-      }
-      var code = this.$script.code;
-
       GAME.E += this.charge(this.chargeRate()*dT);
 
-      if(!this.manual) {
+      if(!this.manual && this.E > 1) {
+        
+        if (!this.$script || this.$script.name !== this.scriptName) {
+          this.setCode(this.scriptName);
+        }
+        var code = this.$script.code;
 
         var ret = sandBox.run(code, this.$bot);
         if (ret !== true) {

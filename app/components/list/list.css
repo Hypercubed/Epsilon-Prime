@@ -4,16 +4,23 @@
   margin-bottom: 0;
 }
 
+.list-container .panel-footer {
+  /* position: absolute; */
+  width: 100%;
+  bottom: 0;
+}
+
 .panel-list {
   margin-bottom: 5px;
   position: relative;
-  max-height: 500px;
-  /* overflow: auto; */
+  /* max-height: 500px;
+  overflow: auto; */
 }
 
 .panel-item .panel-body {
-  height: 400px;
-  /* overflow: auto; */
+  height: auto; /* fallback if needed */
+  height: calc(100% - 100px);
+  overflow: auto;
   padding-top: 5px;
 }
 
@@ -61,11 +68,17 @@
 .animate-slide-container {
   position:relative;
   background: none;
+  height: 100%;
 }
 
 .animate-slide {
   background: none;
   width: 200%;
+  height: 100%;
+}
+
+.animate-slide > div {
+  height: 100%;
 }
 
 .animate-slide {

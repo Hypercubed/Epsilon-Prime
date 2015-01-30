@@ -4,7 +4,10 @@
   </div>
   <div class="row-content bot-panel-small">
     <h4>
-      <a href="#" editable-text="bot.name">{{ bot.name }}</a>
+      <span ng-switch="showControls">
+        <span ng-switch-when="true"><a href editable-text="bot.name">{{ bot.name }}</a></span>
+        <span ng-switch-default>{{ bot.name }}</span>
+      </span>
       <span class="badge alert-danger" ng-show="bot.message.length">!</span>
     </h4>
     <div class="row">
@@ -97,14 +100,14 @@
 
   </div>
 
-  <div class="row" xxng-if="showControls">
+  <div class="row" ng-if="showControls">
     <hr class="clearfix">
   </div>
 
   <tabset type="pills" justified="true" ng-if="showControls">
     <tab heading="Manual Control">
       <div class="row">
-        <div class="col-md-7">
+        <div class="col-sm-8">
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move(-1,-1)" ng-disabled="!bot.canMove(-1,-1)">Q</button>
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move( 0,-1)" ng-disabled="!bot.canMove( 0,-1)">W</button>
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move( 1,-1)" ng-disabled="!bot.canMove( 1,-1)">E</button>
@@ -117,9 +120,18 @@
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move( 0,1)" ng-disabled="!bot.canMove( 0,1)">X</button>
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move( 1,1)" ng-disabled="!bot.canMove( 1,1)">C</button>
         </div>
-        <div class="col-md-5 script-btns">
+        <div class="col-sm-4 script-btns">
 
-          <div class="btn-group text-small"
+          <button class="btn btn-primary btn-xs" ng-if="bot !== main.home" tooltip="Unload storage"
+            ng-click="bot.unloadTo(main.home)"
+            ng-disabled="!main.canUnload(bot)">
+            <i class="glyphicon glyphicon-log-out"></i> UNLOAD
+          </button>
+          <button class="btn btn-primary btn-xs" ng-click="main.home.chargeBot(bot); $event.stopPropagation();" ng-if="bot !== main.home" ng-disabled="!main.canCharge(bot)" tooltip="Charge">
+            <i class="glyphicon glyphicon-flash"></i> CHARGE
+          </button>
+
+          <!-- div class="btn-group text-small"
                 ng-repeat="script in main.game.scripts"
                 ng-class="{ active: bot.scriptName === script.name}">
             <button type="button" class="btn btn-sm btn-primary"
@@ -135,7 +147,7 @@
               <li class="divider"></li>
               <li><a href ng-click="main.showScripts($index)">Edit</a></li>
             </ul>
-          </div>
+          </div -->
 
 
 

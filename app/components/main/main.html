@@ -1,5 +1,5 @@
 <div id="header">
-  <div class="container muted credit">
+  <div class="container-fluid muted credit">
     Turn: {{main.game.turn}}
     <button class="btn btn-link btn-xs" ng-click="main.play(0)" tooltip="Stop auto turn" ng-disabled="main.dT === 0">
       <i class="glyphicon glyphicon-stop"></i>
@@ -22,14 +22,14 @@
 </div>
 
 <div id="wrap">
-  <div class="container">
+  <div class="container-fluid">
 
-    <div class="col-xs-6 grid-ctrl">
+    <div class="col-xs-6 grid-ctrl column">
       <div id="grid" class="grid well small">
       </div>
     </div>
 
-    <div class="col-xs-6 ctrl unit-ctrl">
+    <div class="col-xs-6 ctrl unit-ctrl column">
       <div sliding-list="bot in main.game.bots" item="main.bot">
         <div class="small" bot-panel="bot" show-controls="opened"></div>
       </div>
@@ -39,7 +39,7 @@
 </div>
 
 <div id="footer">
-  <div class="container muted credit">
+  <div class="container-fluid muted credit">
     <button class="btn btn-xs btn-link" ng-click="main.showScripts()">scripts</button>
     <span class="pull-right">
       <button class="btn btn-xs btn-link" ng-click="main.reset()">restart</button>
