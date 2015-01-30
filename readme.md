@@ -41,9 +41,11 @@ Units can move in any of eight directions (see direction keys below).  [J/km] in
 With a bot selected (indicated by a circle in the map and highlighting in the bot list) you can use the following hotkeys.
 
 Direction keys:
+```
 QWE
 A D
 ZXC
+```
 
 S - Action key (Mine, charge, unload).
 

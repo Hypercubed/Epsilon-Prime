@@ -5,34 +5,33 @@
 (function() {
   'use strict';
 
-var collect = (function random($bot) {
-  $bot.unload();
-  $bot.charge();
+var collect =
+"$bot.unload();\n" +
+"$bot.charge();\n" +
+"\n" +
+"if ($bot.S >=  $bot.mS) {\n" +
+"  var home = $bot.find('@');\n" +
+"  $bot.moveTo(home.x,home.y);\n" +
+"} else {\n" +
+"  if ($bot.E >= 1 && $bot.mine() === false) {\n" +
+"    var mine = $bot.find('X');\n" +
+"\n" +
+"    var x,y;\n" +
+"    if (mine !== null) {\n "+
+"      x = mine.x;\n" +
+"        y = mine.y;\n" +
+"    } else {\n" +
+"      x = 2*Math.random()-1+$bot.x;\n" +
+"      y = 2*Math.random()-1+$bot.y;\n" +
+"    }\n"+
+"    $bot.moveTo(x,y);\n"+
+"  }\n" +
+"}";
 
-  if ($bot.S >=  $bot.mS) {
-    var home = $bot.find('@');
-    $bot.moveTo(home.x,home.y);
-  } else {
-    if ($bot.E >= 1 && $bot.mine() === false) {
-      var mine = $bot.find('X');
-
-      var x,y;
-      if (mine !== null) {
-        x = mine.x;
-        y = mine.y;
-      } else {
-        x = 2*Math.random()-1+$bot.x;
-        y = 2*Math.random()-1+$bot.y;
-      }
-      $bot.moveTo(x,y);
-    }
-  }
-}).toString();
-
-collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
+//collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
 
   angular.module('myApp')
-  .constant('defaultScripts', [   // make a servioce, add Construct script
+  .constant('defaultScripts', [   // make a hash
     //{ name: 'Debug', code: '$log($bot.name, $bot.x, $bot.y);' },
     { name: 'Upgrade', code: '$bot.upgrade();' },
     { name: 'Construct', code: '$bot.construct();' },
