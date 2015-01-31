@@ -5,3 +5,4 @@ dist
 .sass-cache
 .grunt
 *_config.json
+Thumbs.db

@@ -140,7 +140,7 @@ var collect =
 
     var GAME = null;  // later the GAME service
 
-    function createInterface(bot) {  // move?
+    function createAccessor(bot) {
       var $bot = {};
 
       ['name','x','y','S','mS','E','mE'].forEach(function(prop) {
@@ -148,6 +148,13 @@ var collect =
           get: function() {return bot[prop]; }
         });
       });
+
+      return $bot;
+
+    }
+
+    function createInterface(bot) {  // move?
+      var $bot = createAccessor(bot);
 
       $bot.move = function $$move(x,y) {
         return bot.move(x,y);
@@ -162,12 +169,12 @@ var collect =
       };
 
       $bot.unload = function $$unload(_) {  // should unload to co-located @
-        var home = $bot.find(_ || '@');  // gets closest
+        var home = find(_ || '@');  // gets closest
         return (home) ? bot.unloadTo(home) : null;
       };
 
       $bot.charge = function $$charge(_) {  // should charge to co-located @
-        var home = $bot.find(_ || '@');  // gets closest
+        var home = find(_ || '@');  // gets closest
         return (home) ? home.chargeBot(bot) : null;
       };
 
@@ -179,9 +186,14 @@ var collect =
         bot.construct(_ || 'Collect');
       };
 
-      $bot.find = function $$find(_) {  // move?
+      function find(_) {  // used by unload and charge, move?
         var r = bot.scanList(_);
         return (r.length > 0) ? r[0] : null;
+      }
+
+      $bot.find = function $$find(_) {  // move?
+        var r = find(_);
+        return (r instanceof Bot) ? createAccessor(r) : r;  // maybe should just be properties
       };
 
       return $bot;
