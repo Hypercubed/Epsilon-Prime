@@ -1,7 +1,7 @@
 'use strict';
 
 angular
-  .module('myApp', [
+  .module('ePrime', [
     'ngAnimate',
     'ngRoute',
     'ngSanitize',
@@ -14,7 +14,12 @@ angular
     'cfp.hotkeys',
     'LocalForageModule'
   ])
-  .constant('debug', true)  // todo: make config object
+  //.constant('debug', true)  // todo: make config object
+  //.constant('siteConfig', {
+  //  debug: true,
+  //  name: 'eprime',
+  //  version: 0
+  //})
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
@@ -31,12 +36,12 @@ angular
         redirectTo: '/'
       });
   })
-  .config(function($logProvider, debug){
-    $logProvider.debugEnabled(debug);
+  .config(function($logProvider, siteConfig){
+    $logProvider.debugEnabled(siteConfig.debug);
   })
-  .config(function ($localForageProvider) {
+  .config(function ($localForageProvider, siteConfig) {
     $localForageProvider.config({
-      name : 'eprime'
+      name : siteConfig.name
     });
   })
   .run(function(editableOptions) {

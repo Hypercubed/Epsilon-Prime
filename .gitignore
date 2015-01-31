@@ -4,3 +4,4 @@ dist
 .tmp
 .sass-cache
 .grunt
+*_config.json

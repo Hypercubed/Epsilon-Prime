@@ -17,7 +17,7 @@ function ssCopy(src) { // shallow copy
   return dst;
 }
 
-angular.module('myApp')
+angular.module('ePrime')
 .service('GAME', function($log, $localForage, World, Bot, Chunk, TILES, defaultScripts) {
 
   var GAME = this;

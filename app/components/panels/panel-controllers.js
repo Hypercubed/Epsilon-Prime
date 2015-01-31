@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  angular.module('myApp')
+  angular.module('ePrime')
   .directive('botPanel', function () {  //https://github.com/incuna/angular-bind-html-compile/blob/master/angular-bind-html-compile.js
     return {
       restrict: 'A',

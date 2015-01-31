@@ -15,11 +15,24 @@ module.exports = function (grunt) {
   // Time how long tasks take. Can help when optimizing build times
   require('time-grunt')(grunt);
 
+  grunt.config('env', grunt.option('env') || process.env.GRUNT_ENV || 'development');
+
+  var bowerJSON = require('./bower.json');
+
   // Configurable paths for the application
   var appConfig = {
-    app: require('./bower.json').appPath || 'app',
-    dist: 'dist'
+    app: bowerJSON.appPath || 'app',
+    version: bowerJSON.version || '0.0.0',
+    dist: 'dist',
+    ga: 'UA-XXXXX-X',
+    debug: true
   };
+
+  // Overrides based on environment
+  var configFile = './'+grunt.config('env')+'_config.json';
+  if (grunt.file.exists(configFile)) {
+    grunt.util._.extend(appConfig, grunt.file.readJSON(configFile));
+  }
 
   // Define the configuration for all the tasks
   grunt.initConfig({
@@ -186,7 +199,7 @@ module.exports = function (grunt) {
     // concat, minify and revision files. Creates configurations in memory so
     // additional tasks can operate on them
     useminPrepare: {
-      html: '<%= yeoman.app %>/index.html',
+      html: '<%= yeoman.app %>/index.html.tpl',
       options: {
         dest: '<%= yeoman.dist %>',
         flow: {
@@ -338,6 +351,24 @@ module.exports = function (grunt) {
       }
     },
 
+    template: {
+      options: {
+        data: appConfig
+      },
+      dist: {
+        files: {
+          '<%= yeoman.dist %>/index.html': ['<%= yeoman.app %>/index.html.tpl'],
+          '.tmp/components/app-config.js': ['<%= yeoman.app %>/components/app-config.js.tpl']
+        }
+      },
+      test: {
+        files: {
+          '.tmp/index.html': ['<%= yeoman.app %>/index.html.tpl'],
+          '.tmp/components/app-config.js': ['<%= yeoman.app %>/components/app-config.js.tpl']
+        }
+      },
+    },
+
     // Run some tasks in parallel to speed up the build process
     concurrent: {
       server: [
@@ -378,16 +409,12 @@ module.exports = function (grunt) {
     grunt.task.run([
       'clean:server',
       'wiredep',
+      'template:test',
       'concurrent:server',
       'autoprefixer',
       'connect:livereload',
       'watch'
     ]);
-  });
-
-  grunt.registerTask('server', 'DEPRECATED TASK. Use the "serve" task instead', function (target) {
-    grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
-    grunt.task.run(['serve:' + target]);
   });
 
   grunt.registerTask('test', [
@@ -404,6 +431,7 @@ module.exports = function (grunt) {
     'useminPrepare',
     'concurrent:dist',
     'autoprefixer',
+    'template:dist',
     'concat',
     'ngAnnotate',
     'copy:dist',

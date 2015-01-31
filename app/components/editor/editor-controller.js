@@ -4,7 +4,7 @@
 (function() {
   'use strict';
 
-  angular.module('myApp')
+  angular.module('ePrime')
   .controller('EditorCtrl', function($log, $modalInstance, initialScriptId, GAME, aether) {
 
     var editor = this;

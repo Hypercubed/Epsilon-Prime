@@ -41,7 +41,7 @@
     };
   }
 
-angular.module('myApp')
+angular.module('ePrime')
   .value('TILES', {
     EMPTY: String.fromCharCode(0),
     MOUNTAIN: '#',

@@ -2,7 +2,7 @@
 (function() {
 'use strict';
 
-  angular.module('myApp')
+  angular.module('ePrime')
   .service('modals',function($modal) {
     var modals = this;
 

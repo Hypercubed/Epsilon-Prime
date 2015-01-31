@@ -4,7 +4,7 @@
 (function() {
   'use strict';
 
-/*jshint -W110 */
+/*jshint -W109 */
 var collect =
 "$bot.unload();\n" +
 "$bot.charge();\n" +
@@ -27,18 +27,16 @@ var collect =
 "    $bot.moveTo(x,y);\n"+
 "  }\n" +
 "}";
-/*jshint +W110 */
+/*jshint +W109 */
 
 //collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
 
-  angular.module('myApp')
+  angular.module('ePrime')
   .constant('defaultScripts', [   // make a hash
-    //{ name: 'Debug', code: '$log($bot.name, $bot.x, $bot.y);' },
+    { name: 'Collect', code: collect },
+    { name: 'Debug', code: '$log($bot.name, $bot.x, $bot.y);' },
     { name: 'Upgrade', code: '$bot.upgrade();' },
-    { name: 'Construct', code: '$bot.construct();' },
-    //{ name: 'Go Home', code: '$bot.moveTo($home.x,$home.y);' },
-    { name: 'Collect', code: collect }//,
-    //{ name: 'Test', code: '$log($bot.list())' }
+    { name: 'Construct', code: '$bot.construct();' }
   ])
   .service('aether', function() {
     /*jshint -W106 */
@@ -409,7 +407,7 @@ var collect =
 
       GAME.stats.E += this.charge(this.chargeRate()*dT);
 
-      if(!this.manual && this.E > 1) {
+      if(!this.manual) {
 
         //if (!this.$script || this.$script.name !== this.scriptName) {
         var script =  this.setCode(this.scriptName);  // should only need to do when scritName changes

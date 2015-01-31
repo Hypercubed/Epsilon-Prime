@@ -1,9 +1,11 @@
+/* global xit:true */
+
 'use strict';
 
 describe('Controller: MainCtrl', function () {
 
   // load the controller's module
-  beforeEach(module('myApp'));
+  beforeEach(module('ePrime'));
 
   var MainCtrl,
     scope;

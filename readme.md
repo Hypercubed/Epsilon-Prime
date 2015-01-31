@@ -12,9 +12,9 @@ Epsilon-Prime is under active development.  It is playable now (at http://hyperc
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Hypercubed/Epsilon-Prime?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 ## Current Features
-* Fog of war
-* "Infinte" map (although the browser may have issues).
-* Bots scripted using player JavaScript.
+* Fog of war.
+* "Near-Infinite" procedurally generated terrain.
+* Units scripted using player JavaScript.
 * Production of new units, upgrade units.
 * End game!
 
@@ -109,21 +109,21 @@ The bot first try to unload its current storage and charge from a base.  If the 
 ## $bot methods
 
 ### unload({string="@"})
-Attempts to unload storage to another bot.  Unloading is only successful if the units are located in the same space. If a string is provided the bot will attempt to unload to another bot with the matching name, otherwise "Base" is assumed.  If unloading is not possible this method has no effect.
+Attempts to unload storage to another bot.  Unloading is only successful if the units are located in the same space. If a string is provided the bot will attempt to unload to another bot with the matching name, otherwise "@" (a "heavy" bot) is assumed.  If unloading is not possible this method has no effect.
 
 Example:
 ```
-$bot.unload(); 		  // Tries to unload to the base unit
-$bot.unload('bob'); // Tries to unload to a bot named 'bob.
+$bot.unload(); 		  // Tries to unload to a heavy unit
+$bot.unload('Bob'); // Tries to unload to a bot named 'Bob.
 ```
 
 ### charge({string="@"})
-Attempts to charge batteries from another bot.  Charging is only successful if the units are located in the same space. If a string is provided will attempt to unload to a bot with the matching name.  Otherwise "Base" is assumed.  If charging is not possible this method has no effect.
+Attempts to charge batteries from another bot.  Charging is only successful if the units are located in the same space. If a string is provided will attempt to unload to a bot with the matching name.  Otherwise "@" (a "heavy" bot) is assumed.  If charging is not possible this method has no effect.
 
 Example:
 ```
-$bot.charge(); 		  // Tries to charge from the base unit
-$bot.unload('bob'); // Tries to charge from a bot named 'bob.
+$bot.charge(); 		  // Tries to charge from the heavy unit
+$bot.charge('Bob'); // Tries to charge from a bot named 'Bob.
 ```
 
 ### mine()
@@ -158,7 +158,7 @@ Example:
 ```
 $bot.find('@');    // Finds the nearest heavy bot
 $bot.find('X');	   // Finds the nearest resource cache
-$bot.find('bob');  // Finds the nearest unit named "bob"
+$bot.find('Bob');  // Finds the nearest unit named "Bob"
 ```
 
 ### moveTo({number},{number})
@@ -167,7 +167,7 @@ Moves towards the given x,y position.  Will perform very basic obstacle avoidanc
 Example:
 ```
 $bot.moveTo($bot.x + 5,$bot.y + 5);
-var bob = $bot.find('bob');
+var bob = $bot.find('Bob');
 $bot.moveTo(bob.x,bob.y);
 ```
 

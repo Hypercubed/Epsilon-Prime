@@ -4,8 +4,8 @@
 
 'use strict';
 
-angular.module('myApp')
-  .controller('MainCtrl', function ($scope, $log, $route, $window, $timeout, $modal, hotkeys, modals, debug, isAt, TILES, GAME) {
+angular.module('ePrime')
+  .controller('MainCtrl', function ($scope, $log, $route, $window, $timeout, $modal, hotkeys, modals, siteConfig, isAt, TILES, GAME) {
 
     var main = this;
 
@@ -91,7 +91,7 @@ angular.module('myApp')
     };
 
     /* cheat */
-    if (debug) {
+    if (siteConfig.debug) {
       hotkeys.bindTo($scope)
         .add({
           combo: 'f',

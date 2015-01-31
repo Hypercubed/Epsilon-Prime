@@ -1,6 +1,6 @@
 (function() {
   'use strict';
-  
+
   function ListController($scope, hotkeys) {
 
     $scope.page = 1;
@@ -53,7 +53,7 @@
 
   }
 
-  angular.module('myApp')
+  angular.module('ePrime')
   .controller('ListController', ListController)
   .directive('slidingListInject', function(){
     return {
