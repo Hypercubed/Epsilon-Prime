@@ -18,22 +18,23 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] SVG size
 
 ## Next
+- [ ] Tests
 - [ ] Move bot hot keys to different controller?
-- [ ] Option to reset scripts to default
+- [ ] Option to reset scripts to default code
 - [ ] Improve editor save/validation
 - [ ] ! error icon should open log
-- [ ] Remove references to main.home in MainCtrl
+- [ ] Remove bot actions in MainCtrl, use main.bot.$bot
 - [ ] Change save rate to time not turns?
 - [ ] Better handling Aether errors
 - [ ] Try other Aether supported languages?
 - [ ] Upgrade units using heavy resources?
 - [x] $bot.find should search both time and name.
   - [ ] Wildcard?
-- [ ] Indicate bot's current target, (and heading?)
+- [ ] Indicate bot's current target, (and heading, and action?)
 - [ ] d3 hover/click dispatch
 - [ ] Pan to unit on select
 - [ ] Indicate stuck bots?
-- [ ] Ensure bot starts on plain
+- [ ] Ensure base starts on plain
 - [ ] Clean up classes
 - [ ] Implement $bot.log()
 - [ ] Improve drawing more?  Draw by chunk.
@@ -44,23 +45,23 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Clean terminology (bots, resources, energy units, etc)
 
 ## Decisions
+- [ ] Start with full energy?
+- [ ] Can bot scripts command other bots?  $bot.find('A').moveTo($bot.x,$bot.y);?
 - [ ] Limit map and number of bots for performance?
-- [ ] map full screen?
+- [ ] Map full screen?
+- [ ] Work on small screens.
 - [ ] Bots can carry other bots?
 - [ ] End game shows easter egg?
-- [ ] Set max number of bots for performance?
 - [ ] Start with rover, upgrade to base?  Start with base, build first rover?
-- [ ] Start with full energy?
-- [ ] Use ui-router?
+- [ ] Use ui-router?  Add about screen.
 - [ ] Faster bot (drone)? mE = mS = 1 (Can never upgrade using current rules)
 - [ ] Allow scripting of change script?  Change, stop, include.
 - [ ] Upgrade self or upgrade in base?
 - [ ] More terrain types (various movement costs?)
-- [ ] replace progress bars with sparkline?
-- [ ] add progress circle to map?
-- [ ] Rename bots -> units?
+- [ ] replace progress bars (with sparkline?)
+- [ ] add progress circles to map?
 - [x] User rename bots?
-  - [ ] Assign labels (A,B,C,...,@)?
+  - [ ] User assign labels (A,B,C,...,@)?
 - [ ] Map directive?
 
 ## Wish list
@@ -72,6 +73,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Tech tree
 - [ ] Multi-Language support
 - [ ] Use $animate
+- [ ] More ability to alter e-prime environment.
 
 ## Bot upgrades
 - [ ] Improve Scanner range?
