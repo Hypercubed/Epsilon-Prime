@@ -4,6 +4,8 @@
 
 Epsilon-prime is inspired by the classic 4x game Empire.  In ε-prime a player will control units to εXplore a procedurally generated world (called ε-prime), εXploit the resource of ε-prime in order to εXpand their army of bots and eventually conquer (εXterminate?) the planet ε-prime.  The player uses units (or bots), controlled either manually or via JavaScript command scripts, to manage energy use and collect resources from the ε-prime environment.  These resources are used to create new units or upgrade existing units.  The players goal is to collect resources in the most efficient manner possible.
 
+![Capture](http://cdn.rawgit.com/Hypercubed/Epsilon-Prime/master/app/images/eprime.png)
+
 ## Development status
 Epsilon-Prime is under active development.  It is playable now (at http://hypercubed.github.io/Epsilon-Prime/#/), however, many things are likely to be broken or change in a future version.  Player and developer feedback is appreciated... and needed.  If you like the game or the idea please give feedback or encouragement.
 
@@ -69,7 +71,7 @@ The game is automatically saved to your browser's local storage every 20 turns. 
 ### Scripts
 Pressing the ~Scripts~ button on the bottom left will pause the game and open the scripts panel.  If you modify a script in the script panel it will not be applied until you press the save button.  After pressing save any bots currently using this script will automatically start using the new version.  You may also create a new script to apply to select bots.
 
-In the bots list each bot has a dropdown button displaing teh name of teh currently active script. An arrow ">" indicates that this script will run on each turn (see taking turns above). Press the button to toggle the bot script off.  Use the drop-down menu (caret) to change the script. 
+In the bots list each bot has a dropdown button displaing teh name of teh currently active script. An arrow ">" indicates that this script will run on each turn (see taking turns above). Press the button to toggle the bot script off.  Use the drop-down menu (caret) to change the script.
 
 The starting rover, and any bot created during the game, begin with the random collection script selected by default.  Here is the default collection script:
 
@@ -106,7 +108,7 @@ The bot first try to unload its current storage and charge from a base.  If the 
 
 ## $bot methods
 
-### unload({string="Base"})
+### unload({string="@"})
 Attempts to unload storage to another bot.  Unloading is only successful if the units are located in the same space. If a string is provided the bot will attempt to unload to another bot with the matching name, otherwise "Base" is assumed.  If unloading is not possible this method has no effect.
 
 Example:
@@ -115,7 +117,7 @@ $bot.unload(); 		  // Tries to unload to the base unit
 $bot.unload('bob'); // Tries to unload to a bot named 'bob.
 ```
 
-### charge({string="Base"})
+### charge({string="@"})
 Attempts to charge batteries from another bot.  Charging is only successful if the units are located in the same space. If a string is provided will attempt to unload to a bot with the matching name.  Otherwise "Base" is assumed.  If charging is not possible this method has no effect.
 
 Example:
@@ -129,7 +131,7 @@ Attempts to mine at the current location.  Returns the number of resources colle
 
 Example:
 ```
-$bot.mine(); 
+$bot.mine();
 ```
 
 ### upgrade()
@@ -137,7 +139,7 @@ Attempts to upgrade the bot using current resources.  If upgrading is not possib
 
 Example:
 ```
-$bot.upgrade(); 
+$bot.upgrade();
 ```
 
 ### construct({string})
@@ -146,7 +148,7 @@ Attempts to construct a new bot using current resources.  If a string is provide
 Example:
 ```
 $bot.construct();
-$bot.construct("my script"); 
+$bot.construct("my script");
 ```
 
 ### find({string})

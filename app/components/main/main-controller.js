@@ -1,4 +1,3 @@
-/* global _F:true */
 /* global d3:true */
 
 (function() {

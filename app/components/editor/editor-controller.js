@@ -1,5 +1,5 @@
 /* global ace:true */
-/* global acorn:true */
+/* global _F:true */
 
 (function() {
   'use strict';

@@ -2,11 +2,6 @@
 
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
-## Preview Milestones
-- [ ] Limit map and number of bots for demo?
-- [x] Create a favicon?
-- [x] Readme
-
 ## Bugs
 - [x] icon and title missing
 - [ ] Script defaults should be "@" not "Base", optimize serach to only serach map if '.X#'.
@@ -23,15 +18,15 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] SVG size
 
 ## Next
-- [ ] Move bot hot keyts to different controller?
+- [ ] Move bot hot keys to different controller?
 - [ ] Option to reset scripts to default
 - [ ] Improve editor save/validation
-- [ ] ! icon should open log
+- [ ] ! error icon should open log
 - [ ] Remove references to main.home in MainCtrl
 - [ ] Change save rate to time not turns?
 - [ ] Better handling Aether errors
 - [ ] Try other Aether supported languages?
-- [ ] Upgrade units using base resources?
+- [ ] Upgrade units using heavy resources?
 - [x] $bot.find should search both time and name.
   - [ ] Wildcard?
 - [ ] Indicate bot's current target, (and heading?)
@@ -49,11 +44,13 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Clean terminology (bots, resources, energy units, etc)
 
 ## Decisions
+- [ ] Limit map and number of bots for performance?
 - [ ] map full screen?
-- [ ] Bots can carry bots?
+- [ ] Bots can carry other bots?
 - [ ] End game shows easter egg?
 - [ ] Set max number of bots for performance?
 - [ ] Start with rover, upgrade to base?  Start with base, build first rover?
+- [ ] Start with full energy?
 - [ ] Use ui-router?
 - [ ] Faster bot (drone)? mE = mS = 1 (Can never upgrade using current rules)
 - [ ] Allow scripting of change script?  Change, stop, include.
@@ -61,8 +58,6 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] More terrain types (various movement costs?)
 - [ ] replace progress bars with sparkline?
 - [ ] add progress circle to map?
-
-## Superficial
 - [ ] Rename bots -> units?
 - [x] User rename bots?
   - [ ] Assign labels (A,B,C,...,@)?
@@ -70,25 +65,16 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Wish list
 - [ ] Mining speed/efficency
-- [-] Moving speed?
-- [ ] Better terrain generation
-  - [ ] Ensure starting position is not locked
+- [ ] Ensure starting position is not locked
 - [ ] Environmental effects (Solar intensity, etc)
 - [ ] Async Programming?  Support ES6 in user scripts?
-- [ ] Aliens?  Alien tech?
+- [ ] Aliens? Alien tech?
 - [ ] Tech tree
-- [ ] Clickable map
-- [ ] Hover on map for location (x,y)
 - [ ] Multi-Language support
 - [ ] Use $animate
 
 ## Bot upgrades
-- [x] Relocate
-- [x] Build bot
 - [ ] Improve Scanner range?
-- [x] Increase resource storage
-- [x] Increase charging rate
-- [x] Increase energy storage
 - [ ] Increase mining efficiency?
 - [ ] Improve engine?
 - [ ] Mountain borer?

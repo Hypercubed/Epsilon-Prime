@@ -164,12 +164,12 @@ var collect =
       };
 
       $bot.unload = function $$unload(_) {  // should unload to co-located @
-        var home = $bot.find(_ || 'Base');  // gets closest
+        var home = $bot.find(_ || '@');  // gets closest
         return (home) ? bot.unloadTo(home) : null;
       };
 
       $bot.charge = function $$charge(_) {  // should charge to co-located @
-        var home = $bot.find(_ || 'Base');  // gets closest
+        var home = $bot.find(_ || '@');  // gets closest
         return (home) ? home.chargeBot(bot) : null;
       };
 

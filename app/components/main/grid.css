@@ -45,3 +45,8 @@
   stroke-width: 1px;
   opacity: 0.4;
 }
+
+#grid .hover-text text {
+  fill: #aaa;
+  text-shadow: none;
+}

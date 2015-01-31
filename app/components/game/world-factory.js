@@ -238,7 +238,7 @@ angular.module('myApp')
     };
 
     World.prototype.scanList = function(_) {  // list of all excisting tiles
-      if (angular.isDefined(_) && _.length > 1) { return []; }
+      if (angular.isDefined(_) && '#.XO'.indexOf(_) < 0) { return []; }
 
       var self = this;
 

@@ -69,7 +69,9 @@ angular.module('myApp')
   GAME.load = function() {
 
     return $localForage.getItem('saveGame').then(function(G) {
-      if (!G) { return console.log('saveGame not found'); }
+      if (!G) {
+        return $log.debug('saveGame not found');
+      }
 
       $log.debug('game loaded',arguments);
 
@@ -143,7 +145,7 @@ angular.module('myApp')
       S: 0,
       turn: 0,
       start: new Date()
-    }
+    };
 
     return GAME;
 
