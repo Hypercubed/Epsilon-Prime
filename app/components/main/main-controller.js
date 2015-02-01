@@ -9,6 +9,8 @@ angular.module('ePrime')
 
     var main = this;
 
+    var grid = new d3.charts.Grid();
+
     main.drawWatch = function drawWatch() {  // Move to GAME? Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
 
       var s = ''+GAME.world.getHash();
@@ -24,8 +26,6 @@ angular.module('ePrime')
       return s;
     };
 
-    var grid = new d3.charts.Grid();
-
     function d3Draw() {
       $log.debug('d3 draw');
 
@@ -37,16 +37,16 @@ angular.module('ePrime')
 
     $scope.$watch(main.drawWatch, d3Draw); // don't do this
 
-    main.upgradeBot = function(bot) {  // TODO: delete
-      bot.upgrade();
-    };
+  //  main.upgradeBot = function(bot) {  // TODO: delete
+    //  bot.upgrade();
+    //};
 
     // TODO: canMove, isHome, isFull
 
-    main.isAtHome = function(bot) {  // TODO: move to bot class? used?
-      bot = bot || main.bot;
-      return (bot !== main.home) && isAt(bot, main.bots[0]);
-    };
+    //main.isAtHome = function(bot) {  // TODO: move to bot class? used?
+    //  bot = bot || main.bot;
+    //  return (bot !== main.home) && isAt(bot, main.bots[0]);
+    //};
 
     main.canMine = function(bot) {  // TODO: move to bot class?  used?
       bot = bot || main.bot;
@@ -65,29 +65,33 @@ angular.module('ePrime')
       }
     };
 
-    main.canUnload = function(bot) {
+    main.canUnload = function(bot) {  // git rid or move these to bot-panel?
       bot = bot || main.bot;
-      return isAt(bot,main.home) && bot.S > 0 && main.home.S < main.home.mS;  // ??
+      if (bot.S <= 0) { return false; }
+      return main.game.bots.some(function(_bot) {
+        return _bot.t === '@' && isAt(_bot, bot) && _bot.S < _bot.mS;
+      });
     };
 
     main.canCharge = function(bot) {
       bot = bot || main.bot;
-      return isAt(bot,main.home) && bot.E < bot.mE && main.home.E > 0;
+      if (bot.E >= bot.mE) { return false; }
+      return main.game.bots.some(function(_bot) {
+        return _bot.t === '@' && _bot.E > 0 && isAt(_bot, bot);
+      });
     };
 
-    main.canMineOrUnload = function(bot) {
+    main.canAction = function(bot) {
       bot = bot || main.bot;
       return bot.canMine() || main.canUnload(bot) || main.canCharge(bot);
     };
 
-    main.mineOrUnload = function(bot) {
+    main.action = function(bot) {
       bot = bot || main.bot;
-      if (isAt(bot,main.home)) {
-        bot.unloadTo(main.home);
-        main.home.chargeBot(bot);
-      } else {
-        bot.mine();
-      }
+
+      bot.$bot.unload();
+      bot.$bot.charge();
+      bot.mine();
     };
 
     /* cheat */
@@ -157,7 +161,7 @@ angular.module('ePrime')
         combo: 's',
         description: 'Action (Unload/load/mine)',
         callback: function() {
-          main.mineOrUnload(main.bot);
+          main.action();
         }
       })
       .add({

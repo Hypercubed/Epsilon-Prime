@@ -102,9 +102,10 @@ if ($bot.S >=  $bot.mS) {
 The bot first try to unload its current storage and charge from a base.  If the bot is not located at a base nothing will happen.  Then script then checks if the bots storage is at max, if so it finds the nearest heavy bot and begins navigating towards that position.  If storage is not full and if the bots energy is greater than 1 unit the bot will attempt to mine, if there is no mine the bot will then either try to navigate to the nearest mine or random walk if no mine is visible.  This script is very basic, you can do better.
 
 ## $bot properties
-* .x, .y   -- Bot x and y positions
-* .E, .mE  -- Bot current and maximum energy capacity
-* .S, .mS  -- Bot current and maximum storage capacity
+* `name`     -- name  
+* `x`, `y`   -- x and y positions
+* `E`, `mE`  -- current and maximum energy capacity
+* `S`, `mS`  -- current and maximum storage capacity
 
 ## $bot methods
 

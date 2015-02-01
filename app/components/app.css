@@ -114,7 +114,7 @@ html, body {
 
 #wrap {
   position: absolute;
-  top: 20px;
+  top: 30px;
   bottom: 20px;
   padding-top: 10px;
   padding-bottom: 10px;
@@ -128,7 +128,7 @@ html, body {
 
 #header {
   position: fixed;
-  height: 20px;
+  height: 30px;
   top: 0;
   width: 100%;
   z-index: 1000;

@@ -41,6 +41,54 @@
         </button -->
 
         <div class="btn-group">
+          <button type="button" class="btn btn-xs btn-primary" ng-click="main.toggleBot(bot)">
+            <!-- input type="checkbox" ng-checked="!bot.manual" -->
+            <i class="" ng-class="{ false: 'mdi-toggle-check-box', true: 'mdi-toggle-check-box-outline-blank'}[bot.manual]"></i>
+          </button>
+          <button type="button" class="btn btn-xs btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+            {{bot.scriptName}}
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li>
+              <a href
+                ng-click="bot.setCode(script)"
+                ng-repeat="script in main.game.scripts"
+                ng-class="{ true: 'active' }[script.name === bot.scriptName]">
+                {{script.name}}
+              </a>
+            </li>
+            <li class="divider"></li>
+            <li><a href ng-click="main.showScripts(bot.scriptName)">Edit</a></li>
+          </ul>
+        </div>
+
+        <!-- div class="input-group input-group-xs">
+          <span class="input-group-addon btn-xs btn-primary">
+            <input type="checkbox" checked="bot.manual" ng-click="main.toggleBot(bot)">
+            {{bot.scriptName}}
+          </span>
+          <div class="input-group-btn">
+            <button type="button" class="btn btn-xs btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+              {{bot.scriptName}} <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li>
+                <a href
+                  ng-click="bot.setCode(script); main.toggleBot(bot, true)"
+                  ng-repeat="script in main.game.scripts"
+                  ng-class="{ true: 'active' }[script.name === bot.scriptName]">
+                  {{script.name}}
+                </a>
+              </li>
+              <li class="divider"></li>
+              <li><a href ng-click="main.showScripts(bot.scriptName)">Edit</a></li>
+            </ul>
+          </div>
+        </div -->
+
+        <!-- div class="btn-group">
           <button type="button" class="btn btn-xs btn-primary"
             ng-click="main.toggleBot(bot)">
             {{bot.scriptName}}
@@ -63,7 +111,7 @@
             <li class="divider"></li>
             <li><a href ng-click="main.showScripts(bot.scriptName)">Edit</a></li>
           </ul>
-        </div>
+        </div -->
 
         <!-- button class="btn btn-primary btn-xs" ng-if="bot !== main.home" tooltip="Unload storage"
           ng-click="bot.unloadTo(main.home)"
@@ -83,13 +131,13 @@
       </div>
       <div class="col-sm-6">
         <button class="btn btn-info btn-xs" tooltip="Upgrade bot"
-          ng-click="main.upgradeBot(bot); $event.stopPropagation();"
+          ng-click="bot.upgrade(); $event.stopPropagation();"
           ng-disabled="bot.S < 10">
           <i class="mdi-editor-merge-type"></i>
           <span class="badge">-10 kg</span>
         </button>
         <button class="btn btn-info btn-xs" tooltip="Construct new bot"
-          ng-click="main.construct(bot); $event.stopPropagation();"
+          ng-click="bot.construct(); $event.stopPropagation();"
           ng-if="bot.mS >= 100"
           ng-disabled="bot.S < 100">
           <i class="mdi-social-person-add"></i>
@@ -107,28 +155,33 @@
   <tabset type="pills" justified="true" ng-if="showControls">
     <tab heading="Manual Control">
       <div class="row">
-        <div class="col-sm-8">
+        <div class="col-sm-6 col-sm-offset-1 text-center">
+          <u>Movement</u><br />
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move(-1,-1)" ng-disabled="!bot.canMove(-1,-1)">Q</button>
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move( 0,-1)" ng-disabled="!bot.canMove( 0,-1)">W</button>
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move( 1,-1)" ng-disabled="!bot.canMove( 1,-1)">E</button>
-          <br />
+          <p />
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move(-1,0)" ng-disabled="!bot.canMove(-1,0)">A</button>
-          <button class="btn btn-primary btn-mono btn-lg" ng-click="main.mineOrUnload(bot)" ng-disabled="!main.canMineOrUnload(bot)">S</button>
+          <button class="btn btn-primary btn-mono btn-lg" ng-click="main.action(bot)" ng-disabled="!main.canAction(bot)">S</button>
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move( 1,0)" ng-disabled="!bot.canMove( 1,0)">D</button>
-          <br />
+          <p />
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move(-1,1)" ng-disabled="!bot.canMove(-1,1)">Z</button>
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move( 0,1)" ng-disabled="!bot.canMove( 0,1)">X</button>
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move( 1,1)" ng-disabled="!bot.canMove( 1,1)">C</button>
         </div>
-        <div class="col-sm-4 script-btns">
+        <div class="col-sm-3 script-btns text-center">
 
-          <button class="btn btn-primary btn-xs" ng-if="bot !== main.home" tooltip="Unload storage"
-            ng-click="bot.unloadTo(main.home)"
+          <u>Actions</u>
+          <button class="btn btn-primary btn-xs btn-block" tooltip="Unload storage"
+            ng-click="bot.$bot.unload()"
             ng-disabled="!main.canUnload(bot)">
             <i class="glyphicon glyphicon-log-out"></i> UNLOAD
           </button>
-          <button class="btn btn-primary btn-xs" ng-click="main.home.chargeBot(bot); $event.stopPropagation();" ng-if="bot !== main.home" ng-disabled="!main.canCharge(bot)" tooltip="Charge">
+          <button class="btn btn-primary btn-xs btn-block" ng-click="bot.$bot.charge();" ng-disabled="!main.canCharge(bot)" tooltip="Charge">
             <i class="glyphicon glyphicon-flash"></i> CHARGE
+          </button>
+          <button class="btn btn-primary btn-xs btn-block" ng-click="bot.$bot.mine();" ng-disabled="!main.canMine(bot)" tooltip="Charge">
+            <i class="glyphicon glyphicon-asterisk"></i>  MINE
           </button>
 
           <!-- div class="btn-group text-small"

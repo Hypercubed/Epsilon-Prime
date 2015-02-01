@@ -148,7 +148,7 @@ angular.module('ePrime')
 
     World.prototype.getHeight = function(x,y) {
       noise.seed(this.seed);  // move this
-      return perlin((x-30)/this.size,(y-10)/this.size,3);
+      return perlin((x-30)/this.size,(y-10)/this.size,4);
     };
 
     World.prototype._get = function(x,y) {

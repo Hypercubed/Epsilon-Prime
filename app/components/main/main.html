@@ -1,20 +1,28 @@
 <div id="header">
   <div class="container-fluid muted credit">
     Turn: {{main.game.stats.turn}}
-    <button class="btn btn-link btn-xs" ng-click="main.play(0)" tooltip="Stop auto turn" ng-disabled="main.dT === 0">
+    <button class="btn btn-link btn-sm"
+        tooltip="Stop auto turn" tooltip-placement="bottom" tooltip-animation="false"
+        ng-click="main.play(0)" ng-disabled="main.dT === 0">
       <i class="glyphicon glyphicon-stop"></i>
     </button>
-    <button class="btn btn-link btn-xs" ng-click="main.play(1000)" tooltip="Play game" ng-disabled="main.dT === 1000">
-      <i class="glyphicon glyphicon-play"></i>
-    </button>
-    <button class="btn btn-link btn-xs" ng-click="main.play(100)" tooltip="Play game (fast)" ng-disabled="main.dT === 100">
-      <i class="glyphicon glyphicon-forward"></i>
-    </button>
-    <button class="btn btn-link btn-xs" ng-click="main.game.takeTurn()" ng-disabled="!main.pause" tooltip="Take turn">
+    <button class="btn btn-link btn-sm"
+        tooltip="Take turn" tooltip-placement="bottom" tooltip-animation="false"
+        ng-click="main.play(0); main.takeTurn()" ng-disabled="main.dT !== 0" >
       <i class="glyphicon glyphicon glyphicon-step-forward"></i>
     </button>
+    <button class="btn btn-link btn-sm" tooltip="Play game"
+        tooltip-placement="bottom" tooltip-animation="false"
+        ng-disabled="main.dT === 1000" ng-click="main.play(1000)">
+      <i class="glyphicon glyphicon-play"></i>
+    </button>
+    <button class="btn btn-link btn-sm"
+        tooltip="Play game (fast)" tooltip-placement="bottom" tooltip-animation="false"
+        ng-disabled="main.dT === 100" ng-click="main.play(100)">
+      <i class="glyphicon glyphicon-forward"></i>
+    </button>
 
-    <a href class="pull-right btn btn-xs btn-link" ng-click="main.pause()">
+    <a href class="pull-right btn btn-sm btn-link" ng-click="main.pause()">
       <i class="glyphicon glyphicon-flash"></i> {{main.game.stats.E | number:0}}
       <i class="glyphicon glyphicon-asterisk"></i> {{main.game.stats.S | number:0}}
     </a>
