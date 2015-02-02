@@ -5,7 +5,7 @@
 'use strict';
 
 angular.module('ePrime')
-  .controller('MainCtrl', function ($scope, $log, $route, $window, $timeout, $modal, hotkeys, modals, siteConfig, isAt, TILES, GAME) {
+  .controller('MainCtrl', function ($scope, $log, $route, $window, $timeout, $modal, hotkeys, debounce, modals, siteConfig, isAt, sandBox, TILES, GAME) {
 
     var main = this;
 
@@ -35,7 +35,7 @@ angular.module('ePrime')
       d3.select('#grid').datum([tiles,bots]).call(grid);
     }
 
-    $scope.$watch(main.drawWatch, d3Draw); // don't do this
+    $scope.$watch(main.drawWatch, debounce(d3Draw)); // don't do this
 
   //  main.upgradeBot = function(bot) {  // TODO: delete
     //  bot.upgrade();
@@ -92,6 +92,13 @@ angular.module('ePrime')
       bot.$bot.unload();
       bot.$bot.charge();
       bot.mine();
+    };
+
+    main.run = function(code) {  // move?
+      var ret = sandBox.run(code, main.bot.$bot);
+      if (ret !== true) {
+        main.bot.error(ret);
+      }
     };
 
     /* cheat */
@@ -180,7 +187,7 @@ angular.module('ePrime')
       main.cheat = false;
       main.game = GAME;
 
-      main.home = GAME.bots[0];  // remove this??
+      //main.home = GAME.bots[0];  // remove this??
       main.bot = GAME.bots[1];  // dont do this
       //main.bot.active = true;
     }

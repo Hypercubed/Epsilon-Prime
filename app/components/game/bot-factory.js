@@ -34,7 +34,10 @@ var collect =
   angular.module('ePrime')
   .constant('defaultScripts', [   // make a hash
     { name: 'Collect', code: collect },
-    { name: 'Debug', code: '$log($bot.name, $bot.x, $bot.y);' },
+    { name: 'Action', code: '$bot.mine();\n$bot.charge();\n$bot.unload();' },
+    //{ name: 'Mine', code: '$bot.mine();' },
+    //{ name: 'Charge', code: '$bot.charge();' },
+    //{ name: 'Unload', code: '$bot.unload();' },
     { name: 'Upgrade', code: '$bot.upgrade();' },
     { name: 'Construct', code: '$bot.construct();' }
   ])
@@ -72,19 +75,19 @@ var collect =
 
     sandBox.run = function(script, $bot) {
 
-      /* var thisValue = {
-        $log: $logInterface,
-        $bot: $bot
-      }; */
+      var method;
+      if (typeof script === 'object') {
+        if (!script.$method) { // maybe this should be done in the editor
+          aether.transpile(script.code);  // todo: catch transpile problems here
+          script.$method = aether.createMethod();
+        }
+        method = script.$method;
+      } else {
+        aether.transpile(script);  // todo: catch transpile problems here
+        method = aether.createMethod();
+      }
 
       aether.depth = 1; //hack to avoid rebuilding globals
-      var code = script.code;
-
-      if (!script.$method) { // maybe this should be done in the editor
-        aether.transpile(code);  // todo: catch transpile problems here
-        script.$method = aether.createMethod();
-      }
-      var method = script.$method;
 
       try {
 
@@ -139,6 +142,13 @@ var collect =
   .factory('Bot', function (isAt, TILES, $log, sandBox) {
 
     var GAME = null;  // later the GAME service
+
+    var mathSign = Math.sign || function (value) {  // polyfill for Math.sign
+      var number = +value;
+      if (number === 0) { return number; }
+      if (Number.isNaN(number)) { return number; }
+      return number < 0 ? -1 : 1;
+    };
 
     function createAccessor(bot) {
       var $bot = {};
@@ -250,7 +260,7 @@ var collect =
     };
 
     var CHAR = 0.5; // Charging effeciency
-    var I = 0.1; // moves per turn for base
+    var I = 1; // moves per turn for base
     var E = 2/3;  // surface/volume exponent
     var N = CHAR*I/(Math.pow(20, E));  // normilization factor
 
@@ -260,8 +270,8 @@ var collect =
 
     Bot.prototype.canMove = function(dx,dy) {  // TODO: check range
 
-      dx = Math.sign(dx);
-      dy = Math.sign(dy);  // max +/-1
+      dx = mathSign(dx);
+      dy = mathSign(dy);  // max +/-1
 
       var dr = Math.max(Math.abs(dx),Math.abs(dy));
       var dE = this.moveCost()*dr;
@@ -271,8 +281,8 @@ var collect =
 
     Bot.prototype.move = function(dx,dy) {  // TODO: check range
 
-      dx = Math.sign(dx);
-      dy = Math.sign(dy);  // max +/-1
+      dx = mathSign(dx);
+      dy = mathSign(dy);  // max +/-1
 
       var dr = Math.max(Math.abs(dx),Math.abs(dy));
       var dE = this.moveCost()*dr;
@@ -321,8 +331,8 @@ var collect =
 
       for (var i = 0; i < 7; i++) {
 
-        dx = Math.sign(dx);
-        dy = Math.sign(dy);
+        dx = mathSign(dx);
+        dy = mathSign(dy);
 
         //console.log(i, dx,dy);
 

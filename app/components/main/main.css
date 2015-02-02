@@ -71,8 +71,24 @@
   padding-top: 5px;
 }
 
-.bot-panel .btn-group {
-  margin-bottom: 2px;
+.script-btns .row {
+  margin-bottom: 6px;
+  padding: 0;
+}
+
+.script-btn .btn-link {
+  opacity: 0;
+  -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+  transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+}
+
+.script-btn:hover .btn-link {
+  opacity: 0.8;
+}
+
+.bot-panel .radio {
+  margin-top: 7px;
+  margin-bottom: 0;
 }
 
 .bot-panel .btn-group.active {
@@ -106,6 +122,16 @@
   display: inline-block;
   width: calc(100% - 92px);
   min-height: 66px;
+}
+
+.bot-panel .console > span {
+  position: absolute;
+  margin-top: 8px;
+}
+
+.bot-panel .console > input {
+  margin-left: 18px;
+  width: 90%;
 }
 
 .btn-info .badge, .btn-danger .badge {

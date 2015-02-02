@@ -18,6 +18,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] SVG size
 
 ## Next
+- [ ] Increase rate?
 - [ ] Tests
 - [ ] Move bot hot keys to different controller?
 - [ ] Option to reset scripts to default code

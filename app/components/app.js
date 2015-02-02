@@ -7,6 +7,7 @@ angular
     'ngSanitize',
     'ngMessages',
     'ngTouch',
+    'debounce',
     'ui.ace',
     'ui.bootstrap',
     'angularMoment',

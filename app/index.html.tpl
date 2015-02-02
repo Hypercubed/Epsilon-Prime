@@ -77,6 +77,7 @@
     <script src="bower_components/angular-moment/angular-moment.js"></script>
     <script src="bower_components/lodash/dist/lodash.compat.js"></script>
     <script src="bower_components/aether/build/aether.js"></script>
+    <script src="bower_components/ng-debounce/angular-debounce.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 

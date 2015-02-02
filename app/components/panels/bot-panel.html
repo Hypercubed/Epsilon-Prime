@@ -8,7 +8,7 @@
         <span ng-switch-when="true"><a href editable-text="bot.name">{{ bot.name }}</a></span>
         <span ng-switch-default>{{ bot.name }}</span>
       </span>
-      <span class="badge alert-danger" ng-show="bot.message.length"  ng-click="main.bot = bot; showControls = !showControls; logActive = true;">!</span>
+      <span class="badge alert-danger" ng-show="bot.message.length"  ng-click="main.bot = bot; showControls = true; logActive = true;">!</span>
     </h4>
     <div class="row">
       <!-- label class="col-sm-2">MC</label-->
@@ -19,14 +19,14 @@
 
     <div class="row">
       <!-- label class="col-sm-2">[J]</label -->
-      <div class="col-sm-6">
+      <div class="col-xs-6">
         <progressbar class="active" ng-class="{'progress-striped': bot.E < bot.mE}" value="bot.E * 100 / bot.mE" type="danger">
           <span style="color:black; white-space:nowrap;">{{bot.E | number : 1}} / {{bot.mE | number : 0}} [J]</span>
         </progressbar>
       </div>
 
       <!-- label class="col-sm-2">Storage</label -->
-      <div class="col-sm-6">
+      <div class="col-xs-6">
         <progressbar class="active" value="bot.S * 100 / bot.mS" type="info">
           <span style="color:black; white-space:nowrap;">{{bot.S}} / {{bot.mS}} [kg]</span>
         </progressbar>
@@ -34,7 +34,7 @@
     </div>
     <p />
     <div class="row">
-      <div class="col-sm-6">
+      <div class="col-xs-6">
         <!-- button class="btn btn-primary btn-xs" ng-click="main.toggleBot(bot)" ng-disabled="!bot.scriptName" tooltip="Run code">
           <i class="glyphicon glyphicon-play"
             ng-class="{ true: 'glyphicon-play', false: 'glyphicon-pause'}[bot.manual]"></i>
@@ -56,6 +56,7 @@
                 ng-click="bot.setCode(script)"
                 ng-repeat="script in main.game.scripts"
                 ng-class="{ true: 'active' }[script.name === bot.scriptName]">
+                <i class="" ng-class="{ true: 'mdi-toggle-radio-button-on', false: 'mdi-toggle-radio-button-off'}[bot.scriptName === script.name]"></i>
                 {{script.name}}
               </a>
             </li>
@@ -129,7 +130,7 @@
           <span class="badge">-1000 J</span>
         </button>
       </div>
-      <div class="col-sm-6">
+      <div class="col-xs-6">
         <button class="btn btn-info btn-xs" tooltip="Upgrade bot"
           ng-click="bot.upgrade(); $event.stopPropagation();"
           ng-disabled="bot.S < 10">
@@ -155,7 +156,7 @@
   <tabset type="pills" justified="true" ng-if="showControls">
     <tab heading="Manual Control">
       <div class="row">
-        <div class="col-sm-6 col-sm-offset-1 text-center">
+        <div class="col-lg-6 text-center">
           <u>Movement</u><br />
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move(-1,-1)" ng-disabled="!bot.canMove(-1,-1)">Q</button>
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move( 0,-1)" ng-disabled="!bot.canMove( 0,-1)">W</button>
@@ -168,53 +169,38 @@
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move(-1,1)" ng-disabled="!bot.canMove(-1,1)">Z</button>
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move( 0,1)" ng-disabled="!bot.canMove( 0,1)">X</button>
           <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.move( 1,1)" ng-disabled="!bot.canMove( 1,1)">C</button>
+          <p />
         </div>
-        <div class="col-sm-3 script-btns text-center">
+        <div class="col-lg-6 script-btns">
 
-          <u>Actions</u>
-          <button class="btn btn-primary btn-xs btn-block" tooltip="Unload storage"
-            ng-click="bot.$bot.unload()"
-            ng-disabled="!main.canUnload(bot)">
-            <i class="glyphicon glyphicon-log-out"></i> UNLOAD
-          </button>
-          <button class="btn btn-primary btn-xs btn-block" ng-click="bot.$bot.charge();" ng-disabled="!main.canCharge(bot)" tooltip="Charge">
-            <i class="glyphicon glyphicon-flash"></i> CHARGE
-          </button>
-          <button class="btn btn-primary btn-xs btn-block" ng-click="bot.$bot.mine();" ng-disabled="!main.canMine(bot)" tooltip="Charge">
-            <i class="glyphicon glyphicon-asterisk"></i>  MINE
-          </button>
+          <div class="row">
+            <u class="col-xs-2 text-center">Auto</u>
+            <u class="col-xs-8 text-center">Script</u>
+          </div>
 
-          <!-- div class="btn-group text-small"
-                ng-repeat="script in main.game.scripts"
-                ng-class="{ active: bot.scriptName === script.name}">
-            <button type="button" class="btn btn-sm btn-primary"
-                ng-click="bot.setCode(script);">
-              {{script.name}}
+          <div class="row script-btn" ng-repeat="script in main.game.scripts">
+            <div class="radio radio-primary col-xs-2">
+              <label>
+                <input type="radio" ng-checked="bot.scriptName === script.name" ng-click="bot.scriptName = script.name">
+                  <span class="circle"></span><span class="check">
+                </span>
+              </label>
+            </div>
+            <button class="btn btn-primary col-xs-8"
+              ng-click="main.run(script.code)">
+              {{script.name | limitTo : 10}}
             </button>
-            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">
-              <span class="caret"></span>
-              <span class="sr-only">Toggle Dropdown</span>
+            <button class="btn btn-sm btn-link col-xs-1"
+               ng-click="main.showScripts(script.name)">
+              <i class="glyphicon glyphicon-edit"></i>
             </button>
-            <ul class="dropdown-menu" role="menu">
-              <li><a href ng-click="bot.setCode(script); main.toggleBot(bot, true)">Set and run</a></li>
-              <li class="divider"></li>
-              <li><a href ng-click="main.showScripts($index)">Edit</a></li>
-            </ul>
-          </div -->
+          </div>
 
-
-
-
-          <!-- button class="btn btn-primary btn-block"
-            ng-repeat="script in main.game.scripts"
-            ng-class="{ active: bot.scriptName === script.name}"
-            ng-click="bot.setCode(script); main.toggleBot(bot)">
-            {{script.name}}
-          <i class="glyphicon glyphicon-play"
-            ng-if="bot.scriptName === script.name"
-            ng-class="{ true: 'glyphicon-play', false: 'glyphicon-pause'}[bot.manual]"></i>
-        </button -->
       </div>
+      <form class="console col-md-12" ng-submit="main.run(code);">
+        <span class="glyphicon glyphicon-chevron-right search-icon pull-left"></span>
+        <input class="form-control" type="text" ng-model="code">
+      </form>
     </div>
   </tab>
   <tab heading="Log" active="logActive">

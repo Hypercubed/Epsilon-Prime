@@ -65,6 +65,16 @@ body {
   }
 }
 
+
+.btn {
+  margin: 0;
+  padding: 6px 12px;
+}
+
+.btn-group-vertical {
+  margin: 5px 1px;
+}
+
 .btn-xs {
   padding: 1px 5px;
 }
@@ -73,12 +83,8 @@ body {
   padding: 5px 10px;
 }
 
-.btn {
-  margin: 0;
-}
-
-.btn-group-vertical {
-  margin: 5px 1px;
+.btn-lg {
+  padding: 20px 30px;
 }
 
 .btn-group {
@@ -94,36 +100,67 @@ body {
 /* Sticky footer styles
 -------------------------------------------------- */
 
-html, body {
-  height: 100%;
-}
 .container-fluid {
   margin: 0 auto;
   height: 100%;
-  min-width: 970px;
+  /* min-width: 970px; */
 
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
 
+@media (min-width: 992px) {
+  html, body {
+    height: 100%;
+  }
+
+  #wrap {
+    overflow: hidden;
+  }
+
+  .container-fluid {
+    min-width: 970px; */
+  }
+
+  .column {
+    height: 100%;
+    width: 50%;
+  }
+}
+
+@media (max-width: 992px) {
+
+  #wrap {
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+
+  .container-fluid {
+    min-width: 510px;
+  }
+
+  .column {
+    height: 500px;
+    min-height: 500px;
+    margin: 10px 0;
+  }
+}
+
+
+
 .column {
-  /* background-color: #C9E6FF; */
-  height: 100%;
+  /* height: 100%; */
 }
 
 #wrap {
   position: absolute;
-  top: 30px;
+  top: 40px;
   bottom: 20px;
   padding-top: 10px;
   padding-bottom: 10px;
-  /* margin-bottom: 20px;
-  margin-top: 20px; */
   width: 100%;
   height: auto;
-  overflow: hidden;
-  /* border: 1px solid red; */
 }
 
 #header {
