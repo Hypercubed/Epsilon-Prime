@@ -19,13 +19,14 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] SVG size
 
 ## Next
+- [ ] Prevent deploymengt if env !== production in gruntfile
 - [ ] Tutorial
 - [x] Increase rate?
 - [ ] Tests
 - [ ] Move bot hot keys to different controller?
 - [ ] Option to reset scripts to default code
 - [ ] Improve editor save/validation
-- [ ] ! error icon should open log
+- [x] ! error icon should open log
 - [ ] Remove bot actions in MainCtrl, use main.bot.$bot
 - [ ] Change save rate to time not turns?
 - [ ] Better handling Aether errors
@@ -48,18 +49,18 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Clean terminology (bots, resources, energy units, etc)
 
 ## Decisions
-- [ ] Start with full energy?
+- [x] Start with full energy?
 - [ ] Can bot scripts command other bots?  $bot.find('A').moveTo($bot.x,$bot.y);?
 - [ ] Limit map and number of bots for performance?
 - [ ] Map full screen?
 - [ ] Work on small screens.
 - [ ] Bots can carry other bots?
 - [ ] End game shows easter egg?
-- [ ] Start with rover, upgrade to base?  Start with base, build first rover?
+- [x] Start with rover, upgrade to base?  Start with base, build first rover?
 - [ ] Use ui-router?  Add about screen.
 - [ ] Faster bot (drone)? mE = mS = 1 (Can never upgrade using current rules)
 - [ ] Allow scripting of change script?  Change, stop, include.
-- [ ] Upgrade self or upgrade in base?
+- [x] Upgrade self or upgrade in base?
 - [ ] More terrain types (various movement costs?)
 - [ ] replace progress bars (with sparkline?)
 - [ ] add progress circles to map?

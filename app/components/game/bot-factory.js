@@ -438,7 +438,7 @@ var collect =
 
       GAME.stats.E += this.charge(this.chargeRate()*dT);
 
-      if(!this.manual) {
+      if(this.scriptName !== null) {
 
         //if (!this.$script || this.$script.name !== this.scriptName) {
         var script =  this.setCode(this.scriptName);  // should only need to do when scritName changes
