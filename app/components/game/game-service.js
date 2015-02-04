@@ -119,21 +119,17 @@ angular.module('ePrime')
 
     var home = new Bot('Base', 30, 10, GAME);
     home.scriptName = 'Construct'; // todo: only key
-    home.manual = false;
-    home.S = 100;  //enough for first bot
-    home.E = 0;
-    home.dE = 0.1;
-    home.mE = 100;
-    home.mS = 100;
-    home.dEdX = 1000;
+    home.manual = true;
+    home.S = home.mS = 100;  //enough for first bot
+    home.E = home.mE = 100;
     home.t = TILES.BASE;
 
     GAME.bots = [home];
 
     GAME.world.scanRange(home);
 
-    var bot = home.construct('Collect');
-    bot.active = true;
+    //var bot = home.construct('Collect');
+    //bot.active = true;
 
     //GAME.E = 0;  // todo: create stats object
     //GAME.S = 0;
