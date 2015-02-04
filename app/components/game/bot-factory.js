@@ -193,7 +193,7 @@ var collect =
       };
 
       $bot.construct = function $$construct(_) {
-        bot.construct(_ || 'Collect');
+        bot.construct(_ || null);
       };
 
       function find(_) {  // used by unload and charge, move?
@@ -228,7 +228,7 @@ var collect =
       //this.dE = 0.01;    // Charging rate
       this.mE = 10;   // Maximum
 
-      this.manual = true;  // rename auto?
+      //this.manual = true;  // rename auto?
       this.active = false;
 
       this.message = '';
@@ -395,6 +395,12 @@ var collect =
     }
 
     Bot.prototype.setCode = function(script) {
+
+      if (script === null) {
+        this.scriptName = null;
+        this.$script = null;
+        return null;
+      }
 
       if (typeof script === 'string') {
         script = findScript(script);

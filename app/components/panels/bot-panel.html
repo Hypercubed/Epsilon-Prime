@@ -41,16 +41,20 @@
         </button -->
 
         <div class="btn-group">
-          <button type="button" class="btn btn-xs btn-primary" ng-click="main.toggleBot(bot)">
-            <!-- input type="checkbox" ng-checked="!bot.manual" -->
-            <i class="" ng-class="{ false: 'mdi-toggle-check-box', true: 'mdi-toggle-check-box-outline-blank'}[bot.manual]"></i>
-          </button>
           <button type="button" class="btn btn-xs btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-            {{bot.scriptName}}
+            {{bot.scriptName || 'Manual' }}
             <span class="caret"></span>
             <span class="sr-only">Toggle Dropdown</span>
           </button>
           <ul class="dropdown-menu" role="menu">
+            <li>
+              <a href
+                ng-click="bot.setCode(null)"
+                ng-class="{ true: 'active' }[null === bot.scriptName]">
+                <i class="" ng-class="{ true: 'mdi-toggle-radio-button-on', false: 'mdi-toggle-radio-button-off'}[bot.scriptName === null]"></i>
+                Manual
+              </a>
+            </li>
             <li>
               <a href
                 ng-click="bot.setCode(script)"
@@ -178,6 +182,20 @@
             <u class="col-xs-8 text-center">Script</u>
           </div>
 
+          <div class="row script-btn"> <!--- this should be a ul, li -->
+            <div class="radio radio-primary col-xs-2">
+              <label>
+                <input type="radio"
+                  ng-checked="bot.scriptName === null"
+                  ng-click="bot.scriptName = null">
+                <span class="circle"></span><span class="check">
+                </span>
+              </label>
+            </div>
+            <button class="btn btn-primary col-xs-8">
+              Manual
+            </button>
+      </div>
           <div class="row script-btn" ng-repeat="script in main.game.scripts">
             <div class="radio radio-primary col-xs-2">
               <label>
