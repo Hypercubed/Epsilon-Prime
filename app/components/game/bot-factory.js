@@ -479,7 +479,7 @@ var collect =
         this.mS += 5;
         this.mE += 5;
         if (this.mS >= 100) {
-          this.t = '@';
+          this.t = TILES.BASE;
         }
       }
     };

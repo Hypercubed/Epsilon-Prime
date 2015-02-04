@@ -3,6 +3,7 @@
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Bugs
+- [ ] Sometimes base is on top of a mine.
 - [x] icon and title missing
 - [ ] Script defaults should be "@" not "Base", optimize serach to only serach map if '.X#'.
 - [ ] Prevent duplicate scripts with the same name.
@@ -18,7 +19,8 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] SVG size
 
 ## Next
-- [ ] Increase rate?
+- [ ] Tutorial
+- [x] Increase rate?
 - [ ] Tests
 - [ ] Move bot hot keys to different controller?
 - [ ] Option to reset scripts to default code
