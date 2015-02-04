@@ -12,20 +12,18 @@ var collect =
 "if ($bot.S >=  $bot.mS) {\n" +
 "  var home = $bot.find('@');\n" +
 "  $bot.moveTo(home.x,home.y);\n" +
-"} else {\n" +
-"  if ($bot.E >= 1 && $bot.mine() === false) {\n" +
-"    var mine = $bot.find('X');\n" +
+"} else if ($bot.E >= 1 && $bot.mine() === false) {\n" +
+"  var mine = $bot.find('X');\n" +
 "\n" +
-"    var x,y;\n" +
-"    if (mine !== null) {\n "+
-"      x = mine.x;\n" +
-"        y = mine.y;\n" +
-"    } else {\n" +
-"      x = 2*Math.random()-1+$bot.x;\n" +
-"      y = 2*Math.random()-1+$bot.y;\n" +
-"    }\n"+
-"    $bot.moveTo(x,y);\n"+
-"  }\n" +
+"  var x,y;\n" +
+"  if (mine !== null) {\n "+
+"    x = mine.x;\n" +
+"    y = mine.y;\n" +
+"  } else {\n" +
+"    x = 2*Math.random()-1+$bot.x;\n" +
+"    y = 2*Math.random()-1+$bot.y;\n" +
+"  }\n"+
+"  $bot.moveTo(x,y);\n"+
 "}";
 /*jshint +W109 */
 
@@ -56,7 +54,8 @@ var collect =
       includeMetrics: false,
       includeStyle: false,
       protectAPI: false,
-      yieldAutomatically: true
+      yieldAutomatically: true,
+      protectBuiltins: false
     };
     /*jshint +W106 */
 
@@ -74,6 +73,10 @@ var collect =
 
 
     sandBox.run = function(script, $bot) {
+
+      if (script === null) {
+        return;
+      }
 
       var method;
       if (typeof script === 'object') {
@@ -232,7 +235,7 @@ var collect =
       this.active = false;
 
       this.message = '';
-      this.scriptName = '';
+      this.scriptName = null;
 
       this.$script = null;
       this.$bot = createInterface(this);
@@ -476,8 +479,8 @@ var collect =
     Bot.prototype.upgrade = function() {
       if (this.S >= 10) {
         this.S -= 10;
-        this.mS += 5;
-        this.mE += 5;
+        this.mS += 10;
+        this.mE += 10;
         if (this.mS >= 100) {
           this.t = TILES.BASE;
         }
@@ -487,8 +490,8 @@ var collect =
     Bot.prototype.construct = function(script) {
       if (this.S >= 100) {
         var bot = new Bot('Rover', this.x, this.y);
-        bot.scriptName = script || 'Collect';
-        bot.manual = !angular.isDefined(script);
+        bot.scriptName = script || null;
+        //bot.manual = !angular.isDefined(script);
         bot.$home = this;
 
         this.S -= 100;
