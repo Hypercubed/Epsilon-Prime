@@ -476,6 +476,10 @@ var collect =
       return 0;
     };
 
+    Bot.prototype.canUpgrade = function() {
+      return this.S >= 10;
+    };
+
     Bot.prototype.upgrade = function() {
       if (this.S >= 10) {
         this.S -= 10;
@@ -485,6 +489,10 @@ var collect =
           this.t = TILES.BASE;
         }
       }
+    };
+
+    Bot.prototype.canConstruct = function() {
+      return this.S >= 100;
     };
 
     Bot.prototype.construct = function(script) {
@@ -499,6 +507,10 @@ var collect =
         return bot;
       }
       return null;
+    };
+
+    Bot.prototype.canRelocate = function() {
+      return this.E >= 500;
     };
 
     Bot.prototype.scan = function() {  // dE cost?

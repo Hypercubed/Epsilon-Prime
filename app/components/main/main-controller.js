@@ -9,7 +9,9 @@ angular.module('ePrime')
 
     var main = this;
 
-    var grid = new d3.charts.Grid();
+    var grid = new d3.charts.Grid().on('click', function(d) {
+      $scope.$apply();
+    });
 
     main.drawWatch = function drawWatch() {  // Move to GAME? Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
 
@@ -86,7 +88,7 @@ angular.module('ePrime')
       return bot.canMine() || main.canUnload(bot) || main.canCharge(bot);
     };
 
-    main.action = function(bot) {
+    main.action = function(bot) {  // used?
       bot = bot || main.bot;
 
       bot.$bot.unload();
@@ -220,9 +222,8 @@ angular.module('ePrime')
       pauseDialog('Are you sure?', true);
     };
 
-    main.relocate = function(bot) { // TODO: do something with rovers, move to bot class
-      if (bot.E >= 1000) {
-        bot.E -= 1000;
+    main.relocate = function(bot) { // move to bot class?
+      if (bot.canRelocate()) {
         pauseDialog('Congratulations', true);
       }
     };

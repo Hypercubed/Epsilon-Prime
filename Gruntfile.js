@@ -443,10 +443,16 @@ module.exports = function (grunt) {
     'htmlmin'
   ]);
 
-  grunt.registerTask('deploy', [
-    'build',
-    'gh-pages'
-  ]);
+  grunt.registerTask('deploy', 'Deploy', function () {
+    if (grunt.option('env') !== 'production') {
+      return grunt.log.warn('The `deploy` must be for the production envieronment.');
+    }
+
+    grunt.task.run([
+      'build',
+      'gh-pages'
+    ]);
+  });
 
   grunt.registerTask('default', [
     'newer:jshint',

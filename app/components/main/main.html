@@ -21,6 +21,11 @@
         ng-disabled="main.dT === 100" ng-click="main.play(100)">
       <i class="glyphicon glyphicon-forward"></i>
     </button>
+    <button class="btn btn-link btn-sm"
+      tooltip="Play game (fast)" tooltip-placement="bottom" tooltip-animation="false"
+      ng-disabled="main.dT === 10" ng-click="main.play(10)">
+      <i class="glyphicon glyphicon-fast-forward"></i>
+    </button>
 
     <a href class="pull-right btn btn-sm btn-link" ng-click="main.pause()">
       <i class="glyphicon glyphicon-flash"></i> {{main.game.stats.E | number:0}}

@@ -42,8 +42,10 @@
     }
 
     var zoom = d3.behavior.zoom()
-    .scaleExtent([0.5, 10])
-    .on('zoom', zoomed);
+      .scaleExtent([0.5, 10])
+      .on('zoom', zoomed);
+
+    var dispatch = d3.dispatch('click');
 
     function my(selection) {
       selection.each(function(d) {
@@ -54,8 +56,16 @@
         var tiles = d[0];  // TODO: not this
         var bots = d[1];
 
-        function clicked() {  // TODO: dispatch
-          //console.log('clicked on', d);
+        function clicked(d) {  // TODO: dispatch
+
+          botsWrap
+            .classed('active', function(_d) {
+              _d.active = (d === _d);
+              return _d.active;
+            });
+
+          dispatch.click(d);
+
         }
 
         function hover(d) {
@@ -119,7 +129,7 @@
           .attr('transform', function(d) {
             return 'translate('+[_X(d),_Y(d)]+')';
           })
-          .on('click', clicked)
+          //.on('click', clicked)
           .on('mouseenter', hover)
           .on('mouseleave', function() {
             text.text('');
@@ -178,6 +188,8 @@
 
       });
     }
+
+    d3.rebind(my, dispatch, 'on');
 
     return my;
   };

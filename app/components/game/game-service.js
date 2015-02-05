@@ -118,6 +118,7 @@ angular.module('ePrime')
     //console.log(GAME.world);
 
     var home = new Bot('Base', 30, 10, GAME);
+    home.active = true;
     //home.scriptName = 'Construct'; // todo: only key
     //home.manual = true;
     home.S = home.mS = 100;  //enough for first bot

@@ -31,5 +31,3 @@ You will notice that the energy depletes as you move and mine.  You can use all 
 The only way to regain energy is to take a turn.  In the upper left you will see the turn indicator.
 
 Use the >| button to advance one turn.
-
-Use the play and fast forward buttons to cycle through turns.

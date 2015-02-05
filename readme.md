@@ -30,7 +30,7 @@ grunt serve
 ```
 
 ## How to play
-In Epsilon-prime your goal is to conquer the planet of ε-prime.  You do this by commanding an army of bots to explore and exploit the resources of ε-prime.  You can control your bots individually using your mouse and keyboard or by writing command scripts in JavaScript.  The game begins with a simple (and very inefficient) set of scripts for exploring and collecting resources.  Using just these scripts you could complete the game in ~100,000 turns.  But you can you do better!
+In Epsilon-prime your goal is to conquer the planet of ε-prime.  You do this by commanding an army of bots to explore and exploit the resources of ε-prime.  You can control your bots individually using your mouse and keyboard or by writing command scripts in JavaScript.  The game begins with a simple (and very inefficient) set of scripts for exploring and collecting resources.  Using just these scripts you could complete the game in ~2,500 turns.  But you can you do better!
 
 ### Unit list
 On the right of the browser window you will see a list of your units.  You begin the game with a only a base unit.  Selecting a bot in the panel will highlight the bot in the bot panel and in the map panel on the left with a blue circle.  Click the right chevron in the unit list to see additional details and control options for the selected bot.
@@ -86,20 +86,18 @@ $bot.charge();
 if ($bot.S >=  $bot.mS) {
   var home = $bot.find('@');
   $bot.moveTo(home.x,home.y);
-} else {
-  if ($bot.E >= 1 && $bot.mine() === false) {
-    var mine = $bot.find('X');
+} else if ($bot.E >= 1 && $bot.mine() === false) {
+  var mine = $bot.find('X');
 
-    var x,y;
-    if (mine !== null) {
-      x = mine.x;
-      y = mine.y;
-    } else {
-      x = 3*Math.random()-1+$bot.x;
-      y = 3*Math.random()-1+$bot.y;
-    }
-    $bot.moveTo(x,y);
+  var x,y;
+  if (mine !== null) {
+    x = mine.x;
+    y = mine.y;
+  } else {
+    x = 3*Math.random()-1+$bot.x;
+    y = 3*Math.random()-1+$bot.y;
   }
+  $bot.moveTo(x,y);
 }
 ```
 

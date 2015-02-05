@@ -35,10 +35,6 @@
     <p />
     <div class="row">
       <div class="col-xs-6">
-        <!-- button class="btn btn-primary btn-xs" ng-click="main.toggleBot(bot)" ng-disabled="!bot.scriptName" tooltip="Run code">
-          <i class="glyphicon glyphicon-play"
-            ng-class="{ true: 'glyphicon-play', false: 'glyphicon-pause'}[bot.manual]"></i>
-        </button -->
 
         <div class="btn-group">
           <button type="button" class="btn btn-xs btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
@@ -69,70 +65,11 @@
             <!-- new -->
           </ul>
         </div>
-
-        <!-- div class="input-group input-group-xs">
-          <span class="input-group-addon btn-xs btn-primary">
-            <input type="checkbox" checked="bot.manual" ng-click="main.toggleBot(bot)">
-            {{bot.scriptName}}
-          </span>
-          <div class="input-group-btn">
-            <button type="button" class="btn btn-xs btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-              {{bot.scriptName}} <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-              <li>
-                <a href
-                  ng-click="bot.setCode(script); main.toggleBot(bot, true)"
-                  ng-repeat="script in main.game.scripts"
-                  ng-class="{ true: 'active' }[script.name === bot.scriptName]">
-                  {{script.name}}
-                </a>
-              </li>
-              <li class="divider"></li>
-              <li><a href ng-click="main.showScripts(bot.scriptName)">Edit</a></li>
-            </ul>
-          </div>
-        </div -->
-
-        <!-- div class="btn-group">
-          <button type="button" class="btn btn-xs btn-primary"
-            ng-click="main.toggleBot(bot)">
-            {{bot.scriptName}}
-            <i class="glyphicon glyphicon-play"
-              ng-class="{ false: 'glyphicon-play', true: 'glyphicon-pause'}[bot.manual]"></i>
-          </button>
-          <button type="button" class="btn btn-xs btn-primary dropdown-toggle" data-toggle="dropdown">
-            <span class="caret"></span>
-            <span class="sr-only">Toggle Dropdown</span>
-          </button>
-          <ul class="dropdown-menu" role="menu">
-            <li>
-              <a href
-                ng-click="bot.setCode(script); main.toggleBot(bot, true)"
-                ng-repeat="script in main.game.scripts"
-                ng-class="{ true: 'active' }[script.name === bot.scriptName]">
-                {{script.name}}
-              </a>
-            </li>
-            <li class="divider"></li>
-            <li><a href ng-click="main.showScripts(bot.scriptName)">Edit</a></li>
-          </ul>
-        </div -->
-
-        <!-- button class="btn btn-primary btn-xs" ng-if="bot !== main.home" tooltip="Unload storage"
-          ng-click="bot.unloadTo(main.home)"
-          ng-disabled="!main.canUnload(bot)">
-          <i class="glyphicon glyphicon-log-out"></i>
-        </button>
-        <button class="btn btn-primary btn-xs" ng-click="main.home.chargeBot(bot); $event.stopPropagation();" ng-if="bot !== main.home" ng-disabled="!main.canCharge(bot)" tooltip="Charge">
-          <i class="glyphicon glyphicon-flash"></i>
-        </button -->
         <button class="btn btn-danger btn-xs" tooltip="Launch"
           ng-click="main.relocate(bot); $event.stopPropagation();"
-          ng-if="bot.mE >= 1000"
-          ng-disabled="bot.E < 1000">
-          <i class="mdi-content-send"></i>
-          <span class="badge">-1000 J</span>
+          ng-if="bot.canRelocate()">
+            <i class="mdi-content-send"></i>
+            <span class="badge">-500 J</span>
         </button>
       </div>
       <div class="col-xs-6">
