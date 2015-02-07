@@ -67,7 +67,7 @@
         </div>
         <button class="btn btn-danger btn-xs" tooltip="Launch"
           ng-click="main.relocate(bot); $event.stopPropagation();"
-          ng-if="bot.canRelocate()">
+          ng-show="bot.canRelocate()">
             <i class="mdi-content-send"></i>
             <span class="badge">-500 J</span>
         </button>

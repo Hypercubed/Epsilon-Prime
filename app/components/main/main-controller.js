@@ -10,7 +10,9 @@ angular.module('ePrime')
     var main = this;
 
     var grid = new d3.charts.Grid().on('click', function(d) {
-      $scope.$apply();
+      $scope.$apply(function() {
+        main.bot = d;
+      });
     });
 
     main.drawWatch = function drawWatch() {  // Move to GAME? Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
