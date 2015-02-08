@@ -2,34 +2,34 @@
   <div class="container-fluid muted credit">
     Turn: {{main.game.stats.turn}}
     <button class="btn btn-link btn-sm"
-        tooltip="Stop auto turn" tooltip-placement="bottom" tooltip-animation="false"
+        tooltip="Pause auto turn" tooltip-placement="bottom" tooltip-animation="false"
         ng-click="main.play(0)" ng-disabled="main.dT === 0">
-      <i class="glyphicon glyphicon-stop"></i>
+      <i class="fa fa-pause"></i>
     </button>
     <button class="btn btn-link btn-sm"
         tooltip="Take turn" tooltip-placement="bottom" tooltip-animation="false"
         ng-click="main.play(0); main.takeTurn()" ng-disabled="main.dT !== 0" >
-      <i class="glyphicon glyphicon glyphicon-step-forward"></i>
+      <i class="fa fa-step-forward"></i>
     </button>
     <button class="btn btn-link btn-sm" tooltip="Play game"
         tooltip-placement="bottom" tooltip-animation="false"
         ng-disabled="main.dT === 1000" ng-click="main.play(1000)">
-      <i class="glyphicon glyphicon-play"></i>
+      <i class="fa fa-play"></i>
     </button>
     <button class="btn btn-link btn-sm"
         tooltip="Play game (fast)" tooltip-placement="bottom" tooltip-animation="false"
         ng-disabled="main.dT === 100" ng-click="main.play(100)">
-      <i class="glyphicon glyphicon-forward"></i>
+      <i class="fa fa-forward"></i>
     </button>
     <button class="btn btn-link btn-sm"
       tooltip="Play game (fast)" tooltip-placement="bottom" tooltip-animation="false"
       ng-disabled="main.dT === 10" ng-click="main.play(10)">
-      <i class="glyphicon glyphicon-fast-forward"></i>
+      <i class="fa fa-fast-forward"></i>
     </button>
 
     <a href class="pull-right btn btn-sm btn-link" ng-click="main.pause()">
-      <i class="glyphicon glyphicon-flash"></i> {{main.game.stats.E | number:0}}
-      <i class="glyphicon glyphicon-asterisk"></i> {{main.game.stats.S | number:0}}
+      <i class="fa fa-bolt"></i> {{main.game.stats.E | number:0}}
+      <i class="fa fa-cog"></i> {{main.game.stats.S | number:0}}
     </a>
  </div>
 </div>

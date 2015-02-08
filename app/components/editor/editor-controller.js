@@ -44,6 +44,16 @@
     };
 
     editor.save = function() {
+      var names = editor.scripts.map(_F('name'));
+
+      editor.scripts.forEach(function(d,i) {  // cheap way to unique names
+        var j = 1, name = d.name;
+        while (names.indexOf(d.name) < i) {
+          j++;
+          d.name = names[i] = name + ' ' + j;
+        }
+      });
+
       GAME.scripts = angular.copy(editor.scripts);
       GAME.scripts.forEach(function(d) {
         d.$method = null;

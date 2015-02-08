@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="bower_components/bootstrap-material-design/dist/css/material.css" />
     <link rel="stylesheet" href="bower_components/bootstrap-material-design/dist/css/ripples.css" />
     <link rel="stylesheet" href="bower_components/angular-hotkeys/build/hotkeys.min.css" />
+    <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css(.tmp) components/main.css -->

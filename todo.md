@@ -3,32 +3,27 @@
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Bugs
+- [ ] Drop downs in bot list cut off
 - [ ] Sometimes base is on top of a mine.
-- [x] icon and title missing
-- [ ] Script defaults should be "@" not "Base", optimize serach to only serach map if '.X#'.
-- [ ] Prevent duplicate scripts with the same name.
-- [ ] Valid bot names have length > 1
-- [ ] Too slow!
-  - [?] $bot.find & World.get needs optimization.
-  - [x] Improve d3 drawing, don't remove elements
-- [  ] Check GUI Responsiveness to small screens
-- [ ] Replace hotkey help with modal dialog
-- [ ] Disable hotkeys when paused dialog is shown
+- [ ] Optimize find to only search map if '.X#'.
+- [-] Prevent duplicate scripts with the same name
+- [ ] Too slow?
+- [ ] Improve GUI Responsiveness to small screens
 - [ ] Upgrade using base resources?
 - [ ] j/k should only cycle filtered bots?
-- [ ] SVG size
+- [ ] New screen shot
 
 ## Next
-- [ ] Prevent deploymengt if env !== production in gruntfile
+- [ ] Bot memory? Bot target store.
+- [ ] Replace hotkey help with help dialog
+- [ ] Make defaultScripts as scripts service. (crud, reset, validate, run, etc)
+- [ ] Prevent deployment if env !== production in gruntfile
 - [ ] Tutorial
-- [x] Increase rate?
 - [ ] Tests
-- [ ] Move bot hot keys to different controller?
-- [ ] Option to reset scripts to default code
+- [ ] Move bot hot keys to bots controller?
 - [ ] Improve editor save/validation
-- [x] ! error icon should open log
 - [ ] Remove bot actions in MainCtrl, use main.bot.$bot
-- [ ] Change save rate to time not turns?
+- [ ] Change save rate to time based not turns?
 - [ ] Better handling Aether errors
 - [ ] Try other Aether supported languages?
 - [ ] Upgrade units using heavy resources?
@@ -36,13 +31,14 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
   - [ ] Wildcard?
 - [ ] Indicate bot's current target, (and heading, and action?)
 - [ ] d3 hover/click dispatch
+  - [x] Bots
+  - [ ] Tiles
 - [ ] Pan to unit on select
 - [ ] Indicate stuck bots?
 - [ ] Ensure base starts on plain
 - [ ] Clean up classes
 - [ ] Implement $bot.log()
 - [ ] Improve drawing more?  Draw by chunk.
-- [ ] Bot memory?
 - [ ] More balancing of gameplay.
 - [ ] More Tooltips?
 - [ ] Need to indicate when unit is on mine.  Indicate overlapping units.
@@ -61,14 +57,14 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Faster bot (drone)? mE = mS = 1 (Can never upgrade using current rules)
 - [ ] Allow scripting of change script?  Change, stop, include.
 - [x] Upgrade self or upgrade in base?
-- [ ] More terrain types (various movement costs?)
 - [ ] replace progress bars (with sparkline?)
-- [ ] add progress circles to map?
+- [ ] add progress circles/bars around units?
 - [x] User rename bots?
   - [ ] User assign labels (A,B,C,...,@)?
 - [ ] Map directive?
 
 ## Wish list
+- [ ] More terrain types (various movement costs?), biomes.
 - [ ] Mining speed/efficency
 - [ ] Ensure starting position is not locked
 - [ ] Environmental effects (Solar intensity, etc)
@@ -77,7 +73,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Tech tree
 - [ ] Multi-Language support
 - [ ] Use $animate
-- [ ] More ability to alter e-prime environment.
+- [ ] Environment modifications.
 
 ## Bot upgrades
 - [ ] Improve Scanner range?

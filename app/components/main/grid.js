@@ -9,8 +9,8 @@
 
   d3.charts.Grid = function Grid() {  // TODO: move
     var margin = {top: -5, right: -5, bottom: -5, left: -5},
-      width = 500 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+      width = 500,
+      height = 500;
 
     var _tile = _F('t');
     //var _x = _F('x');
@@ -26,7 +26,15 @@
     var dx = xScale(1); //, dy = yScale(1);
 
     var _X = _F('x', xScale),
-    _Y = _F('y', yScale);
+      _Y = _F('y', yScale);
+
+    var _pos = function(d) {
+      return [_X(d),_Y(d)];
+    }
+
+    var _id = function(d) {
+      return '@'+[d.x,d.y];
+    }
 
     var textAttr = {
       'text-anchor': 'middle',
@@ -47,34 +55,29 @@
 
     var dispatch = d3.dispatch('click');
 
+    function clicked(d) {  // TODO: dispatch
+      dispatch.click(d);
+    }
+
+    function hover(d) {
+      var t = d.name || '';
+      text.text(t+'@'+[d.x,d.y]);
+    }
+
     function my(selection) {
       selection.each(function(d) {
-
-        width = selection[0][0].clientWidth || 500;
-        width = width - margin.left - margin.right;
 
         var tiles = d[0];  // TODO: not this
         var bots = d[1];
 
-        function clicked(d) {  // TODO: dispatch
-
-          botsWrap
-            .classed('active', function(_d) {
-              _d.active = (d === _d);
-              return _d.active;
-            });
-
-          dispatch.click(d);
-
-        }
-
-        function hover(d) {
-          var t = d.name || '';
-          text.text(t+'@'+[d.x,d.y]);
-        }
-
         if (!container) {
           //$log.debug('draw new');
+
+          width = selection[0][0].clientWidth || width;
+          width = width - margin.left - margin.right;
+
+          height = selection[0][0].clientHeight || height;
+          height = height - margin.top - margin.bottom;
 
           svg = d3.select(this)
             .append('svg')
@@ -108,20 +111,10 @@
             })
             .text('');
 
-        } else {
-
-
-          //gBotsLayer = container.select('.botsLayer');
-          //gTilesLayer = container.select('.tilesLayer');
-
-          //text = d3.select(this).select('.hover-text');
-
-          //gTilesLayer.selectAll('.tile').remove();  // todo: not this
-          //gBotsLayer.selectAll('.bot').remove();  // todo: not this
         }
 
         var tilesWrap = gTilesLayer
-          .selectAll('.tile').data(tiles);
+          .selectAll('.tile').data(tiles, _id);
 
         tilesWrap.enter()
           .append('g')
@@ -129,19 +122,20 @@
           .attr('transform', function(d) {
             return 'translate('+[_X(d),_Y(d)]+')';
           })
-          //.on('click', clicked)
+          .on('click', clicked)
           .on('mouseenter', hover)
           .on('mouseleave', function() {
             text.text('');
           })
           .append('text')
           .attr(textAttr)
-          .text(_tile);
+          //.text(_tile)
+          ;
 
-        tilesWrap
-          .attr('transform', function(d) {
-            return 'translate('+[_X(d),_Y(d)]+')';
-          })
+        tilesWrap  // shouldn't need to do this but itenms
+          //.attr('transform', function(d) {
+          //  return 'translate('+[_X(d),_Y(d)]+')';
+          //})
           .select('text')
           .text(_tile);
 
@@ -172,13 +166,17 @@
           .attr(textAttr);
 
         botsWrap
+          .attr('class', function(d) {
+            return 'bot bot-'+d.name.toLowerCase();
+          })
           .classed('active', function(d) {
             return d.active;
           })
           .attr('transform', function(d) {
             return 'translate('+[_X(d),_Y(d)]+')';
           })
-          .select('text').text(_tile);
+          .select('text')
+          .text(_tile);
 
 
         //gBots

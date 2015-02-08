@@ -186,6 +186,10 @@ angular.module('ePrime')
       chunk.set(x,y,z);
     };
 
+    function makeTile(x,y,z) {
+      return {x: x, y: y, t: z, s: false};
+    }
+
     World.prototype.get = function(x,y) {  // rename getTile
       if (arguments.length === 1) {
         y = x.y;
@@ -197,7 +201,7 @@ angular.module('ePrime')
       var z = this._get(x,y);
 
       if (z === TILES.EMPTY) {
-        return {x: x, y: y, t: z, s: false};
+        return makeTile(x,y,z);
       }
       return this.scanTile(x,y);
     };
@@ -246,7 +250,27 @@ angular.module('ePrime')
       var ys = this.size;
 
       var r = [];
-      angular.forEach(this.$$chunks,function(chunk) {  // do better, need to limit range
+
+      for (var k in this.$$chunks) {
+        var chunk = this.$$chunks[k];
+        var X = chunk.X*xs,
+            Y = chunk.Y*ys;
+        var XE = X+xs,
+            YE = Y+ys;
+        for(var x = X; x < XE; x++) {
+          for(var y = Y; y < YE; y++) {
+            var z = chunk.get(x,y);
+            if (z !== TILES.EMPTY) {
+              if (!_ || z === _) {
+                //var t = makeTile(i,j,z);
+                r.push(makeTile(x,y,z));
+              }
+            }
+          }
+        }
+      }
+
+      /* angular.forEach(this.$$chunks,function(chunk) {  // do better, need to limit range
         //console.log(key);
         var X = chunk.X*xs;
         var Y = chunk.Y*ys;
@@ -260,7 +284,7 @@ angular.module('ePrime')
             }
           }
         }
-      });
+      }); */
       return r;
     };
 

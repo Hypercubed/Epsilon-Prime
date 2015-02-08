@@ -9,11 +9,17 @@ angular.module('ePrime')
 
     var main = this;
 
-    var grid = new d3.charts.Grid().on('click', function(d) {
-      $scope.$apply(function() {
-        main.bot = d;
+    var grid = new d3.charts.Grid()
+      .on('click', function(d) {
+        $scope.$apply(function() {
+          GAME.bots.forEach(function(bot) {
+            bot.active = (bot === d);
+            if (bot.active) {
+              main.bot = bot;
+            }
+          });
+        });
       });
-    });
 
     main.drawWatch = function drawWatch() {  // Move to GAME? Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
 
@@ -162,6 +168,23 @@ angular.module('ePrime')
         });
     });
 
+    // Allow pause
+    /* var mouseTrapEnabled = true;
+
+    Mousetrap.stopCallback = function(event, element) {
+
+      if (!mouseTrapEnabled) {
+        return true;
+      }
+
+      // if the element has the class "mousetrap" then no need to stop
+      if ((' ' + element.className + ' ').indexOf(' mousetrap ') > -1) {
+        return false;
+      }
+
+      return (element.contentEditable && element.contentEditable == 'true');
+    }; */
+
     /* bot actions */  // move somewhere else
     hotkeys.bindTo($scope)
       //.add({
@@ -175,13 +198,13 @@ angular.module('ePrime')
           main.action();
         }
       })
-      .add({
+      /* .add({
         combo: 'r',
         description: 'Manual/auto',
         callback: function() {
           main.bot.manual = !main.bot.manual;
         }
-      })
+      }) */
       .add({
         combo: 'j k',
         description: 'Prev/next bot'
@@ -207,16 +230,13 @@ angular.module('ePrime')
       var _dT = main.dT;
       main.play(0);
 
-      //var previousEsc = hotkeys.get('esc');
-      //hotkeys.del('esc');
-
-      //console.log(previousEsc);
+      hotkeys.pause();
 
       modals.pauseConfirm(message,showReset).result
         .then(reset, function() {
           GAME.save();
           main.play(_dT);
-          //hotkeys.add(previousEsc);
+          hotkeys.unpause();
         });
     }
 
@@ -226,7 +246,7 @@ angular.module('ePrime')
 
     main.relocate = function(bot) { // move to bot class?
       if (bot.canRelocate()) {
-        pauseDialog('Congratulations', true);
+        pauseDialog('You have set off to explore another planet.', true);
       }
     };
 

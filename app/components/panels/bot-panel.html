@@ -5,7 +5,9 @@
   <div class="row-content bot-panel-small">
     <h4>
       <span ng-switch="showControls">
-        <span ng-switch-when="true"><a href editable-text="bot.name">{{ bot.name }}</a></span>
+        <span ng-switch-when="true">
+          <a href editable-text="bot.name" onbeforesave="checkName($data)">{{ bot.name }}</a>
+        </span>
         <span ng-switch-default>{{ bot.name }}</span>
       </span>
       <span class="badge alert-danger" ng-show="bot.message.length"  ng-click="main.bot = bot; showControls = true; logActive = true;">!</span>
@@ -20,14 +22,14 @@
     <div class="row">
       <!-- label class="col-sm-2">[J]</label -->
       <div class="col-xs-6">
-        <progressbar class="active" ng-class="{'progress-striped': bot.E < bot.mE}" value="bot.E * 100 / bot.mE" type="danger">
+        <progressbar class="active" ng-attr-animate="false" ng-class="{'progress-striped': bot.E < bot.mE}" value="bot.E * 100 / bot.mE" type="danger">
           <span style="color:black; white-space:nowrap;">{{bot.E | number : 1}} / {{bot.mE | number : 0}} [J]</span>
         </progressbar>
       </div>
 
       <!-- label class="col-sm-2">Storage</label -->
       <div class="col-xs-6">
-        <progressbar class="active" value="bot.S * 100 / bot.mS" type="info">
+        <progressbar class="active" ng-attr-animate="false" value="bot.S * 100 / bot.mS" type="info">
           <span style="color:black; white-space:nowrap;">{{bot.S}} / {{bot.mS}} [kg]</span>
         </progressbar>
       </div>
@@ -68,7 +70,7 @@
         <button class="btn btn-danger btn-xs" tooltip="Launch"
           ng-click="main.relocate(bot); $event.stopPropagation();"
           ng-show="bot.canRelocate()">
-            <i class="mdi-content-send"></i>
+            <i class="fa fa-rocket"></i>
             <span class="badge">-500 J</span>
         </button>
       </div>
@@ -76,14 +78,14 @@
         <button class="btn btn-info btn-xs" tooltip="Upgrade bot"
           ng-click="bot.upgrade(); $event.stopPropagation();"
           ng-disabled="bot.S < 10">
-          <i class="mdi-editor-merge-type"></i>
+          <i class="fa fa-level-up"></i>
           <span class="badge">-10 kg</span>
         </button>
         <button class="btn btn-info btn-xs" tooltip="Construct new bot"
           ng-click="bot.construct(); $event.stopPropagation();"
           ng-if="bot.mS >= 100"
           ng-disabled="bot.S < 100">
-          <i class="mdi-social-person-add"></i>
+          <i class="fa fa-user-plus"></i>
           <span class="badge">-100 kg</span>
         </button>
       </div>

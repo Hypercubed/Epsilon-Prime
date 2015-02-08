@@ -1,4 +1,8 @@
 
+#grid {
+  padding: 0;
+}
+
 .grid {
   overflow: hidden;
   height: 100%;

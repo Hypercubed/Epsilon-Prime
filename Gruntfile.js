@@ -61,6 +61,10 @@ module.exports = function (grunt) {
         files: ['<%= yeoman.app %>/components/{,*/}*.css'],
         tasks: ['newer:copy:styles', 'autoprefixer']
       },
+      template: {
+        files: ['<%= yeoman.app %>/{,*/}*.tpl'],
+        tasks: ['template']
+      },
       gruntfile: {
         files: ['Gruntfile.js']
       },
@@ -333,6 +337,11 @@ module.exports = function (grunt) {
         }, {
           expand: true,
           cwd: 'bower_components/bootstrap/dist',
+          src: 'fonts/*',
+          dest: '<%= yeoman.dist %>'
+        }, {
+          expand: true,
+          cwd: 'bower_components/font-awesome',
           src: 'fonts/*',
           dest: '<%= yeoman.dist %>'
         },

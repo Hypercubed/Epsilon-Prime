@@ -17,6 +17,14 @@
           scope.$parent.$watch(tAttrs.botPanel, function(val) {
             scope.bot = val;
           });
+
+          scope.checkName = function(name) {
+            if (name.length < 3) {
+              return 'Units name must contain at least three characters';
+            }
+            return true;
+          };
+
         };
       }
     };

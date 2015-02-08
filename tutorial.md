@@ -1,5 +1,7 @@
 # Epsilon-Prime Tutorial
 
+![Capture](http://cdn.rawgit.com/Hypercubed/Epsilon-Prime/master/app/images/eprime.png)
+
 The game map is located on the left.  Use the mouse and scroll wheel (or touch screen) to pan and zoom the map.  The `@` mark is your starting base.
 
 On the right is a units lists.  All your units are listed here.
@@ -28,6 +30,8 @@ You can now begin exploring the map using the Q-C keys.  `Q` for NW, `W` for Nor
 
 You will notice that the energy depletes as you move and mine.  You can use all your energy to mine or return to the base periodically to unload and charge.  This can be done several times until your units run out of energy.
 
-The only way to regain energy is to take a turn.  In the upper left you will see the turn indicator.
+The only way to regain energy is to take a turn.  In the upper left you will see the turn indicator.  Use the >| button to advance one turn.
 
-Use the >| button to advance one turn.
+Use the scripts dropdown to select a bots automatic actions each turn.  Select 'Collect' for the bots action and 'Construct' for the base.
+
+Press play button to cycle turns and watch your bots work autonomously.
