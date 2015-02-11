@@ -26,15 +26,15 @@
     var dx = xScale(1); //, dy = yScale(1);
 
     var _X = _F('x', xScale),
-      _Y = _F('y', yScale);
+        _Y = _F('y', yScale);
 
-    var _pos = function(d) {
-      return [_X(d),_Y(d)];
-    }
+    //var _pos = function(d) {
+    //  return [_X(d),_Y(d)];
+    //};
 
     var _id = function(d) {
       return '@'+[d.x,d.y];
-    }
+    };
 
     var textAttr = {
       'text-anchor': 'middle',

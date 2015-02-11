@@ -48,7 +48,7 @@
 .unit-ctrl .panel, .unit-list .panel {
   margin-bottom: 5px;
   height: 100%;
-  overflow-y: scroll;
+  overflow-y: hidden;
   background-color: #fff;
 }
 
@@ -60,10 +60,17 @@
 
 .unit-ctrl .panel-body, .unit-list .panel-body {
   padding: 0 15px 5px 15px;
+  height: 100%;
+  overflow-y: scroll;
 }
 
-.unit-ctrl .panel-body, .unit-list .panel-body {
-  padding: 0 15px 5px 15px;
+.panel-list .panel-body {
+  padding: 0;
+  height: calc(100% - 50px);
+}
+
+.panel-body > .list-group {
+  margin-bottom: 0px;
 }
 
 .bot-panel {
@@ -154,4 +161,24 @@
 
 .dropdown-menu .active {
   background-color: #ccc;
+}
+
+.btn-xs .badge {
+  display: inline-block;
+  min-width: 10px;
+  padding: 1px 3px;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 5px;
+}
+
+.btn-xxs, .btn-group-xxs > .btn {
+  padding: 1px 5px;
+  font-size: 10px;
+  line-height: 1.5;
+  border-radius: 3px;
 }

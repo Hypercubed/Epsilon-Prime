@@ -5,11 +5,11 @@
 'use strict';
 
 angular.module('ePrime')
-  .controller('MainCtrl', function ($scope, $log, $route, $window, $timeout, $modal, hotkeys, debounce, modals, siteConfig, isAt, sandBox, TILES, GAME) {
+  .controller('MainCtrl', function ($scope, $compile, $log, $route, $window, $timeout, $modal, hotkeys, debounce, modals, siteConfig, isAt, sandBox, TILES, GAME) {
 
     var main = this;
 
-    var grid = new d3.charts.Grid()
+    var grid = new d3.charts.Grid()  // in System
       .on('click', function(d) {
         $scope.$apply(function() {
           GAME.bots.forEach(function(bot) {
@@ -208,6 +208,13 @@ angular.module('ePrime')
       .add({
         combo: 'j k',
         description: 'Prev/next bot'
+      })
+      .add({
+        combo: '?',
+        description: 'Show / hide this help menu',
+        callback: function() {
+          main.help();
+        }
       });
 
     function setup() {
@@ -241,18 +248,31 @@ angular.module('ePrime')
     }
 
     main.reset = function() {
-      pauseDialog('Are you sure?', true);
+      pauseDialog('<h1 class="text-center">Are you sure?<h1>', true);
     };
 
     main.relocate = function(bot) { // move to bot class?
       if (bot.canRelocate()) {
-        pauseDialog('You have set off to explore another planet.', true);
+        pauseDialog('<h1 class="text-center">Congratulations<h1><h3 class="text-center">You have set off to explore another planet.</h3>', true);
       }
+    };
+
+    main.help = function() {
+      var _dT = main.dT;
+      main.play(0);
+
+      hotkeys.pause();
+
+      modals.openHelp().result
+        .then(null, function() {
+          main.play(_dT);
+          hotkeys.unpause();
+        });
     };
 
     main.save = function() {
       GAME.save().then(function() {
-        pauseDialog('Game saved.', false);
+        pauseDialog('<h1 class="text-center">Game saved.<h1><h4 class="text-center">You can safely close this tab<h4>', false);
       });
     };
 

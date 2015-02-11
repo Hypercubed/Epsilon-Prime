@@ -244,8 +244,6 @@ angular.module('ePrime')
     World.prototype.scanList = function(_) {  // list of all excisting tiles
       if (angular.isDefined(_) && '#.XO'.indexOf(_) < 0) { return []; }
 
-      var self = this;
-
       var xs = this.size;
       var ys = this.size;
 
@@ -257,7 +255,7 @@ angular.module('ePrime')
             Y = chunk.Y*ys;
         var XE = X+xs,
             YE = Y+ys;
-        for(var x = X; x < XE; x++) {
+        for(var x = X; x < XE; x++) { // try other way around  index -> x,y
           for(var y = Y; y < YE; y++) {
             var z = chunk.get(x,y);
             if (z !== TILES.EMPTY) {

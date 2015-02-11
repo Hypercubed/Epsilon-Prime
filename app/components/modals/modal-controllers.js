@@ -24,8 +24,25 @@
       });
     };
 
+    modals.openHelp = function() {
+      return $modal.open({
+        templateUrl: 'components/modals/help-model.html',
+        backdrop: 'static',
+        keyboard: true,
+        size: 'lg',
+        controller: 'HelpInstanceCtrl'
+      });
+    };
+
     return modals;
   })
+  
+  .controller('HelpInstanceCtrl', function ($scope, hotkeys) {
+
+    $scope.hotkeys = hotkeys;
+
+  })
+
   .controller('ConfirmInstanceCtrl', function ($scope, data, GAME) {
 
     $scope.game = GAME;

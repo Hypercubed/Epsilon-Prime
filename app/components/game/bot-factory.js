@@ -209,6 +209,10 @@ var collect =
         return (r instanceof Bot) ? createAccessor(r) : r;  // maybe should just be properties
       };
 
+      $bot.log = function(msg) {
+        bot.addAlert('success', msg);
+      };
+
       return $bot;
     }
 
@@ -234,13 +238,31 @@ var collect =
       //this.manual = true;  // rename auto?
       this.active = false;
 
+      this.halted = false;
+      
       this.message = '';
       this.scriptName = null;
+
+      this.alerts = [];
 
       this.$script = null;
       this.$bot = createInterface(this);
 
     }
+
+    Bot.prototype.addAlert = function(type, msg) {
+      this.alerts.push({type:type, msg:msg});
+    };
+
+    Bot.prototype.closeAlert = function(index) {
+      this.alerts.splice(index, 1);
+    };
+
+    Bot.prototype.error = function(msg) {
+      this.message = msg; // used as error flag, get rid of this
+      this.addAlert('danger',msg);
+      this.setCode(null);
+    };
 
     Bot.prototype.charge = function(dE) {
       var e = this.E;
@@ -416,6 +438,7 @@ var collect =
 
       this.scriptName = script.name;
       this.$script = script;
+      this.message = '';
       return script;
     };
 
@@ -425,11 +448,6 @@ var collect =
     };
 
     Bot.prototype.stop = function() {
-      this.manual = true;
-    };
-
-    Bot.prototype.error = function(msg) {
-      this.message = msg;
       this.manual = true;
     };
 
@@ -513,7 +531,7 @@ var collect =
       return this.E >= 500;
     };
 
-    Bot.prototype.scan = function() {  // dE cost?
+    Bot.prototype.scan = function() {  // used?
       return GAME.world.scan(this);
     };
 

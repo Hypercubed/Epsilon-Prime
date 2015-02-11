@@ -3,19 +3,23 @@
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Bugs
-- [ ] Drop downs in bot list cut off
-- [ ] Sometimes base is on top of a mine.
-- [ ] Optimize find to only search map if '.X#'.
+- [ ] SVG is not size responsive
+- [x] Drop downs in bot list cut off
+- [x] Sometimes base is on top of a mine.
+- [x] Optimize find to only search map if '.X#'.
 - [-] Prevent duplicate scripts with the same name
 - [ ] Too slow?
 - [ ] Improve GUI Responsiveness to small screens
 - [ ] Upgrade using base resources?
 - [ ] j/k should only cycle filtered bots?
-- [ ] New screen shot
 
 ## Next
+- [ ] Halt on error, clear, remove bot.message
+- [ ] Improve bot logging
+- [ ] Entity component system
+- [ ] New screen shot
 - [ ] Bot memory? Bot target store.
-- [ ] Replace hotkey help with help dialog
+- [x] Replace hotkey help with help dialog
 - [ ] Make defaultScripts as scripts service. (crud, reset, validate, run, etc)
 - [ ] Prevent deployment if env !== production in gruntfile
 - [ ] Tutorial
@@ -36,11 +40,11 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Pan to unit on select
 - [ ] Indicate stuck bots?
 - [ ] Ensure base starts on plain
-- [ ] Clean up classes
-- [ ] Implement $bot.log()
-- [ ] Improve drawing more?  Draw by chunk.
-- [ ] More balancing of gameplay.
-- [ ] More Tooltips?
+- [ ] Clean up classes -> Entity component system
+- [x] Implement $bot.log()
+- [ ] Improve drawing more?  Draw by chunk, bot (entities).
+- [ ] Rebalance gameplay.
+- [ ] More/better Tooltips?
 - [ ] Need to indicate when unit is on mine.  Indicate overlapping units.
 - [ ] Clean terminology (bots, resources, energy units, etc)
 

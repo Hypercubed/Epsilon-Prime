@@ -128,6 +128,9 @@ angular.module('ePrime')
     GAME.bots = [home];
 
     GAME.world.scanRange(home);
+    if (GAME.world._get(home.x, home.y) === 'X') {  // hack untill mines become entities
+      GAME.world._set(home.x, home.y, TILES.FIELD);
+    }
 
     //var bot = home.construct('Collect');
     //bot.active = true;

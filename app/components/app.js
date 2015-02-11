@@ -40,6 +40,9 @@ angular
   .config(function($logProvider, siteConfig){
     $logProvider.debugEnabled(siteConfig.debug);
   })
+  .config(function(hotkeysProvider) {
+    hotkeysProvider.includeCheatSheet = false;
+  })
   .config(function ($localForageProvider, siteConfig) {
     $localForageProvider.config({
       name : siteConfig.name
