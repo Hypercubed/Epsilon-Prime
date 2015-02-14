@@ -3,6 +3,8 @@
 
   function ListController($scope, hotkeys) {
 
+    var vm = this;
+
     $scope.page = 1;
 
     //console.log($scope.openItem.name);
@@ -18,7 +20,7 @@
       });
     };
 
-    $scope.open = function(item){
+    $scope.open = vm.open = function(item){
       $scope.select(item);
       $scope.page = $scope.items.indexOf(item)+1;
       $scope.opened = true;
@@ -73,6 +75,7 @@
         var innerScope = controller.parent.$new();
         innerScope[controller.valueKey] = $scope.item;
         innerScope.opened = $scope.opened;
+        innerScope.open = controller.open;
 
         $scope.$watch('item', function(val) {
           innerScope[controller.valueKey] = val;

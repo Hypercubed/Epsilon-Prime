@@ -10,7 +10,7 @@
         </span>
         <span ng-switch-default>{{ bot.name }}</span>
       </span>
-      <span class="badge alert-danger" ng-show="bot.message.length"  ng-click="main.bot = bot; showControls = true; logActive = true;">!</span>
+      <span class="badge alert-danger" ng-show="bot.alerts[bot.alerts.length-1].type === 'danger'"  ng-click="open(bot); bot.logActive = true;">!</span>
     </h4>
 
     <div class="row">
@@ -51,6 +51,11 @@
               <button class="btn btn-link btn-xxs"
                 ng-click="main.showScripts(bot.scriptName)">
                 <i class="glyphicon glyphicon-edit"></i>
+              </button>
+            </span>
+            <span class="input-group-btn" ng-show="bot.halted" ng-click="bot.halted = false">
+              <button class="btn btn-link btn-xxs text-danger">
+                <i class="fa fa-eject fa-rotate-90"></i>
               </button>
             </span>
           </div>
@@ -126,6 +131,8 @@
 
   </div>
 
+  {{logActive}}
+
   <div ng-if="showControls">
     <hr class="clearfix">
     <tabset type="pills" justified="true">
@@ -165,7 +172,14 @@
 
         </div>
       </tab>
-      <tab heading="Log" active="logActive">
+      <tab heading="Log" active="bot.logActive">
+        <div class="row">
+          <button class="btn btn-sm btn-default pull-right"
+            ng-click="bot.clearLog()" ng-disabled="bot.alerts.length < 1">
+            <i class="fa fa-ban"></i>
+          </button>
+        </div>
+        <div class="clearfix">
         <alert ng-repeat="alert in bot.alerts" type="{{alert.type}}" close="bot.closeAlert($index)">{{alert.msg}}</alert>
       </tab>
       <tab heading="Cheats" ng-if="main.cheat">

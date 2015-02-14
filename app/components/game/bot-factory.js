@@ -239,7 +239,7 @@ var collect =
       this.active = false;
 
       this.halted = false;
-      
+
       this.message = '';
       this.scriptName = null;
 
@@ -258,10 +258,15 @@ var collect =
       this.alerts.splice(index, 1);
     };
 
+    Bot.prototype.clearLog = function(index) {
+      this.alerts.splice(0);
+    };
+
     Bot.prototype.error = function(msg) {
-      this.message = msg; // used as error flag, get rid of this
+      this.halted = true;
+      //this.message = msg; // used as error flag, get rid of this
       this.addAlert('danger',msg);
-      this.setCode(null);
+      //this.setCode(null);
     };
 
     Bot.prototype.charge = function(dE) {
@@ -442,12 +447,12 @@ var collect =
       return script;
     };
 
-    Bot.prototype.run = function() {
+    Bot.prototype.run = function() {  // delete?
       this.message = '';
       this.manual = false;
     };
 
-    Bot.prototype.stop = function() {
+    Bot.prototype.stop = function() {  // delete?
       this.manual = true;
     };
 
@@ -456,7 +461,7 @@ var collect =
 
       GAME.stats.E += this.charge(this.chargeRate()*dT);
 
-      if(this.scriptName !== null) {
+      if(this.scriptName !== null && this.halted === false) {
 
         //if (!this.$script || this.$script.name !== this.scriptName) {
         var script =  this.setCode(this.scriptName);  // should only need to do when scritName changes
