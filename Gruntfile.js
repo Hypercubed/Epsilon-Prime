@@ -454,7 +454,9 @@ module.exports = function (grunt) {
 
   grunt.registerTask('deploy', 'Deploy', function () {
     if (grunt.option('env') !== 'production') {
-      return grunt.log.warn('The `deploy` must be for the production envieronment.');
+      grunt.log.warn('`deploy` must be for the production environment.');
+      grunt.log.warn('Try `grunt deploy --env=production`');
+      return;
     }
 
     grunt.task.run([

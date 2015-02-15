@@ -26,7 +26,7 @@
               </button>
               <ul class="dropdown-menu" role="menu">
                 <li ng-repeat="script in editor.scripts">
-                  <a href="/#/" ng-click="editor.set(script)">
+                  <a href="#/" ng-click="editor.set(script)">
                     <span class="fa fa-code" aria-hidden="true"></span>
                     {{script.name}}
                     <button class="close" ng-click="editor.delete(script); $event.stopPropagation();"><span aria-hidden="true">&times;</span></button>
