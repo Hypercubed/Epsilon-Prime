@@ -22,9 +22,9 @@ angular.module('ePrime')
 
   var GAME = this;
 
-  GAME.scripts = defaultScripts;
+  GAME.scripts = angular.copy(defaultScripts);
 
-  GAME.scanList = function(_) {
+  GAME.scanList = function(_) { // move.
 
     function _nameOrTile(d) {
       return d.t === _ || d.name === _;
@@ -96,8 +96,6 @@ angular.module('ePrime')
 
       //console.log(GAME.bots);
 
-
-
     });
 
   };
@@ -151,7 +149,7 @@ angular.module('ePrime')
 
   };
 
-  GAME.takeTurn = function() {
+  GAME.takeTurn = function() {  // system
     mezclar2(GAME.bots.slice(0)).forEach(function(_bot) {
       _bot.takeTurn(1);
     });

@@ -5,7 +5,7 @@
   'use strict';
 
   angular.module('ePrime')
-  .controller('EditorCtrl', function($log, $modalInstance, initialScriptId, GAME, aether) {
+  .controller('EditorCtrl', function($log, $modalInstance, initialScriptId, defaultScripts, GAME, aether) {
 
     var editor = this;
 
@@ -23,10 +23,57 @@
       editor.script = editor.scripts[initialScriptId || 0];
     };
 
-    editor.new = function() {
-      editor.script = {name: 'new', code: '$log($bot.name, $bot.x, $bot.y);' };
-      editor.scripts.push(editor.script);
+    editor.resetToDefaultScripts = function() {
+
+      defaultScripts.forEach(function(script) {
+        for (var i = 0; i < editor.scripts.length; i++) {
+          if (editor.scripts[i].name === script.name) {
+            angular.copy(script, editor.scripts[i]);
+            return;
+          }
+        }
+        editor.scripts.push(angular.copy(script));
+      })
+
+      //console.log(GAME.scripts);
+      //angular.extend(editor.scripts, defaultScripts);
+      //console.log(GAME.scripts);
+      //editor.reset(form);
     };
+
+    editor.new = function(name, code) {
+      name = name || 'new';
+      code = code || '$log($bot.name, $bot.x, $bot.y);';
+      editor.script = {name: name, code: code };
+      editor.scripts.push(editor.script);
+      deDupNames();
+    };
+
+    editor.delete = function(script) {
+      var index = editor.scripts.indexOf(script);
+      editor.scripts.splice(index,1);
+      if (editor.script === script) {
+        editor.script = editor.scripts[index < editor.scripts.length ? index : 0];
+      }
+    };
+
+    function splitOnLast(value, sep) {
+      var index = name.lastIndexOf(sep);
+      var first = value.substring(0,index);
+      var second = value.substring(index);
+      return [first,second];
+    };
+
+    function deDupNames() {
+      var names = editor.scripts.map(_F('name'));
+
+      editor.scripts.forEach(function(d,i) {  // cheap way to unique names
+        var name = d.name;
+        while (names.indexOf(d.name) < i) {
+          d.name = names[i] = d.name+'*';
+        }
+      });
+    }
 
     editor.update = function(script, form) {
 
@@ -44,15 +91,7 @@
     };
 
     editor.save = function() {
-      var names = editor.scripts.map(_F('name'));
-
-      editor.scripts.forEach(function(d,i) {  // cheap way to unique names
-        var j = 1, name = d.name;
-        while (names.indexOf(d.name) < i) {
-          j++;
-          d.name = names[i] = name + ' ' + j;
-        }
-      });
+      deDupNames();
 
       GAME.scripts = angular.copy(editor.scripts);
       GAME.scripts.forEach(function(d) {
