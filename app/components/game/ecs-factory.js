@@ -1,6 +1,4 @@
 /* global _F:true */
-/* global Aether: true */
-/* global darlingjs: true */
 
 (function() {
   'use strict';

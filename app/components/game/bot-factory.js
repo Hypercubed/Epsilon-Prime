@@ -218,35 +218,42 @@ var collect =
 
 
     function Bot(name,x,y,_GAME) {  // TODO: move speed, mine speed, storage cap, energy cap, carge rate
-      this.name = name;
       GAME = GAME || _GAME;
 
-      this.t = TILES.BOT;
+      var e = GAME.ecs.$e();
+      e.name = name;
 
-      this.x = x;
-      this.y = y;
-      //this.dEdX = 1;
+      e.t = TILES.BOT;
 
-      this.S = 0;      // Raw material storage
-      this.mS = 10;    // Maximum
-      this.dS = 1;     // Mining ability
+      e.x = x;
+      e.y = y;
+      //e.dEdX = 1;
 
-      this.E = 0;     // Energy
-      //this.dE = 0.01;    // Charging rate
-      this.mE = 10;   // Maximum
+      e.S = 0;      // Raw material storage
+      e.mS = 10;    // Maximum
+      e.dS = 1;     // Mining ability
 
-      //this.manual = true;  // rename auto?
-      this.active = false;
+      e.E = 0;     // Energy
+      //e.dE = 0.01;    // Charging rate
+      e.mE = 10;   // Maximum
 
-      this.halted = false;
+      //e.manual = true;  // rename auto?
+      e.active = false;
 
-      this.message = '';
-      this.scriptName = null;
+      e.halted = false;
 
-      this.alerts = [];
+      e.message = '';
+      e.scriptName = null;
 
-      this.$script = null;
-      this.$bot = createInterface(this);
+      e.alerts = [];
+
+      e.$script = null;
+
+      e.$bot = createInterface(e);
+
+      angular.extend(e, Bot.prototype);
+
+      return e;
 
     }
 
@@ -258,7 +265,7 @@ var collect =
       this.alerts.splice(index, 1);
     };
 
-    Bot.prototype.clearLog = function(index) {
+    Bot.prototype.clearLog = function() {
       this.alerts.splice(0);
     };
 
@@ -526,7 +533,7 @@ var collect =
         bot.$home = this;
 
         this.S -= 100;
-        GAME.bots.push(bot);
+        //GAME.bots.push(bot);
         return bot;
       }
       return null;

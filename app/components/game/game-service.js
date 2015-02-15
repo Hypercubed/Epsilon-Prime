@@ -18,9 +18,11 @@ function ssCopy(src) { // shallow copy
 }
 
 angular.module('ePrime')
-.service('GAME', function($log, $localForage, World, Bot, Chunk, TILES, defaultScripts) {
+.service('GAME', function($log, $localForage, EcsFactory, World, Bot, Chunk, TILES, defaultScripts) {
 
   var GAME = this;
+
+  GAME.ecs = new EcsFactory();
 
   GAME.scripts = angular.copy(defaultScripts);
 
@@ -127,7 +129,7 @@ angular.module('ePrime')
     home.E = home.mE = 100;
     home.t = TILES.BASE;
 
-    GAME.bots = [home];
+    GAME.bots = GAME.ecs.entities;
 
     GAME.world.scanRange(home);
     if (GAME.world._get(home.x, home.y) === 'X') {  // hack untill mines become entities
