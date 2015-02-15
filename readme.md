@@ -5,11 +5,12 @@
 Epsilon-prime is inspired by the classic 4x game Empire.  In ε-prime a player will control units to εXplore a procedurally generated world (called ε-prime), εXploit the resource of ε-prime in order to εXpand their army of bots and eventually conquer (εXterminate?) the planet ε-prime.  The player uses units (or bots), controlled either manually or via JavaScript command scripts, to manage energy use and collect resources from the ε-prime environment.  These resources are used to create new units or upgrade existing units.  The players goal is to collect resources in the most efficient manner possible.
 
 [Play demo now](http://hypercubed.github.io/Epsilon-Prime/)
+[Read the tutorial](https://github.com/Hypercubed/Epsilon-Prime/blob/master/tutorial.md)
 
 ![Capture](http://cdn.rawgit.com/Hypercubed/Epsilon-Prime/master/app/images/eprime.png)
 
 ## Development status
-Epsilon-Prime is under active development.  It is playable now (at http://hypercubed.github.io/Epsilon-Prime/), however, many things are likely to be broken or change in a future version.  Player and developer feedback is appreciated... and needed.  If you like the game or the idea please give feedback or encouragement.
+Epsilon-Prime is a personal project and under active development.  It is playable now (at http://hypercubed.github.io/Epsilon-Prime/), however, many things are likely to be broken or change in a future version.  Player and developer feedback is appreciated... and needed.  If you like the game or the idea please give feedback or encouragement.
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Hypercubed/Epsilon-Prime?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
