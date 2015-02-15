@@ -103,7 +103,7 @@ var collect =
 
         var c = 0;
         var result = { done: false };
-        while (!result.done && c++ < 100000) {
+        while (!result.done && c++ < 200000) {
           result = generator.next();
         }
 

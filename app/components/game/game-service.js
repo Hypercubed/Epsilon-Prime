@@ -47,10 +47,6 @@ angular.module('ePrime')
     });
 
     var G = {
-      T: GAME.turn,
-      E: GAME.E,
-      S: GAME.S,
-      start: GAME.start,
       stats: ssCopy(GAME.stats),
       world: ssCopy(GAME.world),
       bots: GAME.bots.map(ssCopy),
@@ -78,7 +74,7 @@ angular.module('ePrime')
       angular.extend(GAME.world, G.world);
 
       angular.copy(G.scripts, GAME.scripts);
-      angular.copy(G.stats, GAME.stats);
+      angular.extend(GAME.stats,G.stats);
 
       GAME.world.$$chunks = {};
       angular.forEach(G.chunks, function(chunk, key) {
@@ -101,7 +97,16 @@ angular.module('ePrime')
   };
 
   GAME.clear = function() {
-    return $localForage.clear();
+
+    var G = {
+      stats: {},
+      world: {},
+      bots: [],
+      scripts: GAME.scripts.map(ssCopy),
+      chunks: []
+    };
+
+    return $localForage.setItem('saveGame', G);
   };
 
   GAME.reset = function setup() {

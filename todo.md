@@ -14,7 +14,6 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] j/k should only cycle filtered bots?
 
 ## Next
-- [x ] Halt on error, clear, remove bot.message
 - [ ] Improve bot logging
 - [ ] Entity component system
 - [ ] New screen shot
