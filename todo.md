@@ -12,9 +12,10 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Improve GUI Responsiveness to small screens
 - [ ] Upgrade using base resources?
 - [ ] j/k should only cycle filtered bots?
+- [ ] Trap errors in GAME.load.
 
 ## Next
-- [ ] Improve bot logging
+- [ ] Improve bot logging, error system.
 - [ ] Entity component system
 - [ ] New screen shot
 - [ ] Bot memory? Bot target store.
