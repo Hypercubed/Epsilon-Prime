@@ -222,7 +222,7 @@ angular.module('ePrime')
       main.game = GAME;
 
       //main.home = GAME.bots[0];  // remove this??
-      main.bot = GAME.bots[1];  // dont do this
+      main.bot = GAME.bots[0];  // dont do this
       //main.bot.active = true;
     }
 

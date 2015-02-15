@@ -33,7 +33,7 @@
           }
         }
         editor.scripts.push(angular.copy(script));
-      })
+      });
 
       //console.log(GAME.scripts);
       //angular.extend(editor.scripts, defaultScripts);
@@ -57,18 +57,10 @@
       }
     };
 
-    function splitOnLast(value, sep) {
-      var index = name.lastIndexOf(sep);
-      var first = value.substring(0,index);
-      var second = value.substring(index);
-      return [first,second];
-    };
-
     function deDupNames() {
       var names = editor.scripts.map(_F('name'));
 
       editor.scripts.forEach(function(d,i) {  // cheap way to unique names
-        var name = d.name;
         while (names.indexOf(d.name) < i) {
           d.name = names[i] = d.name+'*';
         }

@@ -207,6 +207,7 @@ angular.module('ePrime')
     };
 
     World.prototype.scanRange = function(x,y,R) {
+      //console.log(x);
       if (arguments.length < 3) {
         R = y;
         y = x.y;

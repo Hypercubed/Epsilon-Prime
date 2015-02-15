@@ -179,7 +179,7 @@
             <i class="fa fa-ban"></i>
           </button>
         </div>
-        <div class="clearfix">
+        <div class="clearfix" />
         <alert ng-repeat="alert in bot.alerts" type="{{alert.type}}" close="bot.closeAlert($index)">{{alert.msg}}</alert>
       </tab>
       <tab heading="Cheats" ng-if="main.cheat">

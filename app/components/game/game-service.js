@@ -71,6 +71,9 @@ angular.module('ePrime')
 
       $log.debug('game loaded',arguments);
 
+      angular.copy(G.scripts, GAME.scripts);
+      if (!G.world) { return; }
+
       angular.extend(GAME.world, G.world);
 
       angular.copy(G.scripts, GAME.scripts);
@@ -99,11 +102,7 @@ angular.module('ePrime')
   GAME.clear = function() {
 
     var G = {
-      stats: {},
-      world: {},
-      bots: [],
-      scripts: GAME.scripts.map(ssCopy),
-      chunks: []
+      scripts: GAME.scripts.map(ssCopy)
     };
 
     return $localForage.setItem('saveGame', G);
