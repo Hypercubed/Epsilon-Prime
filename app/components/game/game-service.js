@@ -2,34 +2,37 @@
 
 'use strict';
 
-function mezclar2(arr) {  // fast shuffle
-  for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp) {}
-  return arr;
-}
-
 function ssCopy(src) { // shallow copy
   var dst = {};
   for (var key in src) {
     if (src.hasOwnProperty(key) && key.charAt(0) !== '$') {
-      dst[key] = src[key];
+      var s = src[key];
+      if (typeof s === 'object') {
+        dst[key] = ssCopy(s);
+      } else if (typeof s !== 'function') {
+        dst[key] = s;
+      }
     }
   }
   return dst;
 }
 
 angular.module('ePrime')
-.service('GAME', function($log, $localForage, EcsFactory, World, Bot, Chunk, TILES, defaultScripts) {
+.service('eprimeEcs', function(EcsFactory) {  // should not be here?
+  return new EcsFactory();
+})
+.service('GAME', function($log, $localForage, eprimeEcs, World, Chunk, TILES, defaultScripts) {
 
   var GAME = this;
 
-  GAME.ecs = new EcsFactory();
+  GAME.ecs = eprimeEcs;
 
   GAME.scripts = angular.copy(defaultScripts);
 
   GAME.scanList = function(_) { // move.
 
     function _nameOrTile(d) {
-      return d.t === _ || d.name === _;
+      return d.bot.t === _ || d.bot.name === _;
     }
 
     var bots = (!_) ? this.bots : this.bots.filter(_nameOrTile);
@@ -56,6 +59,8 @@ angular.module('ePrime')
       chunks: chunkData
     };
 
+    //console.log('save', G);
+
     //localStorageService.set('saveGame', G);
     return $localForage.setItem('saveGame', G).then(function() {
       $log.debug('saved');
@@ -66,7 +71,7 @@ angular.module('ePrime')
 
   GAME.load = function() {
 
-    return $localForage.getItem('saveGame').then(function(G) {
+    return $localForage.getItem('saveGame').then(function(G) {  // trap errors
       if (!G) {
         return $log.debug('saveGame not found');
       }
@@ -86,16 +91,21 @@ angular.module('ePrime')
          GAME.world.$$chunks[key] = new Chunk(chunk.view, chunk.X, chunk.Y);
       });
 
-      G.bots.forEach(function(_bot, i) {
-        var bot = GAME.bots[i];
-        if (!bot) {
-          bot = new Bot('', 0, 1, GAME);
-          GAME.bots.push(bot);
-        }
-        angular.extend(bot, _bot);
-      });
+      GAME.bots.splice(0,GAME.bots.length);
+      G.bots.forEach(function(_bot) {
+        //var bot = new Bot('', 0, 1, GAME);
 
-      //console.log(GAME.bots);
+        angular.extend(_bot, {
+          $bot: {}
+        });
+
+        angular.extend(_bot.bot, { $game: GAME });
+
+        GAME.ecs.$e(_bot);
+
+        //bot.$game = GAME;
+        //bot.update();
+      });
 
     });
 
@@ -121,19 +131,45 @@ angular.module('ePrime')
     //GAME.world = new World(60);
     //console.log(GAME.world);
 
-    var home = new Bot('Base', 30, 10, GAME);
-    home.active = true;
+    //var home = new Bot('Base', 30, 10, GAME);
+    var home = GAME.ecs.$e({
+      name: 'Base',
+      x: 30,
+      y: 10,
+      $bot: {},
+      bot: {
+        name: 'Base',
+        x: 30,
+        y: 10,
+        S: 100,
+        mS: 100,
+        E: 100,
+        mE: 100,
+        t: TILES.BASE,
+        $game: GAME
+      }
+    });
+    //home.name = 'Base';
+    //home.x = 30;
+    //home.y = 10;
+
+    //home.$game = GAME;
+
+    //home.active = true;
     //home.scriptName = 'Construct'; // todo: only key
     //home.manual = true;
-    home.S = home.mS = 100;  //enough for first bot
-    home.E = home.mE = 100;
-    home.t = TILES.BASE;
+    //home.S = home.mS = 100;  //enough for first bot
+    //home.E = home.mE = 100;
+    //home.t = TILES.BASE;
+    //home.update();
+
+    console.log(home);
 
     GAME.bots = GAME.ecs.entities;
 
     GAME.world.scanRange(home);
-    if (GAME.world._get(home.x, home.y) === 'X') {  // hack untill mines become entities
-      GAME.world._set(home.x, home.y, TILES.FIELD);
+    if (GAME.world._get(home.bot.x, home.bot.y) === 'X') {  // hack untill mines become entities
+      GAME.world._set(home.bot.x, home.bot.y, TILES.FIELD);
     }
 
     //var bot = home.construct('Collect');
@@ -144,7 +180,7 @@ angular.module('ePrime')
     //GAME.turn = 0;
     //GAME.start = new Date();
 
-    GAME.stats = {
+    GAME.stats = GAME.ecs.stats = {
       E: 0,
       S: 0,
       turn: 0,
@@ -156,9 +192,9 @@ angular.module('ePrime')
   };
 
   GAME.takeTurn = function() {  // system
-    mezclar2(GAME.bots.slice(0)).forEach(function(_bot) {
-      _bot.takeTurn(1);
-    });
+
+    eprimeEcs.$update();
+
     GAME.stats.turn++;
     if (GAME.stats.turn % 20 === 0) {  // only save if changed?  Move to different timer
       GAME.save();
@@ -166,6 +202,7 @@ angular.module('ePrime')
   };
 
   GAME.reset();
+  //Bot.setGame(GAME);
 
 });
 

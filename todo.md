@@ -4,6 +4,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Bugs
 - [ ] SVG is not size responsive
+- [ ] Active unit no longer shown in map
 - [x] Drop downs in bot list cut off
 - [x] Sometimes base is on top of a mine.
 - [x] Optimize find to only search map if '.X#'.
@@ -16,7 +17,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Next
 - [ ] Improve bot logging, error system.
-- [ ] Entity component system
+- [ ] Finish Entity component system
 - [ ] New screen shot
 - [ ] Bot memory? Bot target store.
 - [x] Replace hotkey help with help dialog

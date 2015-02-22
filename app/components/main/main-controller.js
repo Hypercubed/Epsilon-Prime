@@ -28,7 +28,7 @@ angular.module('ePrime')
       var ke = GAME.bots.length;  // do better, move to GAME service
       //var ws = GAME.world.size;
       for(var k = 0; k < ke; k++) {
-        var bot = GAME.bots[k];
+        var bot = GAME.bots[k].bot;
         var index = GAME.world.getIndex(bot);
         s += bot.t+index+(bot === main.bot ? '!' : '');
       }
@@ -40,7 +40,7 @@ angular.module('ePrime')
       $log.debug('d3 draw');
 
       var tiles = GAME.world.scanList();  // todo: chunk
-      var bots = GAME.bots;
+      var bots = GAME.bots.map(_F('bot'));  // todo: fix this
 
       d3.select('#grid').datum([tiles,bots]).call(grid);
     }
@@ -91,8 +91,8 @@ angular.module('ePrime')
       });
     };
 
-    main.canAction = function(bot) {
-      bot = bot || main.bot;
+    main.canAction = function(bot) {  // used, move
+      bot = bot.bot || main.bot.bot;
       return bot.canMine() || main.canUnload(bot) || main.canCharge(bot);
     };
 
@@ -104,10 +104,10 @@ angular.module('ePrime')
       bot.mine();
     };
 
-    main.run = function(code) {  // move?
+    main.run = function(code) {  // used, move?
       var ret = sandBox.run(code, main.bot.$bot);
       if (ret !== true) {
-        main.bot.error(ret);
+        main.bot.bot.error(ret);
       }
     };
 
@@ -120,7 +120,7 @@ angular.module('ePrime')
           callback: function() {
             main.cheat = true;
             GAME.bots.forEach(function(d) {
-              d.E = d.mE;
+              d.bot.E = d.bot.mE;
             });
           }
         })
@@ -129,7 +129,7 @@ angular.module('ePrime')
           //description: '',
           callback: function() {
             main.cheat = true;
-            main.game.world.scanRange(main.bot.x,main.bot.y,40);
+            main.game.world.scanRange(main.bot.bot.x,main.bot.bot.y,40);
             d3Draw();
           }
         });
@@ -163,7 +163,7 @@ angular.module('ePrime')
           combo: k[0],
           //description: '',
           callback: function() {
-            main.bot.move(k[2],k[3]);
+            main.bot.bot.move(k[2],k[3]);
           }
         });
     });
@@ -251,8 +251,8 @@ angular.module('ePrime')
       pauseDialog('<h1 class="text-center">Are you sure?<h1>', true);
     };
 
-    main.relocate = function(bot) { // move to bot class?
-      if (bot.canRelocate()) {
+    main.relocate = function(e) { // used, move?
+      if (e.bot.canRelocate()) {  // use component
         pauseDialog('<h1 class="text-center">Congratulations<h1><h3 class="text-center">You have set off to explore another planet.</h3>', true);
       }
     };

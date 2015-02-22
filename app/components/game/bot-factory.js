@@ -141,17 +141,7 @@ var collect =
     }
     return x === obj.x && y === obj.y;
   })
-  //.value('Interpreter', window.Interpreter)
-  .factory('Bot', function (isAt, TILES, $log, sandBox) {
-
-    var GAME = null;  // later the GAME service
-
-    var mathSign = Math.sign || function (value) {  // polyfill for Math.sign
-      var number = +value;
-      if (number === 0) { return number; }
-      if (Number.isNaN(number)) { return number; }
-      return number < 0 ? -1 : 1;
-    };
+  .run(function(eprimeEcs, TILES, BotComponent, sandBox) {
 
     function createAccessor(bot) {
       var $bot = {};
@@ -166,7 +156,8 @@ var collect =
 
     }
 
-    function createInterface(bot) {  // move?
+    function createInterface(e) {
+      var bot = e.bot;
       var $bot = createAccessor(bot);
 
       $bot.move = function $$move(x,y) {
@@ -188,7 +179,7 @@ var collect =
 
       $bot.charge = function $$charge(_) {  // should charge to co-located @
         var home = find(_ || '@');  // gets closest
-        return (home) ? home.chargeBot(bot) : null;
+        return (home) ? home.bot.chargeBot(e) : null;
       };
 
       $bot.upgrade = function $$upgrade() {
@@ -206,7 +197,7 @@ var collect =
 
       $bot.find = function $$find(_) {  // move?
         var r = find(_);
-        return (r instanceof Bot) ? createAccessor(r) : r;  // maybe should just be properties
+        return (r && r.$bot) ? createAccessor(r.bot) : r;  // maybe should just be properties
       };
 
       $bot.log = function(msg) {
@@ -216,44 +207,82 @@ var collect =
       return $bot;
     }
 
+    eprimeEcs.$c('$bot', {});
+    eprimeEcs.$c('bot', BotComponent);
 
-    function Bot(name,x,y,_GAME) {  // TODO: move speed, mine speed, storage cap, energy cap, carge rate
-      GAME = GAME || _GAME;
+    eprimeEcs.$s('$bot', {
+      $addEntity: function(e) {
+        e.$bot = createInterface(e);
+        e.bot.update();
+      }
+    });
 
-      var e = GAME.ecs.$e();
-      e.name = name;
+    eprimeEcs.$s('charging', {
+      $update: function(entities, dT) {
+        entities.forEach(function(e) {
+          var bot = e.bot;
+          bot.$game.stats.E += bot.charge(bot.chargeRate*dT);
+        });
+      }
+    });
 
-      e.t = TILES.BOT;
+    function mezclar2(arr) {  // fast shuffle
+      for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp) {}
+      return arr;
+    }
 
-      e.x = x;
-      e.y = y;
-      //e.dEdX = 1;
+    eprimeEcs.$s('scripts', {
+      $update: function(entities) {
+        mezclar2(entities.slice(0)).forEach(function(e) {
+          var bot = e.bot;
+          if(bot.scriptName !== null && bot.halted === false) {
+            var script =  bot.setCode(bot.scriptName);  // TODO: should only need to do when scritName changes
+            var ret = sandBox.run(script, e.$bot);
+            if (ret !== true) {
+              bot.error(ret);
+            }
+          }
+        });
+      }
+    });
 
-      e.S = 0;      // Raw material storage
-      e.mS = 10;    // Maximum
-      e.dS = 1;     // Mining ability
+  })
+  //.value('Interpreter', window.Interpreter)
+  .factory('BotComponent', function (isAt, TILES, $log) {
 
-      e.E = 0;     // Energy
-      //e.dE = 0.01;    // Charging rate
-      e.mE = 10;   // Maximum
+    //var GAME = null;  // later the GAME service
 
-      //e.manual = true;  // rename auto?
-      e.active = false;
+    var mathSign = Math.sign || function (value) {  // polyfill for Math.sign
+      var number = +value;
+      if (number === 0) { return number; }
+      if (Number.isNaN(number)) { return number; }
+      return number < 0 ? -1 : 1;
+    };
 
-      e.halted = false;
+    function Bot() {
 
-      e.message = '';
-      e.scriptName = null;
+      var botComp = {
+        name: '',
+        t: TILES.BOT,
+        x: 0,
+        y: 0,
 
-      e.alerts = [];
+        S: 0,      // Raw material storage
+        mS: 10,    // Maximum
+        dS: 1,     // Mining ability
+        E: 0,      // Energy
+        dE: 0.01,  // Charging rate
+        mE: 10,    // Maximum
 
-      e.$script = null;
+        active: false,
+        halted: false,
+        message: '',
+        scriptName: null,
+        alerts: [],
+        $script: null
+      };
 
-      e.$bot = createInterface(e);
-
-      angular.extend(e, Bot.prototype);
-
-      return e;
+      angular.extend(this, botComp);
 
     }
 
@@ -286,24 +315,24 @@ var collect =
       return isAt(this,x,y);
     };
 
-    Bot.prototype.mass = function() {
-      return this.mS + this.mE;
-    };
+    //Bot.prototype.mass = function() {
+    //  return this.mS + this.mE;
+    //};
 
-    var DIS = 1+1;  // 1+Discharge exponent, faster discharge means lower effeciency
+    //var DIS = 1+1;  // 1+Discharge exponent, faster discharge means lower effeciency
 
-    Bot.prototype.moveCost = function() {
-      return Math.pow(this.mass()/20, DIS);
-    };
+    //Bot.prototype.moveCost = function() {
+    //  return Math.pow(this.mass/20, DIS);
+    //};
 
-    var CHAR = 0.5; // Charging effeciency
+    /* var CHAR = 0.5; // Charging effeciency
     var I = 1; // moves per turn for base
     var E = 2/3;  // surface/volume exponent
     var N = CHAR*I/(Math.pow(20, E));  // normilization factor
 
     Bot.prototype.chargeRate = function() {
       return N*Math.pow(this.mass(), E);
-    };
+    }; */
 
     Bot.prototype.canMove = function(dx,dy) {  // TODO: check range
 
@@ -311,9 +340,9 @@ var collect =
       dy = mathSign(dy);  // max +/-1
 
       var dr = Math.max(Math.abs(dx),Math.abs(dy));
-      var dE = this.moveCost()*dr;
+      var dE = this.moveCost*dr;
 
-      return GAME.world.canMove(this.x + dx,this.y + dy) && this.E >= dE;
+      return this.$game.world.canMove(this.x + dx,this.y + dy) && this.E >= dE;
     };
 
     Bot.prototype.move = function(dx,dy) {  // TODO: check range
@@ -322,9 +351,9 @@ var collect =
       dy = mathSign(dy);  // max +/-1
 
       var dr = Math.max(Math.abs(dx),Math.abs(dy));
-      var dE = this.moveCost()*dr;
+      var dE = this.moveCost*dr;
 
-      if (GAME.world.canMove(this.x + dx,this.y + dy)) {  // Need to check bot skills, check path
+      if (this.$game.world.canMove(this.x + dx,this.y + dy)) {  // Need to check bot skills, check path
         if (this.E >= dE) {
           this.last = {x: this.x, y: this.y};
           this.heading = {x: dx, y:dy};
@@ -333,7 +362,7 @@ var collect =
           this.y += dy;
           this.E -= dE;
 
-          GAME.world.scanRange(this);
+          this.$game.world.scanRange(this);
 
           return true;
         }
@@ -391,7 +420,7 @@ var collect =
     };
 
     Bot.prototype.canMine = function() {
-      if (GAME.world.get(this).t === TILES.MINE) {  // use world.canMine?
+      if (this.$game.world.get(this).t === TILES.MINE) {  // use world.canMine?
         if (this.E >= 1 && this.S < this.mS) {
           return true;
         }
@@ -400,12 +429,12 @@ var collect =
     };
 
     Bot.prototype.mine = function() {
-      if (GAME.world.get(this).t === TILES.MINE) {  // use world.canMine?
+      if (this.$game.world.get(this).t === TILES.MINE) {  // use world.canMine?
         if (this.E >= 1 && this.S < this.mS) {
           this.E--;
-          var dS = GAME.world.dig(this);  // TODO: bot effeciency
+          var dS = this.$game.world.dig(this);  // TODO: bot effeciency
           dS = this.load(dS);
-          GAME.stats.S += dS;
+          this.$game.stats.S += dS;
           return dS;
         }
       }
@@ -426,12 +455,13 @@ var collect =
 
     var _name = _F('name');
 
-    function findScript(name) {  // todo: move, default?
-      var scripts = GAME.scripts.filter(_name.eq(name));  // todo: find first or change scriots to hash
-      return (scripts.length > 0) ? scripts[0] : undefined;
-    }
-
     Bot.prototype.setCode = function(script) {
+      var self = this;
+
+      function findScript(name) {  // todo: move, default?
+        var scripts = self.$game.scripts.filter(_name.eq(name));  // todo: find first or change scriots to hash
+        return (scripts.length > 0) ? scripts[0] : undefined;
+      }
 
       if (script === null) {
         this.scriptName = null;
@@ -454,42 +484,20 @@ var collect =
       return script;
     };
 
-    Bot.prototype.run = function() {  // delete?
-      this.message = '';
-      this.manual = false;
-    };
+    //Bot.prototype.run = function() {  // delete?
+    //  this.message = '';
+    //  this.manual = false;
+    //};
 
-    Bot.prototype.stop = function() {  // delete?
-      this.manual = true;
-    };
-
-    Bot.prototype.takeTurn = function(dT) {
-      //var self = this;
-
-      GAME.stats.E += this.charge(this.chargeRate()*dT);
-
-      if(this.scriptName !== null && this.halted === false) {
-
-        //if (!this.$script || this.$script.name !== this.scriptName) {
-        var script =  this.setCode(this.scriptName);  // should only need to do when scritName changes
-        //}
-        //var code = this.$script.code;
-
-        //console.log(this, GAME.scripts);
-
-        var ret = sandBox.run(script, this.$bot);
-        if (ret !== true) {
-          this.error(ret);
-        }
-
-      }
-
-    };
+    //Bot.prototype.stop = function() {  // delete?
+    //  this.manual = true;
+    //};
 
     Bot.prototype.chargeBot = function(bot) {
-      if (isAt(bot, this)) { // TODO: charging range?
+      //console.log('charge', bot);
+      if (isAt(bot.bot, this)) { // TODO: charging range?
         var e = Math.min(10, this.E);  // TODO: charging speed
-        e = bot.charge(e);
+        e = bot.bot.charge(e);
         this.E -= e;
         return e;
       }
@@ -497,9 +505,9 @@ var collect =
     };
 
     Bot.prototype.unloadTo = function(bot) {
-      if (isAt(bot, this)) {// TODO: unloading range?
+      if (isAt(bot.bot, this)) {// TODO: unloading range?
         var s = this.unload();
-        var l = bot.load(s);
+        var l = bot.bot.load(s);
         this.load(s-l);
         return l;
       }
@@ -510,15 +518,28 @@ var collect =
       return this.S >= 10;
     };
 
+    var DIS = 1+1;  // 1+Discharge exponent, faster discharge means lower effeciency
+    var CHAR = 0.5; // Charging effeciency
+    var I = 1; // moves per turn for base
+    var E = 2/3;  // surface/volume exponent
+    var N = CHAR*I/(Math.pow(20, E));  // normilization factor
+
     Bot.prototype.upgrade = function() {
       if (this.S >= 10) {
         this.S -= 10;
         this.mS += 10;
         this.mE += 10;
-        if (this.mS >= 100) {
-          this.t = TILES.BASE;
-        }
+        this.update();
       }
+    };
+
+    Bot.prototype.update = function() {
+      if (this.mS >= 100) {
+        this.t = TILES.BASE;
+      }
+      this.mass = this.mE + this.mS;
+      this.moveCost =  Math.pow(this.mass/20, DIS);
+      this.chargeRate = N*Math.pow(this.mass, E);
     };
 
     Bot.prototype.canConstruct = function() {
@@ -527,13 +548,23 @@ var collect =
 
     Bot.prototype.construct = function(script) {
       if (this.S >= 100) {
-        var bot = new Bot('Rover', this.x, this.y);
-        bot.scriptName = script || null;
-        //bot.manual = !angular.isDefined(script);
-        bot.$home = this;
+        var self = this;
+
+        var bot = this.$game.ecs.$e({
+          bot: {
+            name: 'Rover',
+            x: this.x,
+            y: this.y,
+            $home: self,
+            $game: self.$game,
+            scriptName: script || null,
+          },
+          $bot: {}
+        });
+
+        bot.bot.update();
 
         this.S -= 100;
-        //GAME.bots.push(bot);
         return bot;
       }
       return null;
@@ -544,12 +575,12 @@ var collect =
     };
 
     Bot.prototype.scan = function() {  // used?
-      return GAME.world.scan(this);
+      return this.$game.world.scan(this);
     };
 
-    Bot.prototype.scanList = function(_) {  // TODO: move, GAME.scanFrom?, optimize
+    Bot.prototype.scanList = function(_) {  // TODO: move, this.$game.scanFrom?, optimize
       var self = this;
-      var l = GAME.scanList(_).filter(function(r) {
+      var l = this.$game.scanList(_).filter(function(r) {
         return r !== self;
       });
 

@@ -5,17 +5,29 @@
 
   angular.module('ePrime')
   .factory('Entity', function() {
-    function Entity() {}
+
+    var _uuid = 0;
+    function uuid() {
+      var timestamp = new Date().getUTCMilliseconds();
+      return '' + _uuid++ + '_' + timestamp;
+    }
+
+    function Entity(id) {
+      this._id = id || uuid();
+    }
 
     Entity.prototype.$add = function(key, instance) {
       this[key] = this[key] || {};
+      //console.log(key, instance);
       if (instance) {
-        angular.extend(this[key], instance);
+        this[key] = angular.extend(instance, this[key]);
       }
+      // add callback
     };
 
     Entity.prototype.$remove = function(key) {
       delete this[key];
+      // remove call back
     };
 
     return Entity;
@@ -26,8 +38,8 @@
       this.components = {};
       this.systems = {};
       this.entities = [];
+      //this.families = {}; // TODO
 
-      this.$uuid = 0;
       this.$timer = null;
       this.$playing = false;
       this.$delay = 1000;
@@ -47,26 +59,42 @@
     Ecs.prototype.$e = function(id, instance) {
       var self = this;
 
-      if (arguments.length < 2) {
+      if (typeof id === 'object') {
         instance = id;
-        id = ''+this.$uuid++;
+        id = null;
       }
-      var e = new Entity();
+      var e = new Entity(id);
 
-      angular.extend(e, instance);
+      if (Array.isArray(instance)) {
+        instance.forEach(function(key) {
+          var component = self.components[key];
+          e.$add(key, angular.copy(component));
+        });
+      } else {
 
-      angular.forEach(e, function(value, key) {
-        var component = self.components[key];
-        e.$add(key, component);
-      });
+        angular.extend(e, instance);
+
+        angular.forEach(e, function(value, key) {
+          var Component = self.components[key];
+          if (Component) {
+            if (typeof Component === 'function') {
+              Component = new Component();
+            } else {
+              Component = angular.copy(Component);
+            }
+            e.$add(key, Component);
+          }
+        });
+
+      }
 
       this.$onComponentAdd(e);
-      this.entities[id] = e;
+      this.entities.push(e);
       return e;
     };
 
     Ecs.prototype.$onComponentAdd = function(entity) {
-      //console.log('$onComponentAdd', this.systems);
+      //console.log('$onComponentAdd', this);
       angular.forEach(this.systems, function(system) {
         if (system.$addEntity) {
           // todo: check requires
@@ -77,6 +105,7 @@
 
     Ecs.prototype.$update = function(time) {
       var self = this;
+      time = time || this.$interval;
       angular.forEach(this.systems, function(system) {
         if (system.$update) {
           // todo: check requires
@@ -107,11 +136,6 @@
 
       return Ecs;
 
-    })
-  .service('ecs', function(EcsFactory) {
-    var ecs = new EcsFactory();
-
-    return ecs;
-  });
+    });
 
 })();
