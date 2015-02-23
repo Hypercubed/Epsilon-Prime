@@ -17,7 +17,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## ECS
 - [ ] Chunks -> Entities?
-- [ ] Decompose BotComponents (Bot, Move, Script)
+- [ ] Decompose BotComponents (Bot, Move, Script), events
 - [x] Add filters to systems
 - [ ] Move draw to system
 - [x] Entity messages ie. .$on('upgrade', fn), .$emit('upgrade')

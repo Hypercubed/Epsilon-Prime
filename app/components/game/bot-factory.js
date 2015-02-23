@@ -232,7 +232,6 @@ var collect =
         e.bot.update();
       },
       $update: function() {
-        //console.log('scripts', this);
         mezclar2(this.$family);
         this.$family.forEach(function(e) {
           var bot = e.bot;
