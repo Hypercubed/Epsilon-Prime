@@ -207,21 +207,15 @@ var collect =
       return $bot;
     }
 
-    eprimeEcs.$c('$bot', {});
+    //eprimeEcs.$c('$bot', {});
     eprimeEcs.$c('bot', BotComponent);
 
-    eprimeEcs.$s('$bot', {
-      $addEntity: function(e) {
-        e.$bot = createInterface(e);
-        e.bot.update();
-      }
-    });
-
     eprimeEcs.$s('charging', {
-      $update: function(entities, dT) {
-        entities.forEach(function(e) {
+      $require: ['bot'],
+      $update: function() {
+        this.$family.forEach(function(e) {
           var bot = e.bot;
-          bot.$game.stats.E += bot.charge(bot.chargeRate*dT);
+          eprimeEcs.stats.E += bot.charge(bot.chargeRate*eprimeEcs.$interval);
         });
       }
     });
@@ -232,8 +226,15 @@ var collect =
     }
 
     eprimeEcs.$s('scripts', {
-      $update: function(entities) {
-        mezclar2(entities.slice(0)).forEach(function(e) {
+      $require: ['bot'],
+      $addEntity: function(e) {
+        e.$bot = createInterface(e);
+        e.bot.update();
+      },
+      $update: function() {
+        //console.log('scripts', this);
+        mezclar2(this.$family);
+        this.$family.forEach(function(e) {
           var bot = e.bot;
           if(bot.scriptName !== null && bot.halted === false) {
             var script =  bot.setCode(bot.scriptName);  // TODO: should only need to do when scritName changes

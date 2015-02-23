@@ -15,7 +15,16 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] j/k should only cycle filtered bots?
 - [ ] Trap errors in GAME.load.
 
+## ECS
+- [ ] Chunks -> Entities?
+- [ ] Decompose BotComponents (Bot, Move, Script)
+- [x] Add filters to systems
+- [ ] Move draw to system
+- [x] Entity messages ie. .$on('upgrade', fn), .$emit('upgrade')
+- [ ] entity.$watch?
+
 ## Next
+- [ ] Move GAME stuff to ecs engine
 - [ ] Improve bot logging, error system.
 - [ ] Finish Entity component system
 - [ ] New screen shot

@@ -13,7 +13,7 @@ angular.module('ePrime')
       .on('click', function(d) {
         $scope.$apply(function() {
           GAME.bots.forEach(function(bot) {
-            bot.active = (bot === d);
+            bot.active = (bot === d.$parent);
             if (bot.active) {
               main.bot = bot;
             }
@@ -30,7 +30,7 @@ angular.module('ePrime')
       for(var k = 0; k < ke; k++) {
         var bot = GAME.bots[k].bot;
         var index = GAME.world.getIndex(bot);
-        s += bot.t+index+(bot === main.bot ? '!' : '');
+        s += bot.t+index+(bot.$parent.active ? '!' : '');
       }
 
       return s;

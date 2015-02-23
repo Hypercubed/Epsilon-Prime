@@ -170,7 +170,8 @@
             return 'bot bot-'+d.name.toLowerCase();
           })
           .classed('active', function(d) {
-            return d.active;
+            //console.log(d);
+            return d.$parent.active;
           })
           .attr('transform', function(d) {
             return 'translate('+[_X(d),_Y(d)]+')';

@@ -193,7 +193,7 @@ angular.module('ePrime')
 
   GAME.takeTurn = function() {  // system
 
-    eprimeEcs.$update();
+    eprimeEcs.$update(eprimeEcs.$interval);
 
     GAME.stats.turn++;
     if (GAME.stats.turn % 20 === 0) {  // only save if changed?  Move to different timer
