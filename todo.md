@@ -25,6 +25,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [x] common families
 - [x] remove entities
 - [ ] test
+- [ ] Priority
 
 ## Next
 - [ ] Move GAME stuff to ecs engine

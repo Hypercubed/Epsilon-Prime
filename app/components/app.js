@@ -1,5 +1,40 @@
 'use strict';
 
+angular.module('thirdParty', [])
+  .provider('thirdParty', function($provide) {
+    var list = [];
+
+    this.register = function(key) {
+      list.push(key);
+    };
+
+    this.$get = function($window) {
+
+      function set(key) {
+        var factory = $window[key];
+        if (factory) {
+          $window.thirdParty = $window.thirdParty || {};
+          $window.thirdParty[key] = factory;
+          try {
+            delete $window[key];
+          } catch (err) {
+            $window[key] = undefined;
+          }
+          $provide.factory(key, function() {
+            return factory;
+          });
+        }
+      }
+
+      list.forEach(set);
+
+      return $window.thirdParty;
+    };
+  })
+  .run(function(thirdParty, $log) {
+    $log.debug('thirdParty', thirdParty);
+  });
+
 angular
   .module('ePrime', [
     'ngAnimate',
@@ -13,7 +48,8 @@ angular
     'angularMoment',
     'xeditable',
     'cfp.hotkeys',
-    'LocalForageModule'
+    'LocalForageModule',
+    'thirdParty'
   ])
   //.constant('debug', true)  // todo: make config object
   //.constant('siteConfig', {

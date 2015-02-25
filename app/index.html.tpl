@@ -89,6 +89,7 @@
         <script src="components/app-config.js"></script>
         <script src="components/game/ecs-factory.js"></script>
         <script src="components/game/world-factory.js"></script>
+        <script src="components/game/script-system.js"></script>
         <script src="components/game/bot-factory.js"></script>
         <script src="components/game/game-service.js"></script>
         <script src="components/main/main-controller.js"></script>

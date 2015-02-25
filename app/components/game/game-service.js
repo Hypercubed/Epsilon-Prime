@@ -20,18 +20,15 @@ function ssCopy(src) { // shallow copy
 }
 
 angular.module('ePrime')
-.service('eprimeEcs', function(EcsFactory) {  // should not be here?
-  return new EcsFactory();
-})
-.service('GAME', function($log, $localForage, eprimeEcs, World, Chunk, TILES, defaultScripts) {
+.service('GAME', function($log, $localForage, ngEcs, World, Chunk, TILES, defaultScripts) {
 
-  var GAME = this;  // todo: GAME === eprimeEcs
+  var GAME = this;  // todo: GAME === ngEcs
 
-  GAME.ecs = eprimeEcs;
+  GAME.ecs = ngEcs;  // eventually GAME === ngEcs
 
-  GAME.scripts = angular.copy(defaultScripts);
+  GAME.scripts = angular.copy(defaultScripts);  // setup?
 
-  GAME.scanList = function(_) { // move.
+  GAME.scanList = function(_) { // move?
 
     function _nameOrTile(d) {
       return d.bot.t === _ || d.bot.name === _;
@@ -44,31 +41,19 @@ angular.module('ePrime')
 
   GAME.save = function() {
 
-    /* var chunkData = {};
-    angular.forEach(GAME.world.$$chunks, function(chunk, key) {
-      chunkData[key] = {  // not sure why I need this, $localForage doesn't like typed arrays
-        X: chunk.X,
-        Y: chunk.Y,
-        view: Array.prototype.slice.call(chunk.view)  //todo: better, convert to string?  // TODO: convert in ssCopy
-      };
-    }); */
-
-    var G = {
+    var G = {  // eventually G = ssCopy(GAME);
       stats: ssCopy(GAME.stats),
       world: ssCopy(GAME.world),
-      entities: eprimeEcs.entities.map(ssCopy),
+      entities: ngEcs.entities.map(ssCopy),
       scripts: GAME.scripts.map(ssCopy),
-      chunks: ssCopy(GAME.world.$$chunks)
+      chunks: ssCopy(GAME.world.$$chunks)  // todo: entities?
     };
-
-    //console.log('save', G);
 
     //localStorageService.set('saveGame', G);
     return $localForage.setItem('saveGame', G).then(function() {
       $log.debug('saved');
     });
 
-    //console.log(angular.toJson(G));
   };
 
   GAME.load = function() {
@@ -96,41 +81,18 @@ angular.module('ePrime')
          GAME.world.$$chunks[key] = new Chunk(chunk.view, chunk.X, chunk.Y);
       });
 
-      //eprimeEcs.entities.forEach(function(instance) {
-      //  eprimeEcs.$$removeEntity(instance);
-      //}); // hack, because starting base already created, fix by not calling reset
+      G.entities.forEach(ngEcs.$e, ngEcs);
 
-      //eprimeEcs.entities.splice(0,eprimeEcs.entities.length);
-      //eprimeEcs.families.bot.splice(0,eprimeEcs.families.bot.length);
-
-      G.entities.forEach(function(e) {
-        //var bot = new Bot('', 0, 1, GAME);
-
-        //angular.extend(_bot, {  // is it needed?
-        //  $bot: {}
-        //});
-
-        //if (e.bot) {
-        //  angular.extend(e.bot, { $game: GAME });  // eventually don't do this
-        //}
-
-        eprimeEcs.$e(e);
-
-        //bot.$game = GAME;
-        //bot.update();
-      });
+      console.log(ngEcs.entities);
 
     });
 
   };
 
   GAME.clear = function() {
-
-    var G = {
+    return $localForage.setItem('saveGame', {  // save only scripts
       scripts: GAME.scripts.map(ssCopy)
-    };
-
-    return $localForage.setItem('saveGame', G);
+    });
   };
 
   GAME.setup = function() {
@@ -187,12 +149,13 @@ angular.module('ePrime')
 
   GAME.takeTurn = function() {  // system
 
-    eprimeEcs.$update(eprimeEcs.$interval);
+    ngEcs.$update(ngEcs.$interval);
 
     GAME.stats.turn++;
     if (GAME.stats.turn % 20 === 0) {  // only save if changed?  Move to different timer
       GAME.save();
     }
+
   };
 
   GAME.setup();

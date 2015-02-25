@@ -1,23 +1,60 @@
-/* global _F:true */
 
-(function() {
+;(function() {
   'use strict';
 
-  angular.module('ePrime')
-  .factory('EventEmitter', function EventEmitter($window) {
-    if ($window.EventEmitter2) {
-      $window.thirdParty = $window.thirdParty || {};
-      $window.thirdParty.EventEmitter2 = $window.EventEmitter2;
-      try {
-        delete $window.EventEmitter2;
-      } catch (err) {
-        $window.EventEmitter2 = undefined;
-      }
-    }
-    return $window.thirdParty.EventEmitter2;
-  })
-  .factory('Entity', function(EventEmitter) {
+  var MapProvider = function() {
 
+    var map = {};
+
+    this.register = function(name, constructor) {
+      if (angular.isObject(name)) {
+        angular.extend(map, name);
+      } else {
+        map[name] = constructor;
+      }
+      return this;
+    };
+
+    this.$get = function($injector) {
+      angular.forEach(map, function(value, key) {
+        if (angular.isFunction(value)) {
+          map[key] = $injector.invoke(value, null, null, key);
+        }
+      });
+      return map;
+    };
+
+  };
+
+  var ListProvider = function() {
+
+    var list = [];
+
+    this.register = function(name, constructor) {
+      if (angular.isObject(name)) {
+        angular.extend(list, name);
+      } else {
+        list[name] = constructor;
+      }
+      return this;
+    };
+
+    this.$get = function($injector) {
+      angular.forEach(list, function(value, key) {
+        if (angular.isFunction(value)) {
+          list[key] = $injector.invoke(value, null, null, key);
+        }
+      });
+      return list;
+    };
+
+  };
+
+angular.module('ePrime')
+  .config(function(thirdPartyProvider) {
+    thirdPartyProvider.register('EventEmitter2');
+  })
+  .factory('Entity', function(EventEmitter2, $components) {
     var _uuid = 0;
     function uuid() {
       var timestamp = new Date().getUTCMilliseconds();
@@ -26,16 +63,34 @@
 
     function Entity(id) {
       this._id = id || uuid();
-      this.$$eventEmitter = new EventEmitter();
+      this.$$eventEmitter = new EventEmitter2();
     }
 
     // add a component, key, instance, constructor
     Entity.prototype.$add = function(key, instance) {
-      this[key] = this[key] || {};
-      if (instance) {
-        this[key] = angular.extend(instance, this[key]);
+
+
+      // remove if exists
+      if (this[key]) {
+        this.$remove(key);
       }
-      this[key].$parent = this;
+
+      // is it a registered component?
+      if ($components.hasOwnProperty(key)) {
+        var Component = $components[key];
+        if (typeof Component === 'function') {  // constructor
+          this[key] = new Component();
+        } else {  // model
+          this[key] = angular.copy(Component);
+        }
+        this[key].$parent = this;
+        if (instance) {
+          angular.extend(this[key], instance);
+        }
+      } else {
+        this[key] = angular.copy(instance);
+      }
+
       this.$$eventEmitter.emit('add', this, key);
     };
 
@@ -61,13 +116,27 @@
 
     return Entity;
   })
-  .factory('EcsFactory', function($log, $timeout, Entity) {
+  .provider('$components', MapProvider)
+  .provider('$systems', MapProvider)
+  .provider('$entities', MapProvider)
+  .service('ngEcs', function(EcsFactory) {
+    return new EcsFactory();
+  })
+  .factory('EcsFactory', function($log, $timeout, $components, $systems, $entities, Entity) {
 
     function Ecs(opts) {
-      this.components = {};
-      this.systems = {};
-      this.entities = [];
+      this.components = $components;
+      this.systems = $systems;
+      this.entities = $entities;
       this.families = {};
+
+      angular.forEach($systems, function(value, key) {  // todo: test this
+        this.$s(key, value);
+      });
+
+      angular.forEach($entities, function(value) {  // todo: test this
+        this.$e(value);
+      });
 
       this.$timer = null;
       this.$playing = false;
@@ -77,17 +146,18 @@
       angular.extend(this, opts);
     }
 
-    Ecs.prototype.$c = function(key, instance) {
+    Ecs.prototype.constructor = Ecs;
+
+    Ecs.prototype.$c = function(key, instance) {  // perhaps add to $components
       this.components[key] = instance;
     };
-
 
     function getFamilyIdFromRequire(require) {
       if (!require) { return '::'; }
       return require.join('::');
     }
 
-    Ecs.prototype.$s = function(key, instance) {
+    Ecs.prototype.$s = function(key, instance) {  // perhaps add to $systems
       this.systems[key] = instance;
       var fid = getFamilyIdFromRequire(instance.$require);
       instance.$family = this.families[fid] = this.families[fid] || [];
@@ -100,31 +170,20 @@
         instance = id;
         id = null;
       }
+
       var e = new Entity(id);
       e.$world = this;
 
       if (Array.isArray(instance)) {
-        instance.forEach(function(key) {  // TODO: like below
-          var component = self.components[key];
-          e.$add(key, angular.copy(component));
+        angular.forEach(instance, function(key) {
+          e.$add(key);
+          self.$onComponentAdd(e,key);
         });
       } else {
-
-        angular.extend(e, instance);
-
-        angular.forEach(e, function(value, key) {
-          var Component = self.components[key];
-          if (Component) {
-            if (typeof Component === 'function') {
-              Component = new Component();
-            } else {
-              Component = angular.copy(Component);
-            }
-            e.$add(key, Component);
-            self.$onComponentAdd(e, key);
-          }
+        angular.forEach(instance, function(value, key) {
+          e.$add(key, value);
+          self.$onComponentAdd(e,key);
         });
-
       }
 
       e.$on('add', function(e,k) { self.$onComponentAdd(e,k); });
@@ -149,22 +208,22 @@
     }
 
     Ecs.prototype.$$removeEntity = function(instance) {
-      var self = this;
+      //var self = this;
 
       instance.$world = null;
 
       instance.$off('add', this.$onComponentAdd);
-      instance.$off('remove', this.$onComponentRemove);
+
 
       angular.forEach(instance, function(value, key) {
-        if (self.components[key]) {
-          self.$onComponentRemove(instance, key);
-        }
+        instance.$remove(key);
       });
 
       angular.forEach(this.families, function(family) {
         remove(family, instance);
       });
+
+      instance.$off('remove', this.$onComponentRemove);
 
       remove(this.entities, instance);
 
@@ -213,8 +272,7 @@
     Ecs.prototype.$update = function(time) {
       var self = this;
       time = angular.isUndefined(time) ? self.$interval : time;
-      angular.forEach(this.systems, function(system) {
-        //console.log(time);
+      angular.forEach(this.systems, function(system) {   // todo: sort by priority
         if (system.$update && system.$family.length > 0) {
           system.$update(time);
         }

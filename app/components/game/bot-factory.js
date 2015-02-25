@@ -1,147 +1,15 @@
-/* global _F:true */
-/* global Aether: true */
 
 ;(function() {
   'use strict';
 
-/*jshint -W109 */
-var collect =
-"$bot.unload();\n" +
-"$bot.charge();\n" +
-"\n" +
-"if ($bot.S >=  $bot.mS) {\n" +
-"  var home = $bot.find('@');\n" +
-"  $bot.moveTo(home.x,home.y);\n" +
-"} else if ($bot.E >= 1 && $bot.mine() === false) {\n" +
-"  var mine = $bot.find('X');\n" +
-"\n" +
-"  var x,y;\n" +
-"  if (mine !== null) {\n "+
-"    x = mine.x;\n" +
-"    y = mine.y;\n" +
-"  } else {\n" +
-"    x = 2*Math.random()-1+$bot.x;\n" +
-"    y = 2*Math.random()-1+$bot.y;\n" +
-"  }\n"+
-"  $bot.moveTo(x,y);\n"+
-"}";
-/*jshint +W109 */
-
-//collect = collect.substring(collect.indexOf('{') + 1, collect.lastIndexOf('}'));
-
-  angular.module('ePrime')
-  .constant('defaultScripts', [   // make a hash
-    { name: 'Collect', code: collect },
-    { name: 'Action', code: '$bot.mine();\n$bot.charge();\n$bot.unload();' },
-    //{ name: 'Mine', code: '$bot.mine();' },
-    //{ name: 'Charge', code: '$bot.charge();' },
-    //{ name: 'Unload', code: '$bot.unload();' },
-    { name: 'Upgrade', code: '$bot.upgrade();' },
-    { name: 'Construct', code: '$bot.construct();' }
-  ])
-  .service('aether', function() {
-    /*jshint -W106 */
-    var aetherOptions = {
-      executionLimit: 1000,
-      functionName: 'tick',
-      functionParameters: ['$log','$bot'],
-      problems: {
-        jshint_W040: {level: 'ignore'},
-        aether_MissingThis: {level: 'ignore'}
-      },
-      noSerializationInFlow: true,
-      includeFlow: false,
-      includeMetrics: false,
-      includeStyle: false,
-      protectAPI: false,
-      yieldAutomatically: true,
-      protectBuiltins: false
-    };
-    /*jshint +W106 */
-
-    return new Aether(aetherOptions);
-  })
-  .service('sandBox', function(aether) {  // move, create tests
-
-    var sandBox = this;
-
-    var $logInterface = function() {
-      console.log.apply(console, arguments);
-    };
-
-    //var aether = new Aether(aetherOptions);  // move
-
-
-    sandBox.run = function(script, $bot) {
-
-      if (script === null) {
-        return;
-      }
-
-      var method;
-      if (typeof script === 'object') {
-        if (!script.$method) { // maybe this should be done in the editor
-          aether.transpile(script.code);  // todo: catch transpile problems here
-          script.$method = aether.createMethod();
-        }
-        method = script.$method;
-      } else {
-        aether.transpile(script);  // todo: catch transpile problems here
-        method = aether.createMethod();
-      }
-
-      aether.depth = 1; //hack to avoid rebuilding globals
-
-      try {
-
-        //aether.transpile(code);  // todo: catch transpile problems here
-        //var method = aether.createMethod(thisValue);
-        //aether.run(method);
-
-        var generator = method($logInterface, $bot);
-        aether.sandboxGenerator(generator);
-
-        var c = 0;
-        var result = { done: false };
-        while (!result.done && c++ < 200000) {
-          result = generator.next();
-        }
-
-        if (!result.done) {  // todo: throw error?
-          throw new Error('User script execution limit'+c);
-          //var m = 'User script execution limit';
-          //console.log(m);
-          //return m;
-        }
-
-        /*jshint -W061 */
-        //_sandBox.eval(code);
-        /*jshint +W061 */
-
-        /*jshint -W054 */
-        //var fn = new Function('$log', '$bot', code);  // todo: move to setup?, trap infinite loops?  don't create each time.
-        /*jshint +W054 */
-
-        //fn.call(this,$logInterface,$bot);  // todo: safer sandbox
-      } catch(err) {
-        var m = err.stack || '';
-        console.log('User script error', err.message, m);
-        return err.message;
-      }
-
-      return true;
-
-    };
-
-    return sandBox;
-  })
+angular.module('ePrime')
   .value('isAt', function isAt(obj,x,y) {
     if (angular.isObject(x)) {
       return x.x === obj.x && x.y === obj.y;
     }
     return x === obj.x && y === obj.y;
   })
-  .run(function($log, eprimeEcs, TILES, BotComponent, sandBox, GAME) {
+  .run(function(ngEcs) {
 
     function createAccessor(bot) {
       var $bot = {};
@@ -207,65 +75,26 @@ var collect =
       return $bot;
     }
 
-    //eprimeEcs.$c('$bot', {});
-    eprimeEcs.$c('bot', BotComponent);
-    //eprimeEcs.$c('script', {});
-
-    eprimeEcs.$s('charging', {
+    ngEcs.$s('charging', {
       $require: ['bot'],
-      $update: function(time) {
+      $update: function() {
         this.$family.forEach(function(e) {
           var bot = e.bot;
-          eprimeEcs.stats.E += bot.charge(bot.chargeRate*time);
+          ngEcs.stats.E += bot.charge(bot.chargeRate);
         });
       }
     });
 
-    function mezclar2(arr) {  // fast shuffle
-      for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp) {}
-      return arr;
-    }
-
-    eprimeEcs.$s('bots', {
+    ngEcs.$s('bots', {
       $require: ['bot'],
       $addEntity: function(e) {
         e.$bot = createInterface(e);
-        e.bot.$game = GAME;  // todo: get rid of this.
         e.bot.update();
       }
     });
 
-    var _name = _F('name');
-
-    eprimeEcs.$s('scripts', {
-      $require: ['bot','script'],
-      $addEntity: function(e) {
-        var scripts = e.bot.$game.scripts.filter(_name.eq(e.script.scriptName));    // todo: move this
-        var script = (scripts.length > 0) ? scripts[0] : undefined;
-        if (!script) {
-          $log.error('Script not found');
-        } else {
-          e.script.$script = script;
-        }
-      },
-      $update: function() {
-        mezclar2(this.$family);
-        this.$family.forEach(function(e) {
-          if(e.script.halted !== true) {
-            var ret = sandBox.run(e.script.$script, e.$bot);
-            if (ret !== true) {
-              e.bot.error(ret);
-            }
-          }
-        });
-      }
-    });
-
   })
-  //.value('Interpreter', window.Interpreter)
-  .factory('BotComponent', function (isAt, TILES, $log) {
-
-    //var GAME = null;  // later the GAME service
+  .run(function (isAt, TILES, GAME, ngEcs) {
 
     var mathSign = Math.sign || function (value) {  // polyfill for Math.sign
       var number = +value;
@@ -276,25 +105,21 @@ var collect =
 
     function Bot() {
 
-      var botComp = {
-        name: '',
-        t: TILES.BOT,
-        x: 0,
-        y: 0,
+      this.name = '';
+      this.t = TILES.BOT;
+      this.x = 0;
+      this.y = 0;
 
-        S: 0,      // Raw material storage
-        mS: 10,    // Maximum
-        dS: 1,     // Mining ability
-        E: 0,      // Energy
-        dE: 0.01,  // Charging rate
-        mE: 10,    // Maximum
+      this.S = 0;      // Raw material storage
+      this.mS = 10;    // Maximum
+      this.dS = 1;     // Mining ability
+      this.E = 0;      // Energy
+      this.dE = 0.01;  // Charging rate
+      this.mE = 10;    // Maximum
 
-        active: false,
-        message: '',
-        alerts: [],
-      };
-
-      angular.extend(this, botComp);
+      this.active = false;
+      this.message = '';
+      this.alerts = [];
 
     }
 
@@ -354,7 +179,7 @@ var collect =
       var dr = Math.max(Math.abs(dx),Math.abs(dy));
       var dE = this.moveCost*dr;
 
-      return this.$game.world.canMove(this.x + dx,this.y + dy) && this.E >= dE;
+      return GAME.world.canMove(this.x + dx,this.y + dy) && this.E >= dE;
     };
 
     Bot.prototype.move = function(dx,dy) {  // TODO: check range
@@ -365,7 +190,7 @@ var collect =
       var dr = Math.max(Math.abs(dx),Math.abs(dy));
       var dE = this.moveCost*dr;
 
-      if (this.$game.world.canMove(this.x + dx,this.y + dy)) {  // Need to check bot skills, check path
+      if (GAME.world.canMove(this.x + dx,this.y + dy)) {  // Need to check bot skills, check path
         if (this.E >= dE) {
           this.last = {x: this.x, y: this.y};
           this.heading = {x: dx, y:dy};
@@ -374,7 +199,7 @@ var collect =
           this.y += dy;
           this.E -= dE;
 
-          this.$game.world.scanRange(this);
+          GAME.world.scanRange(this);
 
           return true;
         }
@@ -432,7 +257,7 @@ var collect =
     };
 
     Bot.prototype.canMine = function() {
-      if (this.$game.world.get(this).t === TILES.MINE) {  // use world.canMine?
+      if (GAME.world.get(this).t === TILES.MINE) {  // use world.canMine?
         if (this.E >= 1 && this.S < this.mS) {
           return true;
         }
@@ -441,12 +266,12 @@ var collect =
     };
 
     Bot.prototype.mine = function() {
-      if (this.$game.world.get(this).t === TILES.MINE) {  // use world.canMine?
+      if (GAME.world.get(this).t === TILES.MINE) {  // use world.canMine?
         if (this.E >= 1 && this.S < this.mS) {
           this.E--;
-          var dS = this.$game.world.dig(this);  // TODO: bot effeciency
+          var dS = GAME.world.dig(this);  // TODO: bot effeciency
           dS = this.load(dS);
-          this.$game.stats.S += dS;
+          GAME.stats.S += dS;
           return dS;
         }
       }
@@ -560,15 +385,13 @@ var collect =
 
     Bot.prototype.construct = function(script) {  // todo: move to construct component
       if (this.S >= 100) {
-        var self = this;
+        //var self = this;
 
-        var bot = this.$game.ecs.$e({
+        var bot = GAME.ecs.$e({
           bot: {
             name: 'Rover',
             x: this.x,
             y: this.y,
-            $home: self,
-            $game: self.$game
           }
         });
 
@@ -590,12 +413,12 @@ var collect =
     };
 
     Bot.prototype.scan = function() {  // used?
-      return this.$game.world.scan(this);
+      return GAME.world.scan(this);
     };
 
-    Bot.prototype.scanList = function(_) {  // TODO: move, this.$game.scanFrom?, optimize
+    Bot.prototype.scanList = function(_) {  // TODO: move, GAME.scanFrom?, optimize
       var self = this;
-      var l = this.$game.scanList(_).filter(function(r) {
+      var l = GAME.scanList(_).filter(function(r) {
         return r !== self;
       });
 
@@ -610,7 +433,7 @@ var collect =
       return l.sort( function(a, b) {return a.r - b.r; } );
     };
 
-    return Bot;
+    ngEcs.$c('bot', Bot);
   });
 
 })();

@@ -30,7 +30,7 @@
               bot.$remove('script');
             }
             bot.$add('script', {scriptName: scriptName, halted: false});
-          }
+          };
 
         };
       }
