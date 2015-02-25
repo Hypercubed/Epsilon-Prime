@@ -118,7 +118,7 @@ angular.module('ePrime')
   })
   .provider('$components', MapProvider)
   .provider('$systems', MapProvider)
-  .provider('$entities', MapProvider)
+  .provider('$entities', ListProvider)
   .service('ngEcs', function(EcsFactory) {
     return new EcsFactory();
   })

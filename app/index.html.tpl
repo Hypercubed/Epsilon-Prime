@@ -80,6 +80,8 @@
     <script src="bower_components/aether/build/aether.js"></script>
     <script src="bower_components/ng-debounce/angular-debounce.js"></script>
     <script src="bower_components/eventemitter2/lib/eventemitter2.js"></script>
+    <script src="bower_components/angular-third-party/dist/angular-third-party.js"></script>
+    <script src="bower_components/angular-ecs/dist/angular-ecs.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -87,7 +89,6 @@
         <script src="components/main/grid.js"></script>
         <script src="components/app.js"></script>
         <script src="components/app-config.js"></script>
-        <script src="components/game/ecs-factory.js"></script>
         <script src="components/game/world-factory.js"></script>
         <script src="components/game/script-system.js"></script>
         <script src="components/game/bot-factory.js"></script>
