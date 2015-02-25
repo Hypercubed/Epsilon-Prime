@@ -3,5 +3,6 @@ angular
   .constant('siteConfig', {
     debug: <%- debug %>,
     name: 'eprime',
-    version: 0
+    version: 0.1,
+    store: 0
   });

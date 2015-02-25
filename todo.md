@@ -17,11 +17,14 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## ECS
 - [ ] Chunks -> Entities?
-- [ ] Decompose BotComponents (Bot, Move, Script), events
+- [ ] Decompose BotComponents (Bot, Move, Charging)
 - [x] Add filters to systems
 - [ ] Move draw to system
 - [x] Entity messages ie. .$on('upgrade', fn), .$emit('upgrade')
 - [ ] entity.$watch?
+- [x] common families
+- [x] remove entities
+- [ ] test
 
 ## Next
 - [ ] Move GAME stuff to ecs engine
@@ -31,12 +34,12 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Bot memory? Bot target store.
 - [x] Replace hotkey help with help dialog
 - [ ] Make defaultScripts as scripts service. (crud, reset, validate, run, etc)
-- [ ] Prevent deployment if env !== production in gruntfile
+- [x] Prevent deployment if env !== production in gruntfile
 - [ ] Tutorial
 - [ ] Tests
 - [ ] Move bot hot keys to bots controller?
 - [ ] Improve editor save/validation
-- [ ] Remove bot actions in MainCtrl, use main.bot.$bot
+- [ ] Remove bot actions in MainCtrl, use main.bot.$bot?
 - [ ] Change save rate to time based not turns?
 - [ ] Better handling Aether errors
 - [ ] Try other Aether supported languages?

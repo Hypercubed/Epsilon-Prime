@@ -7,7 +7,9 @@ function ssCopy(src) { // shallow copy
   for (var key in src) {
     if (src.hasOwnProperty(key) && key.charAt(0) !== '$') {
       var s = src[key];
-      if (typeof s === 'object') {
+      if (s instanceof Uint8ClampedArray) {
+        dst[key] = Array.prototype.slice.call(s);  // $localForage doesn't like typed arrays
+      } else if (typeof s === 'object') {
         dst[key] = ssCopy(s);
       } else if (typeof s !== 'function') {
         dst[key] = s;
@@ -23,7 +25,7 @@ angular.module('ePrime')
 })
 .service('GAME', function($log, $localForage, eprimeEcs, World, Chunk, TILES, defaultScripts) {
 
-  var GAME = this;
+  var GAME = this;  // todo: GAME === eprimeEcs
 
   GAME.ecs = eprimeEcs;
 
@@ -42,21 +44,21 @@ angular.module('ePrime')
 
   GAME.save = function() {
 
-    var chunkData = {};
+    /* var chunkData = {};
     angular.forEach(GAME.world.$$chunks, function(chunk, key) {
-      chunkData[key] = {  // not sure why I need this, $localForage doesnt like typed arrays
+      chunkData[key] = {  // not sure why I need this, $localForage doesn't like typed arrays
         X: chunk.X,
         Y: chunk.Y,
-        view: Array.prototype.slice.call(chunk.view)  //todo: better, convert to string?
+        view: Array.prototype.slice.call(chunk.view)  //todo: better, convert to string?  // TODO: convert in ssCopy
       };
-    });
+    }); */
 
     var G = {
       stats: ssCopy(GAME.stats),
       world: ssCopy(GAME.world),
-      bots: GAME.bots.map(ssCopy),
+      entities: eprimeEcs.entities.map(ssCopy),
       scripts: GAME.scripts.map(ssCopy),
-      chunks: chunkData
+      chunks: ssCopy(GAME.world.$$chunks)
     };
 
     //console.log('save', G);
@@ -73,35 +75,46 @@ angular.module('ePrime')
 
     return $localForage.getItem('saveGame').then(function(G) {  // trap errors
       if (!G) {
+        GAME.start();
         return $log.debug('saveGame not found');
       }
 
       $log.debug('game loaded',arguments);
 
       angular.copy(G.scripts, GAME.scripts);
-      if (!G.world) { return; }
+
+      if (!G.entities || !G.world) {
+        GAME.start();
+        return $log.debug('saveGame not found');
+      }
 
       angular.extend(GAME.world, G.world);
-
-      angular.copy(G.scripts, GAME.scripts);
-      angular.extend(GAME.stats,G.stats);
+      angular.extend(GAME.stats, G.stats);
 
       GAME.world.$$chunks = {};
-      angular.forEach(G.chunks, function(chunk, key) {
+      angular.forEach(G.chunks, function(chunk, key) {  // todo: make Chunk a component
          GAME.world.$$chunks[key] = new Chunk(chunk.view, chunk.X, chunk.Y);
       });
 
-      GAME.bots.splice(0,GAME.bots.length);
-      G.bots.forEach(function(_bot) {
+      //eprimeEcs.entities.forEach(function(instance) {
+      //  eprimeEcs.$$removeEntity(instance);
+      //}); // hack, because starting base already created, fix by not calling reset
+
+      //eprimeEcs.entities.splice(0,eprimeEcs.entities.length);
+      //eprimeEcs.families.bot.splice(0,eprimeEcs.families.bot.length);
+
+      G.entities.forEach(function(e) {
         //var bot = new Bot('', 0, 1, GAME);
 
-        angular.extend(_bot, {
-          $bot: {}
-        });
+        //angular.extend(_bot, {  // is it needed?
+        //  $bot: {}
+        //});
 
-        angular.extend(_bot.bot, { $game: GAME });
+        //if (e.bot) {
+        //  angular.extend(e.bot, { $game: GAME });  // eventually don't do this
+        //}
 
-        GAME.ecs.$e(_bot);
+        eprimeEcs.$e(e);
 
         //bot.$game = GAME;
         //bot.update();
@@ -120,7 +133,7 @@ angular.module('ePrime')
     return $localForage.setItem('saveGame', G);
   };
 
-  GAME.reset = function setup() {
+  GAME.setup = function() {
 
     if (GAME.world) {
       GAME.world.$$chunks = {};
@@ -128,10 +141,21 @@ angular.module('ePrime')
       GAME.world = new World(60);
     }
 
-    //GAME.world = new World(60);
-    //console.log(GAME.world);
+    GAME.stats = GAME.ecs.stats = {
+      E: 0,
+      S: 0,
+      turn: 0,
+      start: new Date()
+    };
 
-    //var home = new Bot('Base', 30, 10, GAME);
+    GAME.bots = GAME.ecs.entities = [];
+
+    return GAME;
+
+  };
+
+  GAME.start = function() {
+
     var home = GAME.ecs.$e({
       name: 'Base',
       x: 30,
@@ -149,43 +173,13 @@ angular.module('ePrime')
         $game: GAME
       }
     });
-    //home.name = 'Base';
-    //home.x = 30;
-    //home.y = 10;
 
-    //home.$game = GAME;
-
-    //home.active = true;
-    //home.scriptName = 'Construct'; // todo: only key
-    //home.manual = true;
-    //home.S = home.mS = 100;  //enough for first bot
-    //home.E = home.mE = 100;
-    //home.t = TILES.BASE;
-    //home.update();
-
-    console.log(home);
-
-    GAME.bots = GAME.ecs.entities;
+    GAME.bots = GAME.ecs.entities;  // todo: remove this
 
     GAME.world.scanRange(home);
-    if (GAME.world._get(home.bot.x, home.bot.y) === 'X') {  // hack untill mines become entities
+    if (GAME.world._get(home.bot.x, home.bot.y) === 'X') {  // hack until mines become entities
       GAME.world._set(home.bot.x, home.bot.y, TILES.FIELD);
     }
-
-    //var bot = home.construct('Collect');
-    //bot.active = true;
-
-    //GAME.E = 0;  // todo: create stats object
-    //GAME.S = 0;
-    //GAME.turn = 0;
-    //GAME.start = new Date();
-
-    GAME.stats = GAME.ecs.stats = {
-      E: 0,
-      S: 0,
-      turn: 0,
-      start: new Date()
-    };
 
     return GAME;
 
@@ -201,8 +195,7 @@ angular.module('ePrime')
     }
   };
 
-  GAME.reset();
-  //Bot.setGame(GAME);
+  GAME.setup();
 
 });
 

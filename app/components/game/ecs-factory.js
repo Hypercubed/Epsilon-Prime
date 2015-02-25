@@ -29,6 +29,7 @@
       this.$$eventEmitter = new EventEmitter();
     }
 
+    // add a component, key, instance, constructor
     Entity.prototype.$add = function(key, instance) {
       this[key] = this[key] || {};
       if (instance) {
@@ -46,12 +47,17 @@
     Entity.prototype.$on = function() {
       this.$$eventEmitter.on.apply(this.$$eventEmitter, arguments);
       return this;
-    }
+    };
+
+    Entity.prototype.$off = function() {
+      this.$$eventEmitter.off.apply(this.$$eventEmitter, arguments);
+      return this;
+    };
 
     Entity.prototype.$emit = function() {
       this.$$eventEmitter.emit.apply(this.$$eventEmitter, arguments);
       return this;
-    }
+    };
 
     return Entity;
   })
@@ -61,7 +67,7 @@
       this.components = {};
       this.systems = {};
       this.entities = [];
-      //this.families = {}; // TODO
+      this.families = {};
 
       this.$timer = null;
       this.$playing = false;
@@ -75,9 +81,16 @@
       this.components[key] = instance;
     };
 
+
+    function getFamilyIdFromRequire(require) {
+      if (!require) { return '::'; }
+      return require.join('::');
+    }
+
     Ecs.prototype.$s = function(key, instance) {
       this.systems[key] = instance;
-      instance.$family = [];
+      var fid = getFamilyIdFromRequire(instance.$require);
+      instance.$family = this.families[fid] = this.families[fid] || [];
     };
 
     Ecs.prototype.$e = function(id, instance) {
@@ -114,25 +127,56 @@
 
       }
 
-      e.$on('add', function(e, key) {
-        self.$onComponentAdd(e, key);
-      });
-
-      e.$on('remove', function(e, key) {
-        self.$onComponentRemove(e, key);
-      });
+      e.$on('add', function(e,k) { self.$onComponentAdd(e,k); });
+      e.$on('remove', function(e,k) { self.$onComponentRemove(e,k); });
 
       this.entities.push(e);
       return e;
     };
 
-    function matchEntityToFamily(entity, requires) {
-      if (!requires) { return true; }
+    function remove(arr, instance) {  // maybe move to a class prototype?
+      var index = arr.indexOf(instance);
+      if (index > -1) {
+        arr.splice(index,1);
+      }
+    }
+
+    function add(arr, instance) {
+      var index = arr.indexOf(instance);
+      if (index < 0) {
+        arr.push(instance);
+      }
+    }
+
+    Ecs.prototype.$$removeEntity = function(instance) {
+      var self = this;
+
+      instance.$world = null;
+
+      instance.$off('add', this.$onComponentAdd);
+      instance.$off('remove', this.$onComponentRemove);
+
+      angular.forEach(instance, function(value, key) {
+        if (self.components[key]) {
+          self.$onComponentRemove(instance, key);
+        }
+      });
+
+      angular.forEach(this.families, function(family) {
+        remove(family, instance);
+      });
+
+      remove(this.entities, instance);
+
+    };
+
+    function matchEntityToFamily(entity, require) {
+      if (!require) { return true; }
 
       var fn = function(d) {
         return entity.hasOwnProperty(d);
       };
-      return requires.every(fn);
+      return require.every(fn);
     }
 
     Ecs.prototype.$onComponentAdd = function(entity, key) {
@@ -140,16 +184,13 @@
       angular.forEach(this.systems, function(system) {
 
         if (system.$require && system.$require.indexOf(key) < 0) { return; }
+        if (!matchEntityToFamily(entity, system.$require))  { return; }
 
-        if (matchEntityToFamily(entity, system.$require)) {
-          var index = system.$family.indexOf(entity);
-          if (index < 0) {
-            system.$family.push(entity);
-            if (system.$addEntity) {
-              system.$addEntity(entity);
-            }
-          }
+        if (system.$addEntity) {
+          system.$addEntity(entity);
         }
+
+        add(system.$family, entity);
 
       });
     };
@@ -160,13 +201,11 @@
 
         if (!system.$require || system.$require.indexOf(key) < 0) { return; }
 
-        var index = system.$family.indexOf(entity);
-        if (index > -1) {
-          system.$family.splice(index,1);
-          if (system.$removeEntity) {
-            system.$removeEntity(entity);
-          }
+        if (system.$removeEntity) {
+          system.$removeEntity(entity);
         }
+
+        remove(system.$family, entity);
 
       });
     };
@@ -177,34 +216,34 @@
       angular.forEach(this.systems, function(system) {
         //console.log(time);
         if (system.$update && system.$family.length > 0) {
-          system.$update(self.entities, time);
+          system.$update(time);
         }
       });
     };
 
     Ecs.prototype.$start = function() {
-      if (this.$playing) {return;}
+      if (this.$playing) { return; }
 
-        var self = this;
+      var self = this;
 
-        self.$playing = true;
+      self.$playing = true;
 
-        function tick() {
-          //console.log('tick', self);
-          self.$update(self.$interval);
-          self.$timer = $timeout(tick, self.$delay); // make variable
-        }
+      function tick() {
+        //console.log('tick', self);
+        self.$update(self.$interval);
+        self.$timer = $timeout(tick, self.$delay); // make variable
+      }
 
-        tick();
-      };
+      tick();
+    };
 
-      Ecs.prototype.$stop = function() {
-        this.$playing = false;
-        if (this.$timer) {$timeout.cancel(this.$timer);}
-      };
+    Ecs.prototype.$stop = function() {
+      this.$playing = false;
+      if (this.$timer) {$timeout.cancel(this.$timer);}
+    };
 
-      return Ecs;
+    return Ecs;
 
-    });
+  });
 
 })();

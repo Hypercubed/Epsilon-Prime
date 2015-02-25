@@ -25,6 +25,13 @@
             return true;
           };
 
+          scope.setScript = function(bot, scriptName) {
+            if (scriptName === null) {
+              bot.$remove('script');
+            }
+            bot.$add('script', {scriptName: scriptName, halted: false});
+          }
+
         };
       }
     };

@@ -43,8 +43,8 @@
           <div class="input-group">
             <select class="form-control input-sm"
               ng-options="script.name as script.name for script in main.game.scripts"
-              ng-model="bot.bot.scriptName"
-              ng-change="bot.bot.setCode(bot.bot.scriptName)">
+              ng-model="bot.script.scriptName"
+              ng-change="setScript(bot, scriptName)">
               <option value="">Manual</option>
             </select>
             <span class="input-group-btn">

@@ -45,7 +45,7 @@ angular
   })
   .config(function ($localForageProvider, siteConfig) {
     $localForageProvider.config({
-      name : siteConfig.name
+      name : siteConfig.name+siteConfig.store
     });
   })
   .run(function(editableOptions) {

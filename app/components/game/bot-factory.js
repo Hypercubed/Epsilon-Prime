@@ -1,7 +1,7 @@
 /* global _F:true */
 /* global Aether: true */
 
-(function() {
+;(function() {
   'use strict';
 
 /*jshint -W109 */
@@ -141,7 +141,7 @@ var collect =
     }
     return x === obj.x && y === obj.y;
   })
-  .run(function(eprimeEcs, TILES, BotComponent, sandBox) {
+  .run(function($log, eprimeEcs, TILES, BotComponent, sandBox, GAME) {
 
     function createAccessor(bot) {
       var $bot = {};
@@ -209,13 +209,14 @@ var collect =
 
     //eprimeEcs.$c('$bot', {});
     eprimeEcs.$c('bot', BotComponent);
+    //eprimeEcs.$c('script', {});
 
     eprimeEcs.$s('charging', {
       $require: ['bot'],
-      $update: function() {
+      $update: function(time) {
         this.$family.forEach(function(e) {
           var bot = e.bot;
-          eprimeEcs.stats.E += bot.charge(bot.chargeRate*eprimeEcs.$interval);
+          eprimeEcs.stats.E += bot.charge(bot.chargeRate*time);
         });
       }
     });
@@ -225,21 +226,35 @@ var collect =
       return arr;
     }
 
-    eprimeEcs.$s('scripts', {
+    eprimeEcs.$s('bots', {
       $require: ['bot'],
       $addEntity: function(e) {
         e.$bot = createInterface(e);
+        e.bot.$game = GAME;  // todo: get rid of this.
         e.bot.update();
+      }
+    });
+
+    var _name = _F('name');
+
+    eprimeEcs.$s('scripts', {
+      $require: ['bot','script'],
+      $addEntity: function(e) {
+        var scripts = e.bot.$game.scripts.filter(_name.eq(e.script.scriptName));    // todo: move this
+        var script = (scripts.length > 0) ? scripts[0] : undefined;
+        if (!script) {
+          $log.error('Script not found');
+        } else {
+          e.script.$script = script;
+        }
       },
       $update: function() {
         mezclar2(this.$family);
         this.$family.forEach(function(e) {
-          var bot = e.bot;
-          if(bot.scriptName !== null && bot.halted === false) {
-            var script =  bot.setCode(bot.scriptName);  // TODO: should only need to do when scritName changes
-            var ret = sandBox.run(script, e.$bot);
+          if(e.script.halted !== true) {
+            var ret = sandBox.run(e.script.$script, e.$bot);
             if (ret !== true) {
-              bot.error(ret);
+              e.bot.error(ret);
             }
           }
         });
@@ -275,11 +290,8 @@ var collect =
         mE: 10,    // Maximum
 
         active: false,
-        halted: false,
         message: '',
-        scriptName: null,
         alerts: [],
-        $script: null
       };
 
       angular.extend(this, botComp);
@@ -453,9 +465,9 @@ var collect =
       return l;
     };
 
-    var _name = _F('name');
+    //var _name = _F('name');
 
-    Bot.prototype.setCode = function(script) {
+    /* Bot.prototype.setCode = function(script) {  // remove
       var self = this;
 
       function findScript(name) {  // todo: move, default?
@@ -478,11 +490,11 @@ var collect =
         return;
       }
 
-      this.scriptName = script.name;
-      this.$script = script;
+      //this.scriptName = script.name;
+      //this.$script = script;
       this.message = '';
       return script;
-    };
+    }; */
 
     //Bot.prototype.run = function() {  // delete?
     //  this.message = '';
@@ -542,11 +554,11 @@ var collect =
       this.chargeRate = N*Math.pow(this.mass, E);
     };
 
-    Bot.prototype.canConstruct = function() {
+    Bot.prototype.canConstruct = function() {  // where used? Move this to component
       return this.S >= 100;
     };
 
-    Bot.prototype.construct = function(script) {
+    Bot.prototype.construct = function(script) {  // todo: move to construct component
       if (this.S >= 100) {
         var self = this;
 
@@ -556,13 +568,16 @@ var collect =
             x: this.x,
             y: this.y,
             $home: self,
-            $game: self.$game,
-            scriptName: script || null,
-          },
-          $bot: {}
+            $game: self.$game
+          }
         });
 
-        bot.bot.update();
+        if (script) {
+          bot.$add('script', {
+            scriptName: script,
+            halted: false
+          });
+        }
 
         this.S -= 100;
         return bot;
@@ -570,7 +585,7 @@ var collect =
       return null;
     };
 
-    Bot.prototype.canRelocate = function() {
+    Bot.prototype.canRelocate = function() {  // component?
       return this.E >= 500;
     };
 
