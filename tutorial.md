@@ -35,3 +35,5 @@ The only way to regain energy is to take a turn.  In the upper left you will see
 Use the scripts dropdown to select a bots automatic actions each turn.  Select 'Collect' for the bots action and 'Construct' for the base.
 
 Press play button to cycle turns and watch your bots work autonomously.
+
+Try to upgrade your base to have a maximum storage capacity of 500 J.

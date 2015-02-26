@@ -29,7 +29,7 @@
             if (scriptName === null) {
               bot.$remove('script');
             }
-            bot.$add('script', {scriptName: scriptName, halted: false});
+            bot.$add('script', {scriptName: scriptName, halted: false});　　// rename scriptName -> name, use script component constructor?
           };
 
         };

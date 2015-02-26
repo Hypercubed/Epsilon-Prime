@@ -44,7 +44,7 @@ angular.module('ePrime')
     var G = {  // eventually G = ssCopy(GAME);
       stats: ssCopy(GAME.stats),
       world: ssCopy(GAME.world),
-      entities: ngEcs.entities.map(ssCopy),
+      entities: ssCopy(ngEcs.entities),
       scripts: GAME.scripts.map(ssCopy),
       chunks: ssCopy(GAME.world.$$chunks)  // todo: entities?
     };
@@ -81,9 +81,13 @@ angular.module('ePrime')
          GAME.world.$$chunks[key] = new Chunk(chunk.view, chunk.X, chunk.Y);
       });
 
-      G.entities.forEach(ngEcs.$e, ngEcs);
+      angular.forEach(G.entities, function(value, key) {
+        ngEcs.$e(key, value);
+      });
 
-      console.log(ngEcs.entities);
+      //G.entities.forEach(ngEcs.$e, ngEcs);
+
+      GAME.bots = GAME.ecs.families.bot;　　// get rid
 
     });
 
@@ -110,8 +114,6 @@ angular.module('ePrime')
       start: new Date()
     };
 
-    GAME.bots = GAME.ecs.entities = [];
-
     return GAME;
 
   };
@@ -119,9 +121,6 @@ angular.module('ePrime')
   GAME.start = function() {
 
     var home = GAME.ecs.$e({
-      name: 'Base',
-      x: 30,
-      y: 10,
       $bot: {},
       bot: {
         name: 'Base',
@@ -133,12 +132,13 @@ angular.module('ePrime')
         mE: 100,
         t: TILES.BASE,
         $game: GAME
-      }
+      },
+      active: true
     });
 
-    GAME.bots = GAME.ecs.entities;  // todo: remove this
+    GAME.bots = GAME.ecs.families.bot;  // get rid of this
 
-    GAME.world.scanRange(home);
+    GAME.world.scanRange(home.bot);
     if (GAME.world._get(home.bot.x, home.bot.y) === 'X') {  // hack until mines become entities
       GAME.world._set(home.bot.x, home.bot.y, TILES.FIELD);
     }

@@ -4,7 +4,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Bugs
 - [ ] SVG is not size responsive
-- [ ] Active unit no longer shown in map
+- [x] Active unit no longer shown in map
 - [x] Drop downs in bot list cut off
 - [x] Sometimes base is on top of a mine.
 - [x] Optimize find to only search map if '.X#'.
@@ -21,13 +21,15 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [x] Add filters to systems
 - [ ] Move draw to system
 - [x] Entity messages ie. .$on('upgrade', fn), .$emit('upgrade')
-- [ ] entity.$watch?
 - [x] common families
 - [x] remove entities
-- [ ] test
 - [ ] Priority
 
 ## Next
+- [ ] Footer Save, Reset -> Popup menu
+- [ ] Footer Scripts -> Popup menu
+- [ ] New bots panel
+- [ ] Upgrade angular （1.4.0-beta.3 supports copying TypedArrays)
 - [ ] Move GAME stuff to ecs engine
 - [ ] Improve bot logging, error system.
 - [ ] Finish Entity component system
