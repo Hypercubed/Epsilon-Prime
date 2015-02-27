@@ -27,8 +27,8 @@
     "ng-debounce": "~0.1.5",
     "font-awesome": "~4.3.0",
     "eventemitter2": "~0.4.14",
-    "angular-third-party": "Hypercubed/angular-third-party#~0.0.1",
-    "angular-ecs": "Hypercubed/angular-ecs#~0.0.1"
+    "angular-third-party": "Hypercubed/angular-third-party",
+    "angular-ecs": "Hypercubed/angular-ecs"
   },
   "devDependencies": {
     "angular-mocks": "~1.2.0",
