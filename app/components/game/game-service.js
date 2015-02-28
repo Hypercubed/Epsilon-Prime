@@ -145,8 +145,11 @@ angular.module('ePrime')
     GAME.bots = GAME.ecs.families.bot;  // get rid of this
 
     GAME.world.scanRange(home.bot);
-    if (GAME.world._get(home.bot.x, home.bot.y) === 'X') {  // hack until mines become entities
-      GAME.world._set(home.bot.x, home.bot.y, TILES.FIELD);
+
+    var chunk = GAME.world.getChunk(home.bot.x, home.bot.y);
+
+    if (chunk.get(home.bot.x, home.bot.y) === 'X') {  // hack until mines become entities
+      chunk.set(home.bot.x, home.bot.y, TILES.FIELD);
     }
 
     return GAME;

@@ -1,11 +1,12 @@
 /* global d3:true */
+/* global _F:true */
 
 (function() {
 
 'use strict';
 
 angular.module('ePrime')
-  .controller('MainCtrl', function ($scope, $compile, $log, $route, $window, $timeout, $modal, hotkeys, debounce, modals, siteConfig, isAt, sandBox, TILES, GAME) {
+  .controller('MainCtrl', function ($scope, $compile, $log, $route, $window, $timeout, $modal, hotkeys, debounce, modals, siteConfig, isAt, sandBox, TILES, GAME, Chunk) {
 
     var main = this;
 
@@ -21,7 +22,7 @@ angular.module('ePrime')
         });
       });
 
-    main.drawWatch = function drawWatch() {  // Move to GAME? Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
+    main.drawWatch = function drawWatch() {  // Move to ECS system? Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
 
       var s = ''+GAME.world.getHash();
 
@@ -29,7 +30,7 @@ angular.module('ePrime')
       //var ws = GAME.world.size;
       for(var k = 0; k < ke; k++) {
         var bot = GAME.bots[k].bot;
-        var index = GAME.world.getIndex(bot);
+        var index = Chunk.getIndex(bot);
         s += bot.t+index+(bot.$parent.active ? '!' : '');
       }
 
@@ -96,12 +97,12 @@ angular.module('ePrime')
       return bot.canMine() || main.canUnload(bot) || main.canCharge(bot);
     };
 
-    main.action = function(bot) {  // used?
+    main.action = function(bot) {  // used, move
       bot = bot || main.bot;
 
       bot.$bot.unload();
       bot.$bot.charge();
-      bot.mine();
+      bot.$bot.mine();
     };
 
     main.run = function(code) {  // used, move?

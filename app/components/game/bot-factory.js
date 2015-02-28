@@ -257,7 +257,7 @@ angular.module('ePrime')
     };
 
     Bot.prototype.canMine = function() {
-      if (GAME.world.get(this).t === TILES.MINE) {  // use world.canMine?
+      if (GAME.world.get(this.x,this.y).t === TILES.MINE) {  // use world.canMine?
         if (this.E >= 1 && this.S < this.mS) {
           return true;
         }
@@ -266,10 +266,10 @@ angular.module('ePrime')
     };
 
     Bot.prototype.mine = function() {
-      if (GAME.world.get(this).t === TILES.MINE) {  // use world.canMine?
+      if (GAME.world.get(this.x,this.y).t === TILES.MINE) {  // use world.canMine?
         if (this.E >= 1 && this.S < this.mS) {
           this.E--;
-          var dS = GAME.world.dig(this);  // TODO: bot effeciency
+          var dS = GAME.world.dig(this.x,this.y);  // TODO: bot effeciency
           dS = this.load(dS);
           GAME.stats.S += dS;
           return dS;
