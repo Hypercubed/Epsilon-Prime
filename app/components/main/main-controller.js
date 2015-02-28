@@ -223,7 +223,7 @@ angular.module('ePrime')
 
       //main.home = GAME.bots[0];  // remove this??
       main.bot = GAME.bots[0];  // dont do this
-      //main.bot.active = true;
+      main.bots = GAME.bots;
     }
 
     function reset() {

@@ -68,12 +68,12 @@
           <span class="badge">-500 J</span>
         </button>
 
-
       </div>
       <div class="col-xs-6">
         <button class="btn btn-info btn-xs" tooltip="Upgrade bot"
           ng-click="bot.bot.upgrade(); $event.stopPropagation();"
-          ng-disabled="bot.bot.S < 10">
+          ng-disabled="bot.bot.S < 10"
+          ng-show="main.bots.length > 1">
           <i class="fa fa-level-up"></i>
           <span class="badge">-10 kg</span>
         </button>
