@@ -26,7 +26,7 @@ function ssCopy(src) { // copy objects removing $ props
 }
 
 angular.module('ePrime')
-.service('GAME', function($log, $localForage, ngEcs, World, Chunk, TILES, defaultScripts) {
+.service('GAME', function($log, $localForage, debounce, ngEcs, World, Chunk, TILES, defaultScripts) {
 
   var GAME = this;  // todo: GAME === ngEcs
 
@@ -158,16 +158,24 @@ angular.module('ePrime')
 
   };
 
-  GAME.takeTurn = function() {  // system
+  //var apply = debounce(function () {
+    // Do things here.
+  //}, 100);
 
-    ngEcs.$update(ngEcs.$interval);
+  ngEcs.$s('turn', {
+    $update: function() {
+      GAME.stats.turn++;
 
-    GAME.stats.turn++;
-    if (GAME.stats.turn % 20 === 0) {  // only save if changed?  Move to different timer
-      GAME.save();
+      if (GAME.stats.turn % 20 === 0) {  // Move to different timer?
+        GAME.save();
+      }
+
     }
+  });
 
-  };
+  //GAME.takeTurn = function() {  // system
+  //  ngEcs.$update(ngEcs.$interval);
+  //};
 
   GAME.setup();
 

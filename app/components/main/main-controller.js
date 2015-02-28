@@ -228,7 +228,7 @@ angular.module('ePrime')
     }
 
     function reset() {
-      clearTimer();
+      main.play(0);
       GAME.clear().then(function() {
         $window.location.reload();
       });
@@ -319,34 +319,26 @@ angular.module('ePrime')
 
     main.dT = 0;   // move all this to GAME service?
 
-    var timer;
+    //var timer;
 
-    function clearTimer() {
-      if (angular.isDefined(timer)) {
-        $timeout.cancel( timer );
-      }
-    }
+    //function clearTimer() {
+    //  if (angular.isDefined(timer)) {
+    //    $timeout.cancel( timer );
+    //  }
+    //}
 
     main.takeTurn = function() {
-      clearTimer();
-      GAME.takeTurn();
-      if (main.dT > 0) {
-        timer = $timeout(main.takeTurn, main.dT);
-      }
+      GAME.ecs.$update();
     };
 
     main.play = function(_dT) {
-      clearTimer();
-      main.dT = _dT;
+      GAME.ecs.$delay = main.dT = _dT;
       if (_dT > 0) {
-        main.takeTurn();
+        GAME.ecs.$start();
+      } else {
+        GAME.ecs.$stop();
       }
     };
-
-    $scope.$on('$destroy', function() {
-      console.log('destroy');
-      clearTimer();
-    });
 
   });
 
