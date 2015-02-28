@@ -15,7 +15,7 @@ function ssCopy(src) { // copy objects removing $ props
   for (var key in src) {
     if (src.hasOwnProperty(key) && key.charAt(0) !== '$') {
       var s = src[key];
-      if (angular.isObject(s) && !isTypedArray(s) && !angular.isArray(s)) {
+      if (angular.isObject(s) && !isTypedArray(s) && !angular.isArray(s) && !angular.isDate(s)) {
         dst[key] = ssCopy(s);
       } else if (typeof s !== 'function') {
         dst[key] = s;
@@ -57,6 +57,7 @@ angular.module('ePrime')
 
     //localStorageService.set('saveGame', G);
     return $localForage.setItem('saveGame', G).then(function() {
+      GAME.stats.saved = new Date();
       $log.debug('saved');
     });
 
@@ -117,7 +118,8 @@ angular.module('ePrime')
       E: 0,
       S: 0,
       turn: 0,
-      start: new Date()
+      start: new Date(),
+      saved: new Date()
     };
 
     return GAME;

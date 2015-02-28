@@ -53,10 +53,29 @@
 
 <div id="footer">
   <div class="container-fluid muted credit">
-    <button class="btn btn-xs btn-link" ng-click="main.showScripts()">scripts</button>
-    <span class="pull-right">
-      <button class="btn btn-xs btn-link" ng-click="main.reset()">restart</button>
-      <button class="btn btn-xs btn-link" ng-click="main.save()">save</button>
-    </span>
+
+    <div class="btn-group dropup">
+      <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+        <span class="fa fa-code" aria-hidden="true"></span>
+        <i>Scripts</i>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li ng-repeat="script in main.game.scripts">
+          <a href ng-click="main.showScripts(script.name)">
+            <i class="fa fa-code" aria-hidden="true"></i>
+            {{script.name}}
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="btn-group dropup pull-right">
+      <button type="button" class="btn btn-xs btn-default" data-toggle="dropdown" aria-expanded="false">Saved: <span>{{main.game.stats.saved | amCalendar}}</span></button>
+      <ul class="dropdown-menu" role="menu">
+        <li><a href  ng-click="main.save()"><i class="fa fa-floppy-o"></i> Save Now</a></li>
+        <li class="divider"></li>
+        <li><a href ng-click="main.reset()"><i class="fa fa-refresh"></i> Restart</a></li>
+      </ul>
+    </div>
  </div>
 </div>
