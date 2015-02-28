@@ -52,10 +52,8 @@ angular.module('ePrime')
     BASE: '@',
     HOLE: 'O'
   })
-  .factory('Chunk', function () {
+  .factory('Chunk', function () {  // todo: Chunk component should be view and hash, move position to position component
     function Chunk(_, X, Y) {
-
-      //console.log(_);
 
       if (Array.isArray(_)) {
         this.length = _.length;
@@ -103,20 +101,36 @@ angular.module('ePrime')
 
     return Chunk;
   })
-  .factory('World', function ($log, TILES, Chunk) {
+  .run(function(ngEcs, Chunk) {
+    ngEcs.$c('chunk', Chunk);
+
+    ngEcs.$s('chunks', {
+      $require: ['chunk'],
+      $addEntity: function(e) {
+        if(false === e.chunk.view instanceof Uint8ClampedArray) {  // ensure view is typed array.. shouldn't need this
+          e.chunk.view = new Uint8ClampedArray(e.chunk.view);
+        }
+      }
+    });
+
+  })
+  .factory('World', function ($log, TILES, Chunk, ngEcs) {
 
     /* constants */
     var digYield = poisson(1.26);
     var mineMTTF = 0.05;
 
+    var $$chunks = ngEcs.systems.chunks.$family;
+
     function World(size, seed) {  // todo: landmarks
       this.size = size = size || 60;
       this.seed = seed || Math.random();
-      this.$$chunks = {};
     }
 
-    World.prototype.getHash = function() {  // should be in chunk?
-      return d3.sum(this.$$chunks, _F('hash'));  // reduce dependancies
+    World.prototype.getHash = function() {  // shuold use hash per chunk
+      //return Math.random();
+      return d3.sum($$chunks, _F('chunk.hash'));
+      //return d3.sum(this.$$chunks, _F('hash'));  // reduce dependancies
     };
 
     World.prototype.getChunkId = function(x,y) {  // should be in chunk?
@@ -127,13 +141,14 @@ angular.module('ePrime')
 
     World.prototype.getChunk = function(x,y) {  // todo: chunks object
       var id = this.getChunkId(x,y);
-      var chunk = this.$$chunks[id];
-      if (!chunk) {
+      var e = ngEcs.entities[id];
+      if (!e) {
         $log.debug('new chunk',id);
-        chunk = new Chunk(this.size, x / this.size, y / this.size);
-        this.$$chunks[chunk.id()] = chunk;
+        var chunk = new Chunk(this.size, x / this.size, y / this.size);
+        e = ngEcs.$e(id, {chunk: chunk });
+        //this.$$chunks[chunk.id()] = e.chunk;
       }
-      return chunk;
+      return e.chunk;
     };
 
     World.prototype.getIndex = function(x,y) {  // used?
@@ -242,7 +257,7 @@ angular.module('ePrime')
       return r;
     };
 
-    World.prototype.scanList = function(_) {  // list of all excisting tiles
+    World.prototype.scanList = function(_) {  // list of all existing tiles
       if (angular.isDefined(_) && '#.XO'.indexOf(_) < 0) { return []; }
 
       var xs = this.size;
@@ -250,8 +265,8 @@ angular.module('ePrime')
 
       var r = [];
 
-      for (var k in this.$$chunks) {
-        var chunk = this.$$chunks[k];
+      for (var k in $$chunks) {
+        var chunk = $$chunks[k].chunk;
         var X = chunk.X*xs,
             Y = chunk.Y*ys;
         var XE = X+xs,
@@ -303,7 +318,7 @@ angular.module('ePrime')
       return 0;
     };
 
-    World.prototype.canMine = function(x,y) {
+    World.prototype.canMine = function(x,y) {  // this should not be here?
       return this.scanTile(x,y).t === TILES.MINE;
     };
 

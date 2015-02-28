@@ -2,14 +2,20 @@
 
 'use strict';
 
-function ssCopy(src) { // shallow copy
+var TYPED_ARRAY_REGEXP = /^\[object (Uint8(Clamped)?)|(Uint16)|(Uint32)|(Int8)|(Int16)|(Int32)|(Float(32)|(64))Array\]$/;
+function isTypedArray(value) {
+  return TYPED_ARRAY_REGEXP.test(Object.prototype.toString.call(value));
+}
+
+// must start with object,
+// skips keys that start with $
+// navigates down objects but not other times (including arrays)
+function ssCopy(src) { // copy objects removing $ props
   var dst = {};
   for (var key in src) {
     if (src.hasOwnProperty(key) && key.charAt(0) !== '$') {
       var s = src[key];
-      if (s instanceof Uint8ClampedArray) {
-        dst[key] = Array.prototype.slice.call(s);  // $localForage doesn't like typed arrays
-      } else if (typeof s === 'object') {
+      if (angular.isObject(s) && !isTypedArray(s) && !angular.isArray(s)) {
         dst[key] = ssCopy(s);
       } else if (typeof s !== 'function') {
         dst[key] = s;
@@ -46,7 +52,7 @@ angular.module('ePrime')
       world: ssCopy(GAME.world),
       entities: ssCopy(ngEcs.entities),
       scripts: GAME.scripts.map(ssCopy),
-      chunks: ssCopy(GAME.world.$$chunks)  // todo: entities?
+      //chunks: ssCopy(GAME.world.$$chunks)  // todo: entities?
     };
 
     //localStorageService.set('saveGame', G);
@@ -76,10 +82,10 @@ angular.module('ePrime')
       angular.extend(GAME.world, G.world);
       angular.extend(GAME.stats, G.stats);
 
-      GAME.world.$$chunks = {};
-      angular.forEach(G.chunks, function(chunk, key) {  // todo: make Chunk a component
-         GAME.world.$$chunks[key] = new Chunk(chunk.view, chunk.X, chunk.Y);
-      });
+      //GAME.world.$$chunks = {};
+      //angular.forEach(G.chunks, function(chunk, key) {  // todo: make Chunk a component
+      //   GAME.world.$$chunks[key] = new Chunk(chunk.view, chunk.X, chunk.Y);
+      //});
 
       angular.forEach(G.entities, function(value, key) {
         ngEcs.$e(key, value);

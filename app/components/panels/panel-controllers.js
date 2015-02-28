@@ -26,8 +26,9 @@
           };
 
           scope.setScript = function(bot, scriptName) {
-            if (scriptName === null) {
+            if (scriptName === null || scriptName.length < 1) {
               bot.$remove('script');
+              return;
             }
             bot.$add('script', {scriptName: scriptName, halted: false});　　// rename scriptName -> name, use script component constructor?
           };
