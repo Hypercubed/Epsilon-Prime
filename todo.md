@@ -16,20 +16,21 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Trap errors in GAME.load.
 
 ## ECS
-- [ ] Chunks -> Entities?
+- [x] Chunks -> Entities?
 - [ ] Decompose BotComponents (Bot, Move, Charging)
 - [x] Add filters to systems
 - [ ] Move draw to system
 - [x] Entity messages ie. .$on('upgrade', fn), .$emit('upgrade')
 - [x] common families
 - [x] remove entities
-- [ ] Priority
+- [ ] Order by priority
 
 ## Next
-- [ ] Footer Save, Reset -> Popup menu
-- [ ] Footer Scripts -> Popup menu
-- [ ] New bots panel
-- [ ] Upgrade angular （1.4.0-beta.3 supports copying TypedArrays)
+- [x] Footer Save, Reset -> Popup menu
+- [x] Footer Scripts -> Popup menu
+- [x] New bots panel
+- [x] Upgrade angular （1.4.0-beta.3 supports copying TypedArrays)
+- [ ] Clean up and move tutorial
 - [ ] Move GAME stuff to ecs engine
 - [ ] Improve bot logging, error system.
 - [ ] Finish Entity component system
@@ -38,7 +39,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [x] Replace hotkey help with help dialog
 - [ ] Make defaultScripts as scripts service. (crud, reset, validate, run, etc)
 - [x] Prevent deployment if env !== production in gruntfile
-- [ ] Tutorial
+- [x] Tutorial
 - [ ] Tests
 - [ ] Move bot hot keys to bots controller?
 - [ ] Improve editor save/validation
@@ -55,7 +56,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
   - [ ] Tiles
 - [ ] Pan to unit on select
 - [ ] Indicate stuck bots?
-- [ ] Ensure base starts on plain
+- [x] Ensure base starts on plain
 - [ ] Clean up classes -> Entity component system
 - [x] Implement $bot.log()
 - [ ] Improve drawing more?  Draw by chunk, bot (entities).
@@ -73,7 +74,8 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Bots can carry other bots?
 - [ ] End game shows easter egg?
 - [x] Start with rover, upgrade to base?  Start with base, build first rover?
-- [ ] Use ui-router?  Add about screen.
+- [ ] Use ui-router?
+- [x] Add about screen.
 - [ ] Faster bot (drone)? mE = mS = 1 (Can never upgrade using current rules)
 - [ ] Allow scripting of change script?  Change, stop, include.
 - [x] Upgrade self or upgrade in base?

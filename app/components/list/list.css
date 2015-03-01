@@ -1,32 +1,83 @@
+#list {
 
-.list-container .panel-heading, .list-container .panel-footer {
-  height: 50px;
-  margin-bottom: 0;
-}
-
-.list-container .panel-footer {
-  /* position: absolute; */
-  width: 100%;
-  bottom: 0;
 }
 
 .panel-list {
-  margin-bottom: 5px;
-  position: relative;
-  /* max-height: 500px;
-  overflow: auto; */
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  height: 100%;
 }
 
-.panel-item .panel-body {
-  height: auto; /* fallback if needed */
-  height: calc(100% - 100px);
-  overflow: auto;
-  padding-top: 5px;
+.panel-list .panel-heading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+}
+
+.panel-list .panel-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
 }
 
 .panel-list .list-group-item {
   padding-right: 30px;
-  position: relative;
+  padding-left: 10px;
+}
+
+.panel-list .list-group {
+  position: absolute;
+  top: 50px;
+  bottom: 50px;
+  right: 0;
+  left: 0;
+  height: calc(100% - 100px);
+  overflow-y: scroll;
+}
+
+.panel-list .list-group-item {
+  overflow: hidden;
+}
+
+.panel-list .list-group-item.opened {
+  height: 0px;
+  overflow: hidden;
+}
+
+.panel-list .list-group-item.active.opened {
+  position: absolute;
+  top: 0px;
+  bottom: 100px;
+  right: 0;
+  left: 0;
+  height: calc(100%);
+  overflow-y: scroll;
+}
+
+.list-group-item.ng-enter,
+.list-group-item.ng-leave {
+  display: none;
+  --webkit-transition: none;
+  transition: none;
+}
+
+.list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus {
+  color: #000;
+  background-color: #F5F5F5;
+  border-color: #aaa;
+  outline: none;
+}
+
+.list-group .list-group-item.active:hover, .list-group .list-group-item.active:focus {
+  background-color: #F5F5F5;
+  outline: none;
 }
 
 .filter > input {
@@ -40,22 +91,35 @@
   outline: 0;
 }
 
-.panel-list .list-group-item {
-  background-color: #fff;
-  padding: 3px 32px 3px 16px;
-}
-
-.panel-list .list-group-item.panel-active {
-  background-color: #eee;
-}
-
-.panel-list .list-group-item .select-button {
+.panel-list .list-group-item button.open {
   position: absolute;
-  top: 50%;
-  margin-top: -15px;
+  top: 0;
+  bottom: 0;
   right: 5px;
   color: #DDD;
+  outline:0;
 }
+
+.panel-list.opened .list-group-item button.open {
+  display: none;
+}
+
+/* .panel-list i {
+  position: absolute;
+  left: 5px;
+  top: 20px;
+  opacity: .3;
+  width: 50px;
+  text-align: center;
+  font-size: 3em;
+}
+
+.panel-body i {
+  opacity: .3;
+  width: 50px;
+  text-align: center;
+  font-size: 3em;
+} */
 
 .panel-list .form-group {
   margin-bottom: 0;
@@ -63,54 +127,4 @@
 
 .panel-footer .pagination {
   margin: 0;
-}
-
-.animate-slide-container {
-  position:relative;
-  background: none;
-  height: 100%;
-}
-
-.animate-slide {
-  background: none;
-  width: 200%;
-  height: 100%;
-}
-
-.animate-slide > div {
-  height: 100%;
-}
-
-.animate-slide {
-  -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-  transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-
-  position:absolute;
-  top:0;
-  left:0;
-  right:0;
-  bottom:0;
-}
-
-.animate-slide.active {
-  left: -100%;
-}
-
-.animate-if {
-  background: none;
-}
-
-.animate-if.ng-enter, .animate-if.ng-leave {
-  -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-  transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-}
-
-.animate-if.ng-enter,
-.animate-if.ng-leave.ng-leave-active {
-  opacity:0;
-}
-
-.animate-if.ng-leave,
-.animate-if.ng-enter.ng-enter-active {
-  opacity:1;
 }

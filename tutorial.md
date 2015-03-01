@@ -14,7 +14,7 @@ Above the energy indicator you will find the units movement cost and charging ra
 
 The energy of the base unit is depleted at a very high rate while moving.  Notice that the base requires a full charge of 100 J to move one space.
 
-The base unit recharges at just over 2 J per turn.  At this rate a heavy base unit can only once space move every 44 turns.
+The base unit recharges at just over 2 J per turn.  At this rate a heavy base unit can only move one space every 44 turns.
 
 The blue progress bar indicates a units resource storage and capacity. Resources are used to upgrade units or construct new units.
 

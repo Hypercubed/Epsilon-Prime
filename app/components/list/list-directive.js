@@ -3,24 +3,23 @@
 
   function ListController($scope, hotkeys) {
 
-    var vm = this;
-
     $scope.page = 1;
 
-    //console.log($scope.openItem.name);
-
-    $scope.item = $scope.openItem;
+    $scope.openItem = $scope.item = undefined;
     $scope.opened = false;
     $scope.search = { name: '' };
+    //$scope.pagedItems = $scope.items;
 
     $scope.select = function(item) {
       $scope.openItem = $scope.item = item;
+      var index = $scope.items.indexOf(item);
+      $scope.page = index + 1;
       $scope.items.forEach(function(d) {
         d.active = d === item;
       });
     };
 
-    $scope.open = vm.open = function(item){
+    $scope.open = function(item){
       $scope.select(item);
       $scope.page = $scope.items.indexOf(item)+1;
       $scope.opened = true;
@@ -29,7 +28,7 @@
     $scope.pageChanged = function(page) {
       var item = $scope.items[page-1];
       $scope.select(item);
-    };
+    }
 
     $scope.close = function() {
       $scope.opened = false;
@@ -52,6 +51,15 @@
         $scope.pageChanged($scope.page);
       }
     });
+
+    /* var a = null, b = null;
+    function pagedItems() {
+      var index = $scope.page - 1;
+      var page = index - index % 5;
+      return $scope.items.slice(page, page+5);
+    }
+
+    $scope.pagedItems = pagedItems; */
 
   }
 
@@ -76,9 +84,14 @@
         innerScope[controller.valueKey] = $scope.item;
         innerScope.opened = $scope.opened;
         innerScope.open = controller.open;
+        innerScope.$index = $scope.$index;
 
         $scope.$watch('item', function(val) {
           innerScope[controller.valueKey] = val;
+        });
+
+        $scope.$watch('opened', function(val) {
+          innerScope.opened = $scope.opened;
         });
 
         $transclude(innerScope, function(clone) {
@@ -91,7 +104,7 @@
       }
     };
   })
-  .directive('slidingList', function() {
+  .directive('slidingList', function($parse) {
     return {
       restrict: 'AE',
       transclude: true,
@@ -100,7 +113,7 @@
       },
       controller: 'ListController',
       templateUrl: 'components/list/list-template.html',
-      link: function link($scope, $element, $attrs, controller) {
+      link: function link($scope, $element, $attrs, controller, $transclude) {
 
         var expression = $attrs.slidingList;
         var match = expression.match(/^\s*([\s\S]+?)\s+in\s+([\s\S]+?)(?:\s+as\s+([\s\S]+?))?(?:\s+track\s+by\s+([\s\S]+?))?\s*$/);
@@ -108,7 +121,7 @@
         var lhs = match[1];
         var rhs = match[2];
 
-        $scope.items = $scope.$parent.$eval(rhs);
+        $scope.items = $parse(rhs)($scope.$parent);
 
         controller.parent = $scope.$parent;
         controller.valueKey = lhs;

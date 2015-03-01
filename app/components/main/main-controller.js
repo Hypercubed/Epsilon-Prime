@@ -340,6 +340,132 @@ angular.module('ePrime')
       }
     };
 
+    /* $scope.joyConfig = [
+      {
+        type: 'title',
+        heading: 'Welcome to the Epsilon-Prime',
+        text: ''
+      },{
+        type: 'element',
+        selector: '#left-panel',
+        text: 'The game map is located on the left. Use the mouse and scroll wheel (or touch screen) to pan and zoom the map. The@ mark is your starting base.',
+        placement: 'right',
+      },{
+        type: 'element',
+        selector: '#list',
+        text: 'On the right is a units lists. All your units are listed here.',
+        placement: 'left',
+      },{
+        type: 'element',
+        selector: '.list-group-item:nth-child(1)',
+        text: 'At this time you have one unit… the base. Again the base is identified by the @ symbol.',
+        placement: 'left',
+      },{
+        type: 'element',
+        selector: '.list-group-item:nth-child(1) .energy-bar',
+        text: 'The red progress bar indicates the unit’s energy storage and capacity. The base unit begins with 100 J of energy. Energy is needed to move and collected resources.',
+        placement: 'left',
+      },{
+        type: 'element',
+        selector: '.list-group-item:nth-child(1) .energy-cost',
+        text: 'Above the energy indicator you will find the units movement cost and charging rate.',
+        placement: 'left',
+      },{
+        type: 'element',
+        selector: '.list-group-item:nth-child(1) .energy-cost .movement-cost',
+        text: 'The energy of the base unit is depleted at a very high rate while moving. Notice that the base requires a full charge of 100 J to move one space.',
+        placement: 'left',
+      },{
+        type: 'element',
+        selector: '.list-group-item:nth-child(1) .energy-cost .recharge-rate',
+        text: 'The base unit recharges at just over 2 J per turn. At this rate a heavy base unit can only once space move every 44 turns.',
+        placement: 'left',
+      },{
+        type: 'element',
+        selector: '.list-group-item:nth-child(1) .storage-bar',
+        text: 'The blue progress bar indicates a units resource storage and capacity. Resources are used to upgrade units or construct new units.',
+        placement: 'left',
+      },{
+        type: 'element',
+        selector: '.list-group-item:nth-child(1) .construct-button',
+        text: 'Constructing new units costs 100 kg. Construct a new unit now using the construct button located below the storage indicator.',
+        placement: 'left',
+      },{
+        type: 'title',
+        text: 'Your new unit will appear in the unit list and the map. It is indicated on with an A.'
+      },{
+        type: 'element',
+        selector: '.list-group-item:nth-child(2) .energy-cost',
+        text: 'Notice that the movement cost and recharge rate are both lower. This unit can move one space every two turns using it\'s own power generation.',
+        placement: 'left',
+      },{
+        type: 'element',
+        selector: '.list-group-item:nth-child(2) .energy-cost',
+        text: 'However small units can also charge from larger units. Press the action key S to charge the Rover using the Base’s stored energy. This button will also unload any unit storage.',
+        placement: 'left'
+      },{
+        type: 'element',
+        selector: '#left-panel',
+        text: 'You can now begin exploring the map using the Q-C keys. Q for NW, W for North, etc. If you encounter an X on the map this is a resource cache (or mine). Collect resources from the mine using the action key (S).',
+        placement: 'right'
+      },{
+        type: 'element',
+        selector: '.list-group-item:nth-child(2)',
+        text: 'You will notice that the energy depletes as you move and mine. You can use all your energy to mine or return to the base periodically to unload and charge. This can be done several times until your units run out of energy.',
+        placement: 'left'
+      },{
+        type: 'element',
+        selector: '#play-buttons',
+        text: 'The only way to regain energy is to take a turn. In the upper left you will see the turn indicator. Use the >| button to advance one turn.',
+        placement: 'right'
+      }
+    ];
+
+    $scope.startTut = function() {
+      //$scope.startJoyRide = true;
+    }; */
+
+    $scope.IntroOptions = {
+      disableInteraction: false,
+      showStepNumbers: false,
+      steps: [
+      { intro: 'In Epsilon-prime your goal is to conquer the planet of ε-prime. You do this by commanding an army of bots to explore and exploit the resources of ε-prime. You can control your bots individually using your mouse and keyboard or by writing command scripts in JavaScript. The game begins with a simple (and very inefficient) set of scripts for exploring and collecting resources. Using just these scripts you could complete the game in ~2,500 turns. But you can you do better!' },
+      { element: '#left-panel', intro: 'The game map is located on the left. Use the mouse and scroll wheel (or touch screen) to pan and zoom the map. The@ mark is your starting base.', position: 'right' },
+      { element: '#list', intro: 'On the right is a units lists. All your units are listed here.', position: 'left' },
+      { element: '.list-group-item:nth-child(1)', intro: 'At this time you have one unit… the base. Again the base is identified by the @ symbol.', position: 'left' },
+      { element: '.list-group-item:nth-child(1) .energy-bar', intro: 'The red progress bar indicates the unit’s energy storage and capacity. The base unit begins with 100 J of energy. Energy is needed to move and collected resources.', position: 'left' },
+      { element: '.list-group-item:nth-child(1) .energy-cost', intro: 'Above the energy indicator you will find the units movement cost and charging rate.', position: 'left' },
+      { element: '.list-group-item:nth-child(1) .energy-cost .movement-cost', intro: 'The energy of the base unit is depleted at a very high rate while moving. Notice that the base requires a full charge of 100 J to move one space.', position: 'left' },
+      { element: '.list-group-item:nth-child(1) .energy-cost .recharge-rate', intro: 'The base unit recharges at just over 2 J per turn. At this rate a heavy base unit can only once space move every 44 turns.', position: 'left' },
+      { element: '.list-group-item:nth-child(1) .storage-bar', intro: 'The blue progress bar indicates a units resource storage and capacity. Resources are used to upgrade units or construct new units.', position: 'left' },
+      { element: '.list-group-item:nth-child(1) .construct-button', intro: 'Constructing new units costs 100 kg. Construct a new unit now using the construct button located below the storage indicator.', position: 'left' },
+      { element: '.list-group-item:nth-child(2)', intro: 'Your new unit will appear in the list...', position: 'left' },
+      { element: '#left-panel', intro: 'and the map indicated on with an A.', position: 'right' },
+      { element: '.list-group-item:nth-child(2) .energy-cost', intro: 'Notice that the movement cost and recharge rate are both lower. This unit can move one space every two turns using it\'s own power generation.', position: 'left' },
+      { element: '.list-group-item:nth-child(2)', intro: 'However small units can also charge from larger units. Select the rover and press the action key S to charge the Rover using the Base’s stored energy. This button will also unload any unit storage.', position: 'left' },
+      { element: '#left-panel', intro: 'You can now begin exploring the map using the Q-C keys. Q for NW, W for North, etc. If you encounter an X on the map this is a resource cache (or mine). Collect resources from the mine using the action key (S).', position: 'right' },
+      { element: '.list-group-item:nth-child(2) .energy-bar', intro: 'You will notice that the energy depletes as you move and mine. You can use all your energy to mine or return to the base periodically to unload and charge. This can be done several times until your units run out of energy.', position: 'left' },
+      { element: '#play-buttons', intro: 'The only way to regain energy is to take a turn. In the upper left you will see the turn indicator. Use the <i class="fa fa-step-forward"></i> button to advance several turns.', position: 'right' },
+      { element: '.list-group-item:nth-child(1)', intro: 'Use the scripts dropdown to select a bots automatic actions each turn. Select \'Construct\' for the base…', position: 'left' },
+      { element: '.list-group-item:nth-child(2)', intro: 'and \'Collect\' for the bot.', position: 'left' },
+      { element: '#play-buttons', intro: 'Press play button to cycle turns and watch your bots work autonomously.', position: 'right' }
+      ]
+    };
+
+    $scope.introChange = function() {
+      var intro = this;
+
+      for (var i = intro._currentStep; i < this._options.steps.length; i++) {
+        var currentItem = intro._introItems[i];
+        var step = intro._options.steps[i];
+        if (step.element) {
+          currentItem.element = document.querySelector(step.element);
+          currentItem.position = step.position;
+        }
+      }
+
+    };
+
   });
 
 })();

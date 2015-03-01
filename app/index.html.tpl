@@ -16,6 +16,8 @@
     <link rel="stylesheet" href="bower_components/bootstrap-material-design/dist/css/ripples.css" />
     <link rel="stylesheet" href="bower_components/angular-hotkeys/build/hotkeys.min.css" />
     <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
+    <link rel="stylesheet" href="bower_components/intro.js/introjs.css" />
+    <link rel="stylesheet" href="bower_components/ng-joyride/ng-joyride.css" />
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css(.tmp) components/main.css -->
@@ -82,6 +84,9 @@
     <script src="bower_components/eventemitter2/lib/eventemitter2.js"></script>
     <script src="bower_components/angular-third-party/dist/angular-third-party.js"></script>
     <script src="bower_components/angular-ecs/dist/angular-ecs.js"></script>
+    <script src="bower_components/intro.js/intro.js"></script>
+    <script src="bower_components/angular-intro.js/src/angular-intro.js"></script>
+    <script src="bower_components/ng-joyride/ng-joyride.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 

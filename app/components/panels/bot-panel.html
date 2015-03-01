@@ -1,10 +1,11 @@
-<div class="bot-panel" tabindex="0">
+<div id="bot-panel" class="bot-panel" tabindex="0">
   <div class="row-action-primary">
+    <small>{{$index+1}}</small>
     <i>{{bot.bot.t}}</i>
   </div>
   <div class="row-content bot-panel-small">
     <h4>
-      <span ng-switch="showControls">
+      <span ng-switch="opened">
         <span ng-switch-when="true">
           <a href editable-text="bot.bot.name" onbeforesave="checkName($data)">{{ bot.bot.name }}</a>
         </span>
@@ -13,23 +14,23 @@
       <span class="badge alert-danger" ng-show="bot.bot.alerts[bot.bot.alerts.length-1].type === 'danger'"  ng-click="open(bot); bot.bot.logActive = true;">!</span>
     </h4>
 
-    <div class="row">
+    <div class="row energy-cost">
       <!-- label class="col-sm-2">MC</label-->
-      <div class="col-sm-3">-{{bot.bot.moveCost | number : 0}} [J/km]</div>
+      <div class="col-sm-3 movement-cost">-{{bot.bot.moveCost | number : 0}} [J/km]</div>
       <!-- label class="col-sm-2">Ch</label -->
-      <div class="col-sm-3">+{{bot.bot.chargeRate | number : 2}} [J/d]</div>
+      <div class="col-sm-3 recharge-rate">+{{bot.bot.chargeRate | number : 2}} [J/d]</div>
     </div>
 
     <div class="row">
       <!-- label class="col-sm-2">[J]</label -->
-      <div class="col-xs-6">
+      <div class="col-xs-6 energy-bar">
         <progressbar class="active" ng-attr-animate="false" ng-class="{'progress-striped': bot.bot.E < bot.bot.mE}" value="bot.bot.E * 100 / bot.bot.mE" type="danger">
           <span style="color:black; white-space:nowrap;">{{bot.bot.E | number : 1}} / {{bot.bot.mE | number : 0}} [J]</span>
         </progressbar>
       </div>
 
       <!-- label class="col-sm-2">Storage</label -->
-      <div class="col-xs-6">
+      <div class="col-xs-6 storage-bar">
         <progressbar class="active" ng-attr-animate="false" value="bot.bot.S * 100 / bot.bot.mS" type="info">
           <span style="color:black; white-space:nowrap;">{{bot.bot.S}} / {{bot.bot.mS}} [kg]</span>
         </progressbar>
@@ -77,7 +78,7 @@
           <i class="fa fa-level-up"></i>
           <span class="badge">-10 kg</span>
         </button>
-        <button class="btn btn-info btn-xs" tooltip="Construct new bot"
+        <button class="btn btn-info btn-xs construct-button" tooltip="Construct new bot"
           ng-click="bot.bot.construct(); $event.stopPropagation();"
           ng-if="bot.bot.mS >= 100"
           ng-disabled="bot.bot.S < 100">
@@ -90,9 +91,7 @@
 
   </div>
 
-  {{logActive}}
-
-  <div ng-if="showControls">
+  <div ng-if="opened">
     <hr class="clearfix">
     <tabset type="pills" justified="true">
       <tab heading="Manual Control">

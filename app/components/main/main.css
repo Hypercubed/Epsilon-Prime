@@ -1,6 +1,6 @@
 
 .grid-ctrl {
-  z-index: 100;
+
 }
 
 .grid, .btn-mono {
@@ -34,7 +34,7 @@
 }
 
 .unit-ctrl {
-  z-index: 99;
+
 }
 
 .unit-ctrl h4 {

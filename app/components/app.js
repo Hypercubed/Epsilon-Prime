@@ -14,6 +14,7 @@ angular
     'xeditable',
     'cfp.hotkeys',
     'LocalForageModule',
+    'angular-intro',
     'hc.thirdParty',
     'hc.ngEcs'
   ])
