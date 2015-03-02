@@ -1,6 +1,6 @@
 <div id="bot-panel" class="bot-panel" tabindex="0">
   <div class="row-action-primary">
-    <small>{{$index+1}}</small>
+    <small class="credit muted">{{$index+1}}</small>
     <i>{{bot.bot.t}}</i>
   </div>
   <div class="row-content bot-panel-small">
@@ -14,11 +14,13 @@
       <span class="badge alert-danger" ng-show="bot.bot.alerts[bot.bot.alerts.length-1].type === 'danger'"  ng-click="open(bot); bot.bot.logActive = true;">!</span>
     </h4>
 
-    <div class="row energy-cost">
-      <!-- label class="col-sm-2">MC</label-->
-      <div class="col-sm-3 movement-cost">-{{bot.bot.moveCost | number : 0}} [J/km]</div>
-      <!-- label class="col-sm-2">Ch</label -->
-      <div class="col-sm-3 recharge-rate">+{{bot.bot.chargeRate | number : 2}} [J/d]</div>
+    <div class="row">
+      <div class="energy-cost col-xs-6">
+        <!-- label class="col-sm-2">MC</label-->
+        <div class="col-sm-6 movement-cost">-{{bot.bot.moveCost | number : 0}} [J/km]</div>
+        <!-- label class="col-sm-2">Ch</label -->
+        <div class="col-sm-6 recharge-rate">+{{bot.bot.chargeRate | number : 2}} [J/d]</div>
+      </div>
     </div>
 
     <div class="row">
