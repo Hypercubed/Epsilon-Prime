@@ -92,9 +92,13 @@ angular.module('ePrime')
         ngEcs.$e(key, value);
       });
 
+
+
       //G.entities.forEach(ngEcs.$e, ngEcs);
 
       GAME.bots = GAME.ecs.families.bot;　　// get rid
+
+      console.log(GAME.bots);
 
     });
 
@@ -141,6 +145,12 @@ angular.module('ePrime')
         t: TILES.BASE,
         $game: GAME
       },
+      render: {},
+      /* tile: {
+        x: 30,
+        y: 10,
+        t: TILES.BASE
+      }, */
       active: true
     });
 

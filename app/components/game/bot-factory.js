@@ -78,7 +78,7 @@ angular.module('ePrime')
     ngEcs.$s('charging', {
       $require: ['bot'],
       $update: function() {
-        this.$family.forEach(function(e) {
+        this.$family.forEach(function(e) {  // todo: for loop
           var bot = e.bot;
           ngEcs.stats.E += bot.charge(bot.chargeRate);
         });
@@ -93,8 +93,26 @@ angular.module('ePrime')
       }
     });
 
+
+    /* ngEcs.$s('botsRender', {
+      $require: ['bot','render'],
+      $addEntity: function(e) {
+        if (svgStage.renderBots) {
+          var bots = this.$family;
+          svgStage.renderBots(bots);
+        }
+      },
+      $update: function() {
+        this.$family.forEach(function(e) {
+          if (e.$render) {
+            e.$render();
+          }
+        });
+      }
+    }); */
+
   })
-  .run(function (isAt, TILES, GAME, ngEcs) {
+  .run(function (isAt, TILES, GAME, ngEcs) {  // Bot components
 
     var mathSign = Math.sign || function (value) {  // polyfill for Math.sign
       var number = +value;
@@ -102,6 +120,16 @@ angular.module('ePrime')
       if (Number.isNaN(number)) { return number; }
       return number < 0 ? -1 : 1;
     };
+
+    /* function Tile() {
+      this.x = 0;
+      this.y = 0;
+      this.t = TILES.BOT;
+    };
+
+    Tile.prototype.isAt = function(x,y) {
+      return isAt(this,x,y);
+    }; */
 
     function Bot() {
 
@@ -392,7 +420,8 @@ angular.module('ePrime')
             name: 'Rover',
             x: this.x,
             y: this.y,
-          }
+          },
+          render: {}
         });
 
         if (script) {

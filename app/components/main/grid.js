@@ -113,33 +113,95 @@
 
         }
 
-        var tilesWrap = gTilesLayer
-          .selectAll('.tile').data(tiles, _id);
+        function renderTiles(tiles) {
+          var tilesWrap = gTilesLayer
+            .selectAll('.tile').data(tiles, _id);
 
-        tilesWrap.enter()
-          .append('g')
-          .attr('class', 'tile')
-          .attr('transform', function(d) {
-            return 'translate('+[_X(d),_Y(d)]+')';
-          })
-          .on('click', clicked)
-          .on('mouseenter', hover)
-          .on('mouseleave', function() {
-            text.text('');
-          })
-          .append('text')
-          .attr(textAttr)
-          //.text(_tile)
-          ;
+          tilesWrap.enter()
+            .append('g')
+            .attr('class', 'tile')
+            .attr('transform', function(d) {
+              return 'translate('+[_X(d),_Y(d)]+')';
+            })
+            .on('click', clicked)
+            .on('mouseenter', hover)
+            .on('mouseleave', function() {
+              text.text('');
+            })
+            .append('text')
+            .attr(textAttr)
+            //.text(_tile)
+            ;
 
-        tilesWrap  // shouldn't need to do this but itenms
-          //.attr('transform', function(d) {
-          //  return 'translate('+[_X(d),_Y(d)]+')';
-          //})
-          .select('text')
-          .text(_tile);
+          tilesWrap  // shouldn't need to do this but itenms
+            //.attr('transform', function(d) {
+            //  return 'translate('+[_X(d),_Y(d)]+')';
+            //})
+            .select('text')
+            .text(_tile);
+        }
 
-        var botsWrap = gBotsLayer
+        function renderBots(bots) {
+          var botsWrap = gBotsLayer
+            .selectAll('.bot').data(bots);
+
+          var gBotsEnter = botsWrap.enter()
+            .append('g')
+            .on('click', clicked)
+            .on('mouseenter', hover)
+            .on('mouseleave', function() {
+              text.text('');
+            })
+            /* .each(function(d) {
+              var $elm = d3.select(this);
+              d.$add('render', {});
+              d.$render = function renderTile() {
+                $elm
+                  .attr('class', 'bot bot-'+d.bot.name.toLowerCase())
+                  .classed('active', d.active)
+                  .attr('transform', 'translate('+[_X(d.bot),_Y(d.bot)]+')')
+                  .select('text')
+                  .text(d.bot.t);
+              };
+              d.$render();
+            })*/;
+
+          gBotsEnter
+            .append('circle')
+            .attr({
+              r: 1.2*dx,
+              cx: 0,
+              cy: 0
+            });
+
+          gBotsEnter
+            .append('text')
+            .attr(textAttr);
+
+          botsWrap.exit().remove();
+
+          botsWrap
+            .attr('class', function(d) {
+              return 'bot bot-'+d.bot.name.toLowerCase();
+            })
+            .classed('active', function(d) {
+              //console.log(d);
+              return d.active;
+            })
+            .attr('transform', function(d) {
+              return 'translate('+[_X(d.bot),_Y(d.bot)]+')';
+            })
+            .select('text')
+            .text(_F('bot.t'));
+        }
+
+        renderTiles(tiles);
+        renderBots(bots);
+
+        my.renderBots = renderBots;
+        my.renderTiles = renderTiles;
+
+        /* var botsWrap = gBotsLayer
           .selectAll('.bot').data(bots);
 
         var gBotsEnter = botsWrap.enter()
@@ -151,6 +213,19 @@
           .on('mouseenter', hover)
           .on('mouseleave', function() {
             text.text('');
+          })
+          .each(function(d) {
+            var $elm = d3.select(this);
+            d.$parent.$add('render', {});
+            d.$parent.$render = function renderTile() {
+              $elm
+                .attr('class', 'bot bot-'+d.name.toLowerCase())
+                .classed('active', d.$parent.active)
+                .attr('transform', 'translate('+[_X(d),_Y(d)]+')')
+                .select('text')
+                .text(d.t);
+            };
+            d.$parent.$render();
           });
 
         gBotsEnter
@@ -163,9 +238,13 @@
 
         gBotsEnter
           .append('text')
-          .attr(textAttr);
+          .attr(textAttr); */
 
-        botsWrap
+        //botsWrap.each(function(d) {
+          //d.$parent.$render();
+        //});
+
+        /* botsWrap
           .attr('class', function(d) {
             return 'bot bot-'+d.name.toLowerCase();
           })
@@ -177,8 +256,7 @@
             return 'translate('+[_X(d),_Y(d)]+')';
           })
           .select('text')
-          .text(_tile);
-
+          .text(_tile); */
 
         //gBots
           //  .append('text')

@@ -58,15 +58,8 @@ angular.module('ePrime')
 
     function Chunk(_, X, Y) {
 
-      if (Array.isArray(_)) {
-        //this.length = LEN;  // get rid of these
-        //this.size = SIZE;
-        this.view = new Uint8ClampedArray(_);
-      } else {
-        //.length = LEN;
-        //this.size = SIZE;
-        this.view = new Uint8ClampedArray(LEN);
-      }
+      _ = Array.isArray(_) ? _ : LEN;
+      this.view = new Uint8ClampedArray(_);
 
       this.X = Math.floor(X);  // store offset rather than index?
       this.Y = Math.floor(Y);

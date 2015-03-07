@@ -5,7 +5,7 @@
 
     $scope.page = 1;
 
-    $scope.openItem = $scope.item = undefined;
+    console.log('controller');
     $scope.opened = false;
     $scope.search = { name: '' };
     //$scope.pagedItems = $scope.items;
@@ -114,6 +114,8 @@
       controller: 'ListController',
       templateUrl: 'components/list/list-template.html',
       link: function link($scope, $element, $attrs, controller, $transclude) {
+
+        //scope.item = $scope.openItem;
 
         var expression = $attrs.slidingList;
         var match = expression.match(/^\s*([\s\S]+?)\s+in\s+([\s\S]+?)(?:\s+as\s+([\s\S]+?))?(?:\s+track\s+by\s+([\s\S]+?))?\s*$/);

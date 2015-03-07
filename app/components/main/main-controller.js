@@ -6,15 +6,76 @@
 'use strict';
 
 angular.module('ePrime')
-  .controller('MainCtrl', function ($scope, $compile, $log, $route, $window, $timeout, $modal, hotkeys, debounce, modals, siteConfig, isAt, sandBox, TILES, GAME, Chunk) {
+  .directive('gameMap', function($log, debounce, GAME, Chunk) {
+    return {
+      restrict: 'AE',
+      scope: {
+        selected: '='
+      },
+      link: function link($scope, $element) {
+
+        var svgStage = new d3.charts.Grid()
+          .on('click', function(d) {
+            $scope.$apply(function() {
+              GAME.bots.forEach(function(bot) {
+                bot.active = (bot === d);
+                if (bot.active) {
+                  $scope.selected = bot;
+                }
+              });
+            });
+          });
+
+        function botsWatch() {  // Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
+          var s = '';
+
+          var ke = GAME.bots.length;  // do better, move to GAME service
+          //var ws = GAME.world.size;
+          for(var k = 0; k < ke; k++) {
+            var bot = GAME.bots[k].bot;
+            var index = Chunk.getIndex(bot);
+            s += bot.t+index+(bot.$parent.active ? '!' : '');
+          }
+
+          return s;
+        }
+
+        $scope.$watch(GAME.world.getHash, debounce(function() {  // TODO: render per chunk
+          $log.debug('tiles draw');
+          var tiles = GAME.world.scanList();
+          svgStage.renderTiles(tiles);
+        }));
+
+        $scope.$watch(botsWatch, debounce(function() {  // improve this
+          $log.debug('bots draw');
+          svgStage.renderBots(GAME.bots);
+        }));
+
+        function d3Draw() {  // setup and draw
+          $log.debug('d3 draw');
+
+          var tiles = GAME.world.scanList();  // todo: chunk instead
+          var bots = GAME.bots;  // todo: fix this
+
+          d3.select($element[0]).datum([tiles,bots]).call(svgStage);
+        }
+
+        d3Draw();
+
+      }
+    };
+  })
+  .controller('MainCtrl', function ($scope, $compile, $log, $route, $window, $modal, hotkeys, modals, siteConfig, isAt, sandBox, TILES, GAME) {
 
     var main = this;
 
-    var grid = new d3.charts.Grid()  // in System
+    /* var svgStage = new d3.charts.Grid();
+
+    svgStage  // TODO: map directovbe
       .on('click', function(d) {
         $scope.$apply(function() {
           GAME.bots.forEach(function(bot) {
-            bot.active = (bot === d.$parent);
+            bot.active = (bot === d);
             if (bot.active) {
               main.bot = bot;
             }
@@ -22,9 +83,8 @@ angular.module('ePrime')
         });
       });
 
-    main.drawWatch = function drawWatch() {  // Move to ECS system? Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
-
-      var s = ''+GAME.world.getHash();
+    function botsWatch() {  // Move to ECS system? Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
+      var s = '';
 
       var ke = GAME.bots.length;  // do better, move to GAME service
       //var ws = GAME.world.size;
@@ -35,18 +95,27 @@ angular.module('ePrime')
       }
 
       return s;
-    };
+    }
 
-    function d3Draw() {
+    function d3Draw() {  // setup and draw
       $log.debug('d3 draw');
 
       var tiles = GAME.world.scanList();  // todo: chunk
-      var bots = GAME.bots.map(_F('bot'));  // todo: fix this
+      var bots = GAME.bots;  // todo: fix this
 
-      d3.select('#grid').datum([tiles,bots]).call(grid);
+      d3.select('#grid').datum([tiles,bots]).call(svgStage);
     }
 
-    $scope.$watch(main.drawWatch, debounce(d3Draw)); // don't do this
+    $scope.$watch(GAME.world.getHash, debounce(function() {  // TODO: render per chunk
+      $log.debug('tiles draw');
+      var tiles = GAME.world.scanList();
+      svgStage.renderTiles(tiles);
+    }));
+
+    $scope.$watch(botsWatch, debounce(function() {  // improve this
+      $log.debug('bots draw');
+      svgStage.renderBots(GAME.bots);
+    })); */
 
   //  main.upgradeBot = function(bot) {  // TODO: delete
     //  bot.upgrade();
@@ -221,10 +290,13 @@ angular.module('ePrime')
     function setup() {
       main.cheat = false;
       main.game = GAME;
+      main.bots = GAME.bots;  // get rid of this
 
-      //main.home = GAME.bots[0];  // remove this??
-      main.bot = GAME.bots[0];  // dont do this
-      main.bots = GAME.bots;
+      main.bots.forEach(function(bot) {
+        if (bot.active) {
+          main.bot = bot;  // get rid of this
+        }
+      });
     }
 
     function reset() {
@@ -312,7 +384,7 @@ angular.module('ePrime')
 
     setup();
 
-    d3Draw();
+    //d3Draw();
 
     //var mapDisplaySize = [GAME.world.size,GAME.world.size]; // not used anymore?
     //var mapOffset = [0,0];  // TODO: focus on

@@ -3,6 +3,7 @@
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Bugs
+- [x] Active bot not set after reset
 - [ ] SVG is not size responsive
 - [x] Active unit no longer shown in map
 - [x] Drop downs in bot list cut off
@@ -17,25 +18,23 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## ECS
 - [x] Chunks -> Entities?
-- [ ] Decompose BotComponents (Bot, Move, Charging)
+- [ ] Decompose BotComponents (Bot, Tile/sprite, Move, Charging)
 - [x] Add filters to systems
-- [ ] Move draw to system
+- [ ] Move draw to system?
 - [x] Entity messages ie. .$on('upgrade', fn), .$emit('upgrade')
 - [x] common families
 - [x] remove entities
 - [ ] Order by priority
 
 ## Next
-- [x] Footer Save, Reset -> Popup menu
-- [x] Footer Scripts -> Popup menu
-- [x] New bots panel
-- [x] Upgrade angular （1.4.0-beta.3 supports copying TypedArrays)
+- [x] Map directive
 - [ ] Clean up and move tutorial
-- [ ] Move GAME stuff to ecs engine
+- [ ] Move more GAME stuff to ecs engine
 - [ ] Improve bot logging, error system.
 - [ ] Finish Entity component system
 - [ ] New screen shot
 - [ ] Bot memory? Bot target store.
+- [ ] Improved bug0?
 - [x] Replace hotkey help with help dialog
 - [ ] Make defaultScripts as scripts service. (crud, reset, validate, run, etc)
 - [x] Prevent deployment if env !== production in gruntfile
@@ -51,6 +50,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [x] $bot.find should search both time and name.
   - [ ] Wildcard?
 - [ ] Indicate bot's current target, (and heading, and action?)
+- [ ] Set target using map?
 - [ ] d3 hover/click dispatch
   - [x] Bots
   - [ ] Tiles
@@ -62,10 +62,12 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Improve drawing more?  Draw by chunk, bot (entities).
 - [ ] Rebalance gameplay.
 - [ ] More/better Tooltips?
-- [ ] Need to indicate when unit is on mine.  Indicate overlapping units.
+- [ ] Need to indicate when unit is on mine.
+- [ ] Indicate overlapping units.
 - [ ] Clean terminology (bots, resources, energy units, etc)
 
 ## Decisions
+- [ ] Always charing, pause scripts only?
 - [x] Start with full energy?
 - [ ] Can bot scripts command other bots?  $bot.find('A').moveTo($bot.x,$bot.y);?
 - [ ] Limit map and number of bots for performance?
@@ -83,7 +85,6 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] add progress circles/bars around units?
 - [x] User rename bots?
   - [ ] User assign labels (A,B,C,...,@)?
-- [ ] Map directive?
 
 ## Wish list
 - [ ] More terrain types (various movement costs?), biomes.
