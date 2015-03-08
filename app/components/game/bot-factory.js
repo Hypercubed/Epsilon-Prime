@@ -250,7 +250,10 @@ angular.module('ePrime')
 
     Bot.prototype.moveTo = function(x,y) {
 
-      this.target = {x:x, y:y};
+      if (!this.$target || !isAt(this.$target, x,y)) {
+        this.$target = {x:x, y:y};
+        this.obs = false;
+      }
 
       if (angular.isObject(x)) {  // TODO: Utility
         y = x.y;
@@ -267,9 +270,9 @@ angular.module('ePrime')
 
         //console.log(i, dx,dy);
 
-        if (!this.obs || !isAt(this.last, this.x + dx, this.y + dy)) {
+        if (!this.$obs || !isAt(this.last, this.x + dx, this.y + dy)) {
           if (this.move(dx,dy)) {
-            this.obs = i > 0;
+            this.$obs = i > 0;
             return true;
           }
         }

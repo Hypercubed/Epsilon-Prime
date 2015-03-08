@@ -156,7 +156,7 @@ angular.module('ePrime')
     }
 
     var _name = _F('name');
-    function findScript() {
+    function findScript(name) {
       var scripts = GAME.scripts.filter(_name.eq(name));    // todo: move this, do better
       return (scripts.length > 0) ? scripts[0] : undefined;
     }
