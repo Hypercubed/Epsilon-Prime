@@ -156,12 +156,15 @@ angular.module('ePrime')
     }
 
     var _name = _F('name');
+    function findScript() {
+      var scripts = GAME.scripts.filter(_name.eq(name));    // todo: move this, do better
+      return (scripts.length > 0) ? scripts[0] : undefined;
+    }
 
     ngEcs.$s('scripts', {
       $require: ['bot','script'],
       $addEntity: function(e) {
-        var scripts = GAME.scripts.filter(_name.eq(e.script.scriptName));    // todo: move this
-        var script = (scripts.length > 0) ? scripts[0] : undefined;
+        var script = findScript(e.script.scriptName);
         if (!script) {
           $log.error('Script not found');
         } else {
@@ -172,7 +175,8 @@ angular.module('ePrime')
         mezclar2(this.$family);
         this.$family.forEach(function(e) {
           if(e.script.halted !== true) {
-            var ret = sandBox.run(e.script.$script, e.$bot);
+            var script = findScript(e.script.scriptName);
+            var ret = sandBox.run(script, e.$bot);
             if (ret !== true) {
               e.bot.error(ret);
             }
