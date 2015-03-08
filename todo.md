@@ -3,7 +3,7 @@
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Bugs
-- [x] Active bot not set after reset
+- [ ] Active bot selected in some cases
 - [ ] SVG is not size responsive
 - [x] Active unit no longer shown in map
 - [x] Drop downs in bot list cut off

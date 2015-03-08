@@ -163,8 +163,8 @@ angular.module('ePrime')
       this.alerts.splice(0);
     };
 
-    Bot.prototype.error = function(msg) {
-      this.halted = true;
+    Bot.prototype.error = function(msg) {  // move
+      this.$parent.script.halted = true;
       //this.message = msg; // used as error flag, get rid of this
       this.addAlert('danger',msg);
       //this.setCode(null);
@@ -212,6 +212,8 @@ angular.module('ePrime')
 
     Bot.prototype.move = function(dx,dy) {  // TODO: check range
 
+      this.obs = false;
+
       dx = mathSign(dx);
       dy = mathSign(dy);  // max +/-1
 
@@ -235,6 +237,20 @@ angular.module('ePrime')
       return false;
     };
 
+    Bot.prototype.canWalk = function(dx,dy) {
+      return GAME.world.canMove(this.x+dx,this.y+dy);
+    };
+
+    Bot.prototype.moveStep = function(dx,dy) {  // TODO: check range
+
+        this.x += dx;
+        this.y += dy;
+        this.E -= this.moveCost;
+
+        GAME.world.scanRange(this);
+        return true;
+    };
+
     Bot.prototype.canMoveTo = function(x,y) {  // TODO: check range
 
       if (angular.isObject(x)) {  // TODO: Utility
@@ -248,40 +264,101 @@ angular.module('ePrime')
       return this.canMove(dx,dy);
     };
 
-    Bot.prototype.moveTo = function(x,y) {
+    var DIR = [
+      [1,1],  // 0
+      [1,0],  // 1
+      [1,-1], // 2
+      [0,-1], // 3
+      [-1,-1],// 4
+      [-1,0], // 5
+      [-1,1], // 6
+      [0,1],  // 7
+    ];
 
-      if (!this.$target || !isAt(this.$target, x,y)) {
-        this.$target = {x:x, y:y};
-        this.obs = false;
-      }
+    var DIR_LEN = DIR.length;
+
+    function modulo(x,n) {  // move somewher globally usefull
+      return ((x%n)+n)%n;
+    }
+
+    Bot.prototype.moveTo = function(x,y) {  // this is so bad!!!
 
       if (angular.isObject(x)) {  // TODO: Utility
         y = x.y;
         x = x.x;
       }
 
+      if (isAt(this, x,y)) {
+        this.obs = false;
+        return true;
+      }
+
+      if (this.E < this.moveCost) {
+        return false;
+      }
+
       var dx = x - this.x;
       var dy = y - this.y;
+      var dr = Math.max(Math.abs(dx),Math.abs(dy));  // distance to target
 
-      for (var i = 0; i < 7; i++) {
+      dx = mathSign(dx);  // "unit vector"
+      dy = mathSign(dy);
 
-        dx = mathSign(dx);
-        dy = mathSign(dy);
+      if (!this.target || !isAt(this.target, x,y)) {  // new target
+        //console.log('new target');
+        this.target = {x:x, y:y};
+        this.heading = {dx:dx, dy:dy};
+        this.obs = false;
+      }
 
-        //console.log(i, dx,dy);
+      var targetHeading;
+      DIR.forEach(function(d, i) {  // find ordnal direction (0-7), improve
+        if (d[0] === dx && d[1] === dy) {
+          targetHeading = i;
+        }
+      });
 
-        if (!this.$obs || !isAt(this.last, this.x + dx, this.y + dy)) {
-          if (this.move(dx,dy)) {
-            this.$obs = i > 0;
-            return true;
-          }
+      //console.log(targetHeading, dx, dy);
+
+      if (this.obs && this.targetHeading === targetHeading && dr < this.dr) {  // if obs and closer than collision point
+        this.obs = false;
+      }
+
+      var heading = targetHeading;
+      if (!this.obs) {  // not obs, move to target
+
+        this.iHeading = heading;
+
+        if (this.canWalk(dx,dy)) {
+          this.moveStep(dx,dy);
+          return true;
         }
 
-        var tmp = (dx+dy);  // turn left
-        dy = (dy-dx);
-        dx = tmp;
+        this.obs = true;  // new collision
+        this.dr = dr;
+        this.targetHeading = heading;
+        //console.log('new coll', heading);
+      } else {
+        heading = modulo(this.iHeading-2,DIR_LEN);  /// start looking right
+        //console.log('old coll', heading);
+      }
 
-        //console.log(i, dx,dy);
+      var i = 0;
+      while (i < DIR_LEN) {  // look left
+        var d = DIR[heading];
+
+        //console.log(heading,d);
+
+        if (this.canWalk(d[0],d[1])) {
+          this.moveStep(d[0],d[1]);
+          this.iHeading = heading;
+          //console.log('step', heading, d);
+          return true;
+        }
+
+        heading++;
+        heading %= DIR_LEN;
+        i++;
       }
 
       return false;

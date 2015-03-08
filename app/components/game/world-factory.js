@@ -7,7 +7,7 @@
 
   /* Private functions */
 
-  function modulo(x,n) {
+  function modulo(x,n) {  // move somewher globally usefull
     return ((x%n)+n)%n;
   }
 

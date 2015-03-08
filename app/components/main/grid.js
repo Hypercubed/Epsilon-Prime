@@ -98,7 +98,6 @@
           gTilesLayer = container.append('g').attr('class','tilesLayer');
           gBotsLayer = container.append('g').attr('class','botsLayer');
 
-
           text = svg.append('g')
             .attr('class','hover-text')
             .attr('transform', 'translate(10,20)')
@@ -152,6 +151,16 @@
             .on('mouseleave', function() {
               text.text('');
             })
+            .attr('class', function(d) {
+              return 'bot bot-'+d.bot.name.toLowerCase();
+            })
+            .classed('active', function(d) {
+              //console.log(d);
+              return d.active;
+            })
+            .attr('transform', function(d) {
+              return 'translate('+[_X(d.bot),_Y(d.bot)]+')';
+            })
             /* .each(function(d) {
               var $elm = d3.select(this);
               d.$add('render', {});
@@ -188,11 +197,15 @@
               //console.log(d);
               return d.active;
             })
-            .attr('transform', function(d) {
-              return 'translate('+[_X(d.bot),_Y(d.bot)]+')';
-            })
             .select('text')
             .text(_F('bot.t'));
+
+          botsWrap
+            //.transition()
+              .attr('transform', function(d) {
+                return 'translate('+[_X(d.bot),_Y(d.bot)]+')';
+              });
+
         }
 
         renderTiles(tiles);

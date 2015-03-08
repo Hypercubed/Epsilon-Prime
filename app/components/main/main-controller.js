@@ -40,16 +40,19 @@ angular.module('ePrime')
           return s;
         }
 
-        $scope.$watch(GAME.world.getHash, debounce(function() {  // TODO: render per chunk
-          $log.debug('tiles draw');
+        function drawTiles() {
+          //$log.debug('tiles draw');
           var tiles = GAME.world.scanList();
           svgStage.renderTiles(tiles);
-        }));
+        }
 
-        $scope.$watch(botsWatch, debounce(function() {  // improve this
-          $log.debug('bots draw');
+        function drawBots() {
+          //$log.debug('bots draw');
           svgStage.renderBots(GAME.bots);
-        }));
+        }
+
+        $scope.$watch(GAME.world.getHash, drawTiles);
+        $scope.$watch(botsWatch, drawBots);
 
         function d3Draw() {  // setup and draw
           $log.debug('d3 draw');
