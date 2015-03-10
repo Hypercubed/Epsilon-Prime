@@ -58,7 +58,7 @@ angular.module('ePrime')
     //localStorageService.set('saveGame', G);
     return $localForage.setItem('saveGame', G).then(function() {
       GAME.stats.saved = new Date();
-      $log.debug('saved');
+      //$log.debug('saved');
     });
 
   };
@@ -98,7 +98,7 @@ angular.module('ePrime')
 
       GAME.bots = GAME.ecs.families.bot;　　// get rid
 
-      console.log(GAME.bots);
+      //console.log(GAME.bots);
 
     });
 

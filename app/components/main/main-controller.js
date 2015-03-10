@@ -6,7 +6,7 @@
 'use strict';
 
 angular.module('ePrime')
-  .directive('gameMap', function($log, debounce, GAME, Chunk) {
+  .directive('gameMap', function($log, debounce, GAME, Chunk) {  // todo: use entities
     return {
       restrict: 'AE',
       scope: {
@@ -16,6 +16,8 @@ angular.module('ePrime')
 
         var svgStage = new d3.charts.Grid()
           .on('click', function(d) {
+            if (!d.bot) { return; }  // not a bot
+
             $scope.$apply(function() {
               GAME.bots.forEach(function(bot) {
                 bot.active = (bot === d);

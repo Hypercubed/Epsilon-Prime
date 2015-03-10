@@ -5,7 +5,6 @@
 
     $scope.page = 1;
 
-    console.log('controller');
     $scope.opened = false;
     $scope.search = { name: '' };
     //$scope.pagedItems = $scope.items;
@@ -28,29 +27,29 @@
     $scope.pageChanged = function(page) {
       var item = $scope.items[page-1];
       $scope.select(item);
-    }
+    };
 
     $scope.close = function() {
       $scope.opened = false;
     };
 
     hotkeys.bindTo($scope)
-    .add({
-      combo: 'k',
-      //description: 'next bot',
-      callback: function() {
-        $scope.page = Math.min($scope.page+1, $scope.items.length);
-        $scope.pageChanged($scope.page);
-      }
-    })
-    .add({
-      combo: 'j',
-      //description: 'prev bot',
-      callback: function() {
-        $scope.page = Math.max($scope.page-1, 1);
-        $scope.pageChanged($scope.page);
-      }
-    });
+      .add({
+        combo: 'k',
+        //description: 'next bot',
+        callback: function() {
+          $scope.page = Math.min($scope.page+1, $scope.items.length);
+          $scope.pageChanged($scope.page);
+        }
+      })
+      .add({
+        combo: 'j',
+        //description: 'prev bot',
+        callback: function() {
+          $scope.page = Math.max($scope.page-1, 1);
+          $scope.pageChanged($scope.page);
+        }
+      });
 
     /* var a = null, b = null;
     function pagedItems() {

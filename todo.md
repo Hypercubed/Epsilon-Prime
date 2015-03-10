@@ -28,6 +28,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Next
 - [x] Map directive
+- [ ] Indicate unit is on resource
 - [ ] Clean up and move tutorial
 - [ ] Move more GAME stuff to ecs engine
 - [ ] Improve bot logging, error system.

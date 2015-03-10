@@ -217,7 +217,7 @@ angular.module('ePrime')
       dx = mathSign(dx);
       dy = mathSign(dy);  // max +/-1
 
-      var dr = Math.max(Math.abs(dx),Math.abs(dy));
+      var dr = Math.max(Math.abs(dx),Math.abs(dy));  // Chebyshev distance
       var dE = this.moveCost*dr;
 
       if (GAME.world.canMove(this.x + dx,this.y + dy)) {  // Need to check bot skills, check path
@@ -242,7 +242,6 @@ angular.module('ePrime')
     };
 
     Bot.prototype.moveStep = function(dx,dy) {  // TODO: check range
-
         this.x += dx;
         this.y += dy;
         this.E -= this.moveCost;
@@ -277,6 +276,11 @@ angular.module('ePrime')
 
     var DIR_LEN = DIR.length;
 
+    /* DIR.forEach(function(d) {
+      var a = modulo(8-Math.round(Math.atan2(d[1], d[0])/0.7853981633974483), 7);
+      console.log(d, a);
+    }); */
+
     function modulo(x,n) {  // move somewher globally usefull
       return ((x%n)+n)%n;
     }
@@ -299,12 +303,24 @@ angular.module('ePrime')
 
       var dx = x - this.x;
       var dy = y - this.y;
-      var dr = Math.max(Math.abs(dx),Math.abs(dy));  // distance to target
+      //var dr = Math.max(Math.abs(dx),Math.abs(dy));  // "distance" to target, not euclidian, Chebyshev distance
+      var dr = Math.sqrt(dx*dx+dy*dy);  // distance to target, euclidian
 
-      dx = mathSign(dx);  // "unit vector"
-      dy = mathSign(dy);
+      function rnd(x) {
+        x = Math.round(x);
+        return x === 0 ? 0 : x/Math.abs(x);
+      }
 
-      if (!this.target || !isAt(this.target, x,y)) {  // new target
+      //console.log([dx,dy]);
+
+      dx = rnd(dx/dr);  // "unit vector", not euclidian
+      dy = rnd(dy/dr);
+
+      //console.log([dx,dy]);
+
+      var targetSlope = dy/dx;
+
+      if (!this.target || this.target.x !== x || this.target.y !== y) {  // new target
         //console.log('new target');
         this.target = {x:x, y:y};
         this.heading = {dx:dx, dy:dy};
@@ -312,15 +328,20 @@ angular.module('ePrime')
       }
 
       var targetHeading;
-      DIR.forEach(function(d, i) {  // find ordnal direction (0-7), improve
+      DIR.forEach(function(d, i) {  // find ordinal direction (0-7), improve
         if (d[0] === dx && d[1] === dy) {
           targetHeading = i;
         }
       });
 
-      //console.log(targetHeading, dx, dy);
+      //if (this.obs) {
+        //console.log('Slope',this.targetSlope, targetSlope, this.targetSlope >= targetSlope);
+        //console.log('Distance',this.dr, dr, dr < this.dr);
+      //  console.log('Ordinal heading',this.targetHeading, targetHeading);
+      //}
 
-      if (this.obs && this.targetHeading === targetHeading && dr < this.dr) {  // if obs and closer than collision point
+      if (this.obs && this.targetSlope === targetSlope && dr <= this.dr) {  // if obs and closer than collision point
+        //console.log('At leaving point slopes =',this.targetSlope, targetSlope);
         this.obs = false;
       }
 
@@ -337,6 +358,7 @@ angular.module('ePrime')
         this.obs = true;  // new collision
         this.dr = dr;
         this.targetHeading = heading;
+        this.targetSlope = targetSlope;
         //console.log('new coll', heading);
       } else {
         heading = modulo(this.iHeading-2,DIR_LEN);  /// start looking right
