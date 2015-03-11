@@ -32,7 +32,10 @@ angular.module('ePrime')
         return bot.move(x,y);
       };
 
-      $bot.moveTo = function $$moveTo(x,y) {
+      $bot.moveTo = function $$moveTo(x,y) {  // this is not good
+        //if (bot.obs) {
+        //  return bot.moveTo(bot.target.x,bot.target.y);
+        //}
         return bot.moveTo(x,y);
       };
 
@@ -285,6 +288,11 @@ angular.module('ePrime')
       return ((x%n)+n)%n;
     }
 
+    function rnd(x) {
+      x = Math.round(x);
+      return x === 0 ? 0 : x/Math.abs(x);
+    }
+
     Bot.prototype.moveTo = function(x,y) {  // this is so bad!!!
 
       if (angular.isObject(x)) {  // TODO: Utility
@@ -303,22 +311,13 @@ angular.module('ePrime')
 
       var dx = x - this.x;
       var dy = y - this.y;
-      //var dr = Math.max(Math.abs(dx),Math.abs(dy));  // "distance" to target, not euclidian, Chebyshev distance
-      var dr = Math.sqrt(dx*dx+dy*dy);  // distance to target, euclidian
-
-      function rnd(x) {
-        x = Math.round(x);
-        return x === 0 ? 0 : x/Math.abs(x);
-      }
+      var dr = Math.max(Math.abs(dx),Math.abs(dy));  // "distance" to target, not euclidian, Chebyshev distance
+      //var dr = Math.sqrt(dx*dx+dy*dy);  // distance to target, euclidian
 
       //console.log([dx,dy]);
 
-      dx = rnd(dx/dr);  // "unit vector", not euclidian
+      dx = rnd(dx/dr);  // "unit vector" towards goal, not euclidian
       dy = rnd(dy/dr);
-
-      //console.log([dx,dy]);
-
-      var targetSlope = dy/dx;
 
       if (!this.target || this.target.x !== x || this.target.y !== y) {  // new target
         //console.log('new target');
@@ -327,6 +326,8 @@ angular.module('ePrime')
         this.obs = false;
       }
 
+      var C = this.canWalk(dx,dy); // is free towards goal
+
       var targetHeading;
       DIR.forEach(function(d, i) {  // find ordinal direction (0-7), improve
         if (d[0] === dx && d[1] === dy) {
@@ -334,51 +335,48 @@ angular.module('ePrime')
         }
       });
 
-      //if (this.obs) {
-        //console.log('Slope',this.targetSlope, targetSlope, this.targetSlope >= targetSlope);
-        //console.log('Distance',this.dr, dr, dr < this.dr);
-      //  console.log('Ordinal heading',this.targetHeading, targetHeading);
-      //}
+      var ddx = x - (this.x + dx);
+      var ddy = y - (this.y + dy);
+      var DF = Math.max(Math.abs(ddx),Math.abs(ddy));  // "distance" to target, not euclidian, Chebyshev distance
+      //var DF = Math.sqrt(ddx*ddx+ddy*ddy);  // distance from next step towards goal to goal
 
-      if (this.obs && this.targetSlope === targetSlope && dr <= this.dr) {  // if obs and closer than collision point
-        //console.log('At leaving point slopes =',this.targetSlope, targetSlope);
-        this.obs = false;
+      //if (this.$parent.active) { console.log('before', this.obs, C, DF, this.dr); }
+
+      if (this.obs && C && (DF < this.dr)) {  // if obs and closer than collision point, need to check if DF === this.dr and starting point
+        this.obs = false;  // not starting point
       }
 
-      var heading = targetHeading;
+      this.dr = Math.min(dr, this.dr);            // minimum distance
+
+      //if (this.$parent.active) { console.log('after', this.obs, C, DF, this.dr); }
+
+      var heading;
       if (!this.obs) {  // not obs, move to target
 
-        this.iHeading = heading;
-
-        if (this.canWalk(dx,dy)) {
+        if (C) {
           this.moveStep(dx,dy);
           return true;
         }
 
         this.obs = true;  // new collision
         this.dr = dr;
-        this.targetHeading = heading;
-        this.targetSlope = targetSlope;
-        //console.log('new coll', heading);
+        this.P = [x,y];
+        heading = targetHeading;
       } else {
         heading = modulo(this.iHeading-2,DIR_LEN);  /// start looking right
-        //console.log('old coll', heading);
       }
 
       var i = 0;
       while (i < DIR_LEN) {  // look left
         var d = DIR[heading];
 
-        //console.log(heading,d);
-
         if (this.canWalk(d[0],d[1])) {
           this.moveStep(d[0],d[1]);
-          this.iHeading = heading;
-          //console.log('step', heading, d);
+          this.iHeading = heading;                  // keep heading for next step
           return true;
         }
 
-        heading++;
+        heading++;                                 // turn legft
         heading %= DIR_LEN;
         i++;
       }
