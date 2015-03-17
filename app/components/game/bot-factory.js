@@ -418,46 +418,6 @@ angular.module('ePrime')
       return l;
     };
 
-    //var _name = _F('name');
-
-    /* Bot.prototype.setCode = function(script) {  // remove
-      var self = this;
-
-      function findScript(name) {  // todo: move, default?
-        var scripts = self.$game.scripts.filter(_name.eq(name));  // todo: find first or change scriots to hash
-        return (scripts.length > 0) ? scripts[0] : undefined;
-      }
-
-      if (script === null) {
-        this.scriptName = null;
-        this.$script = null;
-        return null;
-      }
-
-      if (typeof script === 'string') {
-        script = findScript(script);
-      }
-
-      if (!script) {
-        $log.error('Script not found');
-        return;
-      }
-
-      //this.scriptName = script.name;
-      //this.$script = script;
-      this.message = '';
-      return script;
-    }; */
-
-    //Bot.prototype.run = function() {  // delete?
-    //  this.message = '';
-    //  this.manual = false;
-    //};
-
-    //Bot.prototype.stop = function() {  // delete?
-    //  this.manual = true;
-    //};
-
     Bot.prototype.chargeBot = function(bot) {
       //console.log('charge', bot);
       if (isAt(bot.bot, this)) { // TODO: charging range?
@@ -554,9 +514,10 @@ angular.module('ePrime')
       if (l.length === 0) { return []; }
 
       l.forEach(function(d) {
-        var dx = d.x - self.x;
-        var dy = d.y - self.y;
-        d.r = Math.max(Math.abs(dx),Math.abs(dy));
+        var b = d.bot || d;
+        var dx = b.x - self.x;
+        var dy = b.y - self.y;
+        d.r = Math.max(Math.abs(dx),Math.abs(dy));  // don't do this, adds r to entities?
       });
 
       return l.sort( function(a, b) {return a.r - b.r; } );

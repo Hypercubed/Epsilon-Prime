@@ -18,6 +18,8 @@ angular.module('ePrime')
           .on('click', function(d) {
             if (!d.bot) { return; }  // not a bot
 
+            svgStage.zoomTo(d.bot.x, d.bot.y);
+
             $scope.$apply(function() {
               GAME.bots.forEach(function(bot) {
                 bot.active = (bot === d);
@@ -36,7 +38,7 @@ angular.module('ePrime')
           for(var k = 0; k < ke; k++) {
             var bot = GAME.bots[k].bot;
             var index = Chunk.getIndex(bot);
-            s += bot.t+index+(bot.$parent.active ? '!' : '');
+            s += bot.t+index;
           }
 
           return s;
@@ -51,10 +53,15 @@ angular.module('ePrime')
         function drawBots() {
           //$log.debug('bots draw');
           svgStage.renderBots(GAME.bots);
+          svgStage.zoomTo($scope.selected.bot.x, $scope.selected.bot.y);
         }
 
         $scope.$watch(GAME.world.getHash, drawTiles);
         $scope.$watch(botsWatch, drawBots);
+        $scope.$watch('selected', function(d) {
+          svgStage.zoomTo(d.bot.x, d.bot.y);
+          drawBots();
+        });
 
         function d3Draw() {  // setup and draw
           $log.debug('d3 draw');
@@ -74,66 +81,7 @@ angular.module('ePrime')
 
     var main = this;
 
-    /* var svgStage = new d3.charts.Grid();
-
-    svgStage  // TODO: map directovbe
-      .on('click', function(d) {
-        $scope.$apply(function() {
-          GAME.bots.forEach(function(bot) {
-            bot.active = (bot === d);
-            if (bot.active) {
-              main.bot = bot;
-            }
-          });
-        });
-      });
-
-    function botsWatch() {  // Move to ECS system? Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
-      var s = '';
-
-      var ke = GAME.bots.length;  // do better, move to GAME service
-      //var ws = GAME.world.size;
-      for(var k = 0; k < ke; k++) {
-        var bot = GAME.bots[k].bot;
-        var index = Chunk.getIndex(bot);
-        s += bot.t+index+(bot.$parent.active ? '!' : '');
-      }
-
-      return s;
-    }
-
-    function d3Draw() {  // setup and draw
-      $log.debug('d3 draw');
-
-      var tiles = GAME.world.scanList();  // todo: chunk
-      var bots = GAME.bots;  // todo: fix this
-
-      d3.select('#grid').datum([tiles,bots]).call(svgStage);
-    }
-
-    $scope.$watch(GAME.world.getHash, debounce(function() {  // TODO: render per chunk
-      $log.debug('tiles draw');
-      var tiles = GAME.world.scanList();
-      svgStage.renderTiles(tiles);
-    }));
-
-    $scope.$watch(botsWatch, debounce(function() {  // improve this
-      $log.debug('bots draw');
-      svgStage.renderBots(GAME.bots);
-    })); */
-
-  //  main.upgradeBot = function(bot) {  // TODO: delete
-    //  bot.upgrade();
-    //};
-
-    // TODO: canMove, isHome, isFull
-
-    //main.isAtHome = function(bot) {  // TODO: move to bot class? used?
-    //  bot = bot || main.bot;
-    //  return (bot !== main.home) && isAt(bot, main.bots[0]);
-    //};
-
-    main.canMine = function(bot) {  // TODO: move to bot class?  used?
+    /* main.canMine = function(bot) {  // TODO: move to bot class?  used?
       bot = bot || main.bot;
       return GAME.world.get(bot.x,bot.y).t === TILES.MINE;
     };
@@ -148,43 +96,7 @@ angular.module('ePrime')
       } else {
         bot.stop();
       }
-    };
-
-    main.canUnload = function(bot) {  // git rid or move these to bot-panel?
-      bot = bot || main.bot;
-      if (bot.S <= 0) { return false; }
-      return main.game.bots.some(function(_bot) {
-        return _bot.t === '@' && isAt(_bot, bot) && _bot.S < _bot.mS;
-      });
-    };
-
-    main.canCharge = function(bot) {
-      bot = bot || main.bot;
-      if (bot.E >= bot.mE) { return false; }
-      return main.game.bots.some(function(_bot) {
-        return _bot.t === '@' && _bot.E > 0 && isAt(_bot, bot);
-      });
-    };
-
-    main.canAction = function(bot) {  // used, move
-      bot = bot.bot || main.bot.bot;
-      return bot.canMine() || main.canUnload(bot) || main.canCharge(bot);
-    };
-
-    main.action = function(bot) {  // used, move
-      bot = bot || main.bot;
-
-      bot.$bot.unload();
-      bot.$bot.charge();
-      bot.$bot.mine();
-    };
-
-    main.run = function(code) {  // used, move?
-      var ret = sandBox.run(code, main.bot.$bot);
-      if (ret !== true) {
-        main.bot.bot.error(ret);
-      }
-    };
+    };*/
 
     /* cheat */
     if (siteConfig.debug) {
@@ -210,15 +122,55 @@ angular.module('ePrime')
         });
     }
 
-    /* _global */
-    /* hotkeys.bindTo($scope)  // esc doesn't play nice with modals
-      .add({
-        combo: 'esc',
-        description: 'Pause game',
-        callback: function() {
-          main.pause();
-        }
-      }); */
+    main.move = function(dx,dy) {
+      main.bot.bot.move(dx,dy);
+      step();
+    };
+
+    /* main.canUnload = function(bot) {  // git rid or move these to bot-panel?
+      bot = bot || main.bot;
+      if (bot.S <= 0) { return false; }
+      return main.game.bots.some(function(_bot) {
+        return _bot.t === '@' && isAt(_bot, bot) && _bot.S < _bot.mS;
+      });
+    };
+
+    main.canCharge = function(bot) {
+      bot = bot || main.bot;
+      if (bot.E >= bot.mE) { return false; }
+      return main.game.bots.some(function(_bot) {
+        return _bot.t === '@' && _bot.E > 0 && isAt(_bot, bot);
+      });
+    };
+
+    main.canAction = function(bot) {  // used, move
+      bot = bot.bot || main.bot.bot;
+      return bot.canMine() || main.canUnload(bot) || main.canCharge(bot);
+    }; */
+
+    main.action = function(bot) {  // used, move
+      bot = bot || main.bot;
+
+      bot.$bot.unload();
+      bot.$bot.charge();
+      bot.$bot.mine();
+
+      step();
+    };
+
+    main.run = function(code) {  // used, move?
+      var ret = sandBox.run(code, main.bot.$bot);
+      step();
+      if (ret !== true) {
+        main.bot.bot.error(ret);
+      }
+    };
+
+    function step() {
+      if (main.dT === 0) {
+        main.takeTurn();
+      }
+    };
 
     var d = [  // move somewhere else
       ['q','NW',-1,-1],
@@ -238,34 +190,13 @@ angular.module('ePrime')
           combo: k[0],
           //description: '',
           callback: function() {
-            main.bot.bot.move(k[2],k[3]);
+            main.move(k[2],k[3]);
           }
         });
     });
 
-    // Allow pause
-    /* var mouseTrapEnabled = true;
-
-    Mousetrap.stopCallback = function(event, element) {
-
-      if (!mouseTrapEnabled) {
-        return true;
-      }
-
-      // if the element has the class "mousetrap" then no need to stop
-      if ((' ' + element.className + ' ').indexOf(' mousetrap ') > -1) {
-        return false;
-      }
-
-      return (element.contentEditable && element.contentEditable == 'true');
-    }; */
-
     /* bot actions */  // move somewhere else
     hotkeys.bindTo($scope)
-      //.add({
-      //  combo: 'q w e a d z x c',
-      //  description: 'Move bot'
-      //})
       .add({
         combo: 's',
         description: 'Action (Unload/load/mine)',
@@ -273,16 +204,12 @@ angular.module('ePrime')
           main.action();
         }
       })
-      /* .add({
-        combo: 'r',
-        description: 'Manual/auto',
-        callback: function() {
-          main.bot.manual = !main.bot.manual;
-        }
-      }) */
       .add({
-        combo: 'j k',
-        description: 'Prev/next bot'
+        combo: '.',
+        description: 'Pass (take turn)',
+        callback: function() {
+          step();
+        }
       })
       .add({
         combo: '?',
@@ -389,20 +316,7 @@ angular.module('ePrime')
 
     setup();
 
-    //d3Draw();
-
-    //var mapDisplaySize = [GAME.world.size,GAME.world.size]; // not used anymore?
-    //var mapOffset = [0,0];  // TODO: focus on
-
     main.dT = 0;   // move all this to GAME service?
-
-    //var timer;
-
-    //function clearTimer() {
-    //  if (angular.isDefined(timer)) {
-    //    $timeout.cancel( timer );
-    //  }
-    //}
 
     main.takeTurn = function() {
       GAME.ecs.$update();

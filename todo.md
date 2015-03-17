@@ -3,7 +3,8 @@
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Bugs
-- [ ] Active bot selected in some cases
+- [ ] Bot does't find closest base.
+- [ ] Active bot not selected in some cases
 - [ ] SVG is not size responsive
 - [x] Active unit no longer shown in map
 - [x] Drop downs in bot list cut off
@@ -24,10 +25,11 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [x] Entity messages ie. .$on('upgrade', fn), .$emit('upgrade')
 - [x] common families
 - [x] remove entities
-- [ ] Order by priority
+- [ ] Order system updates by priority
 
 ## Next
-- [x] Map directive
+- [ ] Arrows?  More hotkeays (`S` save, `,` to mine,...)
+- [ ] Update tutorial for new mechanics, add callback functions
 - [ ] Indicate unit is on resource
 - [ ] Clean up and move tutorial
 - [ ] Move more GAME stuff to ecs engine
@@ -68,7 +70,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Clean terminology (bots, resources, energy units, etc)
 
 ## Decisions
-- [ ] Always charing, pause scripts only?
+- [ ] Always charging, pause scripts only?
 - [x] Start with full energy?
 - [ ] Can bot scripts command other bots?  $bot.find('A').moveTo($bot.x,$bot.y);?
 - [ ] Limit map and number of bots for performance?

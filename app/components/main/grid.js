@@ -214,67 +214,12 @@
         my.renderBots = renderBots;
         my.renderTiles = renderTiles;
 
-        /* var botsWrap = gBotsLayer
-          .selectAll('.bot').data(bots);
-
-        var gBotsEnter = botsWrap.enter()
-          .append('g')
-          .attr('class', function(d) {
-            return 'bot bot-'+d.name.toLowerCase();
-          })
-          .on('click', clicked)
-          .on('mouseenter', hover)
-          .on('mouseleave', function() {
-            text.text('');
-          })
-          .each(function(d) {
-            var $elm = d3.select(this);
-            d.$parent.$add('render', {});
-            d.$parent.$render = function renderTile() {
-              $elm
-                .attr('class', 'bot bot-'+d.name.toLowerCase())
-                .classed('active', d.$parent.active)
-                .attr('transform', 'translate('+[_X(d),_Y(d)]+')')
-                .select('text')
-                .text(d.t);
-            };
-            d.$parent.$render();
-          });
-
-        gBotsEnter
-          .append('circle')
-          .attr({
-            r: 1.2*dx,
-            cx: 0,
-            cy: 0
-          });
-
-        gBotsEnter
-          .append('text')
-          .attr(textAttr); */
-
-        //botsWrap.each(function(d) {
-          //d.$parent.$render();
-        //});
-
-        /* botsWrap
-          .attr('class', function(d) {
-            return 'bot bot-'+d.name.toLowerCase();
-          })
-          .classed('active', function(d) {
-            //console.log(d);
-            return d.$parent.active;
-          })
-          .attr('transform', function(d) {
-            return 'translate('+[_X(d),_Y(d)]+')';
-          })
-          .select('text')
-          .text(_tile); */
-
-        //gBots
-          //  .append('text')
-          //    .attr(textAttr)
-          //    .text(_tile);
+        my.zoomTo = function(x,y) {
+          var s = zoom.scale();
+          x = -xScale(x)*s+width/2;
+          y = -yScale(y)*s+height/2;
+          zoom.translate([x,y]).event(svg);
+        };
 
       });
     }

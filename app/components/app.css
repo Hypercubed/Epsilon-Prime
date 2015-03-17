@@ -193,3 +193,38 @@ body {
 .introjs-tooltip {
   min-width: 400px;
 }
+
+/* ------- */
+
+.help-map-key {
+  display: inline-block;
+  color: #000;
+  border-radius: 5px;
+  text-align: center;
+  margin-right: 5px;
+  padding: 5px 9px;
+  font-size: 0.9em;
+  font-family:   Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+.cfp-hotkeys-key {
+  color: #000;
+  font-size: 0.9em;
+  font-family:   Menlo, Monaco, Consolas, "Courier New", monospace;
+
+  border: 1px solid #aaa;
+  border-radius: 0.2em;
+  -webkit-border-radius: 0.2em;
+  -moz-border-radius: 0.2em;
+  -o-border-radius: 0.2em;
+  -ms-border-radius: 0.2em;
+  -moz-box-shadow: 0.1em 0.2em 0.2em #ddd;
+  -webkit-box-shadow: 0.1em 0.2em 0.2em #ddd;
+  box-shadow: 0.1em 0.2em 0.2em #ddd;
+  background-color: #f9f9f9;
+  background-image: -moz-linear-gradient(top, #eee, #f9f9f9, #eee);
+  background-image: -o-linear-gradient(top, #eee, #f9f9f9, #eee);
+  background-image: -webkit-linear-gradient(top, #eee, #f9f9f9, #eee);
+  background-image: linear-gradient(to bottom, #eee, #f9f9f9, #eee);
+  padding: 0.1em 0.3em;
+}

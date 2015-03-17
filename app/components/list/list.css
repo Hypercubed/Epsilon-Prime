@@ -70,13 +70,13 @@
 
 .list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus {
   color: #000;
-  background-color: #F5F5F5;
-  border-color: #aaa;
+  background-color: #F7F7F7;
+  border-color: blue;
   outline: none;
 }
 
 .list-group .list-group-item.active:hover, .list-group .list-group-item.active:focus {
-  background-color: #F5F5F5;
+  background-color: #DFDFDF;
   outline: none;
 }
 
@@ -96,7 +96,7 @@
   top: 0;
   bottom: 0;
   right: 5px;
-  color: #DDD;
+  color: #808080;
   outline:0;
 }
 

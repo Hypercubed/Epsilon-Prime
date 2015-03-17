@@ -48,7 +48,7 @@
               ng-options="script.name as script.name for script in main.game.scripts"
               ng-model="bot.script.scriptName"
               ng-change="setScript(bot, bot.script.scriptName)">
-              <option value="">Manual</option>
+              <option value="">Waiting</option>
             </select>
             <span class="input-group-btn">
               <button class="btn btn-link btn-xxs"
@@ -100,17 +100,17 @@
         <div class="row">
           <div class="col-lg-6 text-center">
             <u>Movement</u><br />
-            <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.bot.move(-1,-1)" ng-disabled="!bot.bot.canMove(-1,-1)">Q</button>
-            <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.bot.move( 0,-1)" ng-disabled="!bot.bot.canMove( 0,-1)">W</button>
-            <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.bot.move( 1,-1)" ng-disabled="!bot.bot.canMove( 1,-1)">E</button>
+            <button class="btn btn-primary btn-mono btn-lg" ng-click="main.move(-1,-1);" ng-disabled="!bot.bot.canMove(-1,-1)">Q</button>
+            <button class="btn btn-primary btn-mono btn-lg" ng-click="main.move( 0,-1);" ng-disabled="!bot.bot.canMove( 0,-1)">W</button>
+            <button class="btn btn-primary btn-mono btn-lg" ng-click="main.move( 1,-1);" ng-disabled="!bot.bot.canMove( 1,-1)">E</button>
             <p />
-            <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.bot.move(-1,0)" ng-disabled="!bot.bot.canMove(-1,0)">A</button>
-            <button class="btn btn-primary btn-mono btn-lg" ng-click="main.action(bot)" ng-disabled="!main.canAction(bot)">S</button>
-            <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.bot.move( 1,0)" ng-disabled="!bot.bot.canMove( 1,0)">D</button>
+            <button class="btn btn-primary btn-mono btn-lg" ng-click="main.move(-1,0);" ng-disabled="!bot.bot.canMove(-1,0)">A</button>
+            <button class="btn btn-primary btn-mono btn-lg" ng-click="main.action(bot);">S</button>
+            <button class="btn btn-primary btn-mono btn-lg" ng-click="main.move( 1,0);" ng-disabled="!bot.bot.canMove( 1,0)">D</button>
             <p />
-            <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.bot.move(-1,1)" ng-disabled="!bot.bot.canMove(-1,1)">Z</button>
-            <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.bot.move( 0,1)" ng-disabled="!bot.bot.canMove( 0,1)">X</button>
-            <button class="btn btn-primary btn-mono btn-lg" ng-click="bot.bot.move( 1,1)" ng-disabled="!bot.bot.canMove( 1,1)">C</button>
+            <button class="btn btn-primary btn-mono btn-lg" ng-click="main.move(-1,1);" ng-disabled="!bot.bot.canMove(-1,1)">Z</button>
+            <button class="btn btn-primary btn-mono btn-lg" ng-click="main.move( 0,1);" ng-disabled="!bot.bot.canMove( 0,1)">X</button>
+            <button class="btn btn-primary btn-mono btn-lg" ng-click="main.move( 1,1);" ng-disabled="!bot.bot.canMove( 1,1)">C</button>
             <p />
           </div>
           <div class="col-lg-6 script-btns">
@@ -119,7 +119,7 @@
 
             <div class="row script-btn" ng-repeat="script in main.game.scripts">
               <button class="btn btn-primary col-xs-11"
-                ng-click="main.run(script.code)">
+                ng-click="main.run(script.code);">
                 {{script.name | limitTo : 10}}
               </button>
               <button class="btn btn-sm btn-link btn-hover col-xs-1"
