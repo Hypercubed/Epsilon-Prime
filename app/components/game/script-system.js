@@ -127,6 +127,8 @@ angular.module('ePrime')
           //return m;
         }
 
+        //console.log($bot);
+
         /*jshint -W061 */
         //_sandBox.eval(code);
         /*jshint +W061 */

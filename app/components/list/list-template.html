@@ -18,7 +18,9 @@
           </div>
         </div>
         <ul class="list-group">
-          <li class="list-group-item" ng-repeat="item in items | filter:search" ng-class="{active: openItem === item, opened: opened }" ng-click="select(item)">
+          <li class="list-group-item" ng-repeat="item in items | filter:search"
+            ng-class="{active: openItem === item, opened: opened }"
+            ng-click="select(item)">
             <span sliding-list-inject><span ng-transclude></span></span>
             <button type="button" class="clearfix btn btn-link btn-xs pull-right open" ng-click="open(item)">
               <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>

@@ -113,6 +113,7 @@
         }
 
         function renderTiles(tiles) {
+
           var tilesWrap = gTilesLayer
             .selectAll('.tile').data(tiles, _id);
 

@@ -42,7 +42,7 @@
   }
 
 angular.module('ePrime')
-  .value('TILES', {
+  .constant('TILES', {
     EMPTY: String.fromCharCode(0),
     MOUNTAIN: '#',
     FIELD: '·',
@@ -52,7 +52,7 @@ angular.module('ePrime')
     BASE: '@',
     HOLE: 'O'
   })
-  .factory('Chunk', function () {  // todo: Chunk component should be view and hash, move position to position component
+  .factory('Chunk', function (TILES) {  // todo: Chunk component should be view and hash, move position to position component
     var SIZE = 60;
     var LEN = 60*60;
 
@@ -63,7 +63,8 @@ angular.module('ePrime')
 
       this.X = Math.floor(X);  // store offset rather than index?
       this.Y = Math.floor(Y);
-      this.hash = 0;
+      this.size = SIZE;
+      this.$hash = 1;  // start dirty
     }
 
     Chunk.prototype.id = function() {
@@ -86,7 +87,7 @@ angular.module('ePrime')
     Chunk.prototype.getTile = function(x,y) {  // here need to make sure I know x and y
       if (angular.isUndefined(y) && angular.isObject(x)) {
         if (angular.isUndefined(x.x) || angular.isUndefined(x.y)) {  // todo
-          throw 'Invalid object pass to Chunk.getTile';
+          throw 'Invalid object passed to Chunk.getTile';
         }
         y = x.y;
         x = x.x;
@@ -103,8 +104,31 @@ angular.module('ePrime')
         z = y;
       }
       this.view[x] = z.charCodeAt(0);
-      this.hash++;
+      this.$hash++;
+      //console.log(this.$hash);
       return this;
+    };
+
+    Chunk.prototype.getTilesArray = function() {  // move to Chunk.prototype
+
+      var r = [];
+
+      var X = this.X*SIZE,
+        Y = this.Y*SIZE;
+
+      var XE = X+SIZE,
+        YE = Y+SIZE;
+
+      for(var x = X; x < XE; x++) { // try other way around  index -> x,y
+        for(var y = Y; y < YE; y++) {
+          var z = this.get(x,y);  // todo: optomize index calc
+          if (z !== TILES.EMPTY) {
+            r.push(Chunk.makeTile(x,y,z));
+          }
+        }
+      }
+
+      return r;
     };
 
     Chunk.getIndex = function(x,y) {  // todo: if x is index and y is undefined
@@ -170,7 +194,7 @@ angular.module('ePrime')
     }
 
     World.prototype.getHash = function() {  // remove shuold use hash per chunk
-      return d3.sum($$chunks, _F('chunk.hash'));
+      return d3.sum($$chunks, _F('chunk.$hash'));
     };
 
     /* World.prototype.getChunkId = function(x,y) {  // should be in chunk?
@@ -275,6 +299,29 @@ angular.module('ePrime')
           }
         }
       }
+      return r;
+    };
+
+    World.prototype.scanChunk = function(chunk) {  // move to Chunk.prototype
+      //console.log('scanChunk',chunk);
+
+      var r = [];
+
+      var X = chunk.X*SIZE,
+          Y = chunk.Y*SIZE;
+
+      var XE = X+SIZE,
+      YE = Y+SIZE;
+
+      for(var x = X; x < XE; x++) { // try other way around  index -> x,y
+        for(var y = Y; y < YE; y++) {
+          var z = chunk.get(x,y);
+          if (z !== TILES.EMPTY) {
+            r.push(Chunk.makeTile(x,y,z));
+          }
+        }
+      }
+
       return r;
     };
 

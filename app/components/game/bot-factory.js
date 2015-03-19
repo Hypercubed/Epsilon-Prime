@@ -1,6 +1,13 @@
 
+
 ;(function() {
   'use strict';
+
+  function distance(a,b) {
+    var dx = a.x - b.x;
+    var dy = a.y - b.y;
+    return Math.max(Math.abs(dx),Math.abs(dy));
+  }
 
 angular.module('ePrime')
   .value('isAt', function isAt(obj,x,y) {
@@ -11,7 +18,77 @@ angular.module('ePrime')
   })
   .run(function(ngEcs) {
 
-    function createAccessor(bot) {
+    //function find(bot, _) {  // used by unload and charge, move?
+    //  return bot.findNearest(_);
+    //}
+
+    function Copy(e) {
+      var self = this;
+
+      ['name','x','y','S','mS','E','mE'].forEach(function(prop) {
+        self[prop] = e[prop];
+      });
+
+    }
+
+    function Accessor(e) {
+      var self = this;
+
+      ['name','x','y','S','mS','E','mE'].forEach(function(prop) {
+        Object.defineProperty(self, prop, {
+          get: function() {return e[prop]; }
+        });
+      });
+
+    }
+
+    function BotProxy(e) {
+
+      Accessor.call(this, e.bot);
+
+      this.moveTo = e.bot.moveTo.bind(e.bot);
+      this.move = e.bot.move.bind(e.bot);
+      this.mine = e.bot.mine.bind(e.bot);
+      this.upgrade = e.bot.upgrade.bind(e.bot);
+
+
+      this.unload = BotProxy.prototype.unload.bind(e.bot);
+      this.charge = BotProxy.prototype.charge.bind(e.bot);
+      this.construct = BotProxy.prototype.construct.bind(e.bot);
+      this.find = BotProxy.prototype.find.bind(e.bot);
+      this.log = BotProxy.prototype.log.bind(e.bot);
+
+    }
+
+    BotProxy.prototype.unload = function(_) {  // should unload to co-located @
+      var home = this.findNearest(_ || '@');  // gets closest
+      return (home) ? this.unloadTo(home) : null;
+    };
+
+    BotProxy.prototype.charge = function(_) {  // should charge to co-located @
+      var home = this.findNearest(_ || '@'); // gets closest
+      return (home) ? home.bot.chargeBot(this.$parent) : null;
+    };
+
+    BotProxy.prototype.construct = function(_) {
+      this.construct(_ || null);
+    };
+
+    BotProxy.prototype.find = function(_) {
+      var n = this.findNearest(_);
+      if (!n) { return null; }
+      if (n.$bot) {
+        n = new Copy(n.bot);
+      }
+      n.r  = distance(n,this);
+      return n;
+    };
+
+    BotProxy.prototype.log = function(msg) {
+      this.bot.addAlert('success', msg);
+    };
+
+    /* function createAccessor(bot) {
       var $bot = {};
 
       ['name','x','y','S','mS','E','mE'].forEach(function(prop) {
@@ -76,7 +153,7 @@ angular.module('ePrime')
       };
 
       return $bot;
-    }
+    } */
 
     ngEcs.$s('charging', {
       $require: ['bot'],
@@ -91,9 +168,14 @@ angular.module('ePrime')
     ngEcs.$s('bots', {
       $require: ['bot'],
       $addEntity: function(e) {
-        e.$bot = createInterface(e);
+        e.$bot = new BotProxy(e);
         e.bot.update();
-      }
+      }//,
+      //$update: function() {
+      //  this.$family.forEach(function(e) {  // restore interface for safety
+      //    e.$bot = new BotProxy(e);
+      //  });
+      //}
     });
 
 
@@ -183,6 +265,10 @@ angular.module('ePrime')
       return isAt(this,x,y);
     };
 
+    Bot.prototype.isNotAt = function(x,y) {
+      return this.x !== x || this.y !== y;
+    };
+
     //Bot.prototype.mass = function() {
     //  return this.mS + this.mE;
     //};
@@ -266,7 +352,7 @@ angular.module('ePrime')
       return this.canMove(dx,dy);
     };
 
-    var DIR = [
+    var DIR = [  // move
       [1,1],  // 0
       [1,0],  // 1
       [1,-1], // 2
@@ -322,8 +408,9 @@ angular.module('ePrime')
       if (!this.target || this.target.x !== x || this.target.y !== y) {  // new target
         //console.log('new target');
         this.target = {x:x, y:y};
-        this.heading = {dx:dx, dy:dy};
-        this.obs = false;
+        var _heading = {dx:dx, dy:dy};
+        this.obs = this.obs && angular.equals(this.heading, _heading);
+        this.heading = _heading;
       }
 
       var C = this.canWalk(dx,dy); // is free towards goal
@@ -503,6 +590,26 @@ angular.module('ePrime')
 
     Bot.prototype.scan = function() {  // used?
       return GAME.world.scan(this);
+    };
+
+    Bot.prototype.findNearest = function(_) {
+      var self = this;
+      var r = 1e10;
+      var ret = null;
+
+      GAME.scanList(_)
+      .forEach(function(e) {  // do better
+        if (e !== self) {
+          var b = e.bot || e;
+          var _r = distance(b,self);
+          if (_r < r) {
+            ret = e;
+            r = _r;
+          }
+        }
+      });
+
+      return ret;
     };
 
     Bot.prototype.scanList = function(_) {  // TODO: move, GAME.scanFrom?, optimize

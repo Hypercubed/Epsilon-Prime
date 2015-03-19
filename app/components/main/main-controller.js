@@ -1,12 +1,12 @@
 /* global d3:true */
-/* global _F:true */
+/* _global _F:true */
 
 (function() {
 
 'use strict';
 
 angular.module('ePrime')
-  .directive('gameMap', function($log, debounce, GAME, Chunk) {  // todo: use entities
+  .directive('gameMap', function($log, debounce, GAME, Chunk, ngEcs) {  // todo: use entities
     return {
       restrict: 'AE',
       scope: {
@@ -18,7 +18,7 @@ angular.module('ePrime')
           .on('click', function(d) {
             if (!d.bot) { return; }  // not a bot
 
-            svgStage.zoomTo(d.bot.x, d.bot.y);
+            //svgStage.zoomTo(d.bot.x, d.bot.y);
 
             $scope.$apply(function() {
               GAME.bots.forEach(function(bot) {
@@ -30,13 +30,16 @@ angular.module('ePrime')
             });
           });
 
+        var bots = ngEcs.systems.bots.$family;
+        var chunks = ngEcs.systems.chunks.$family;
+
         function botsWatch() {  // Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
           var s = '';
 
-          var ke = GAME.bots.length;  // do better, move to GAME service
+          var ke = bots.length;  // do better, move to GAME service
           //var ws = GAME.world.size;
           for(var k = 0; k < ke; k++) {
-            var bot = GAME.bots[k].bot;
+            var bot = bots[k].bot;
             var index = Chunk.getIndex(bot);
             s += bot.t+index;
           }
@@ -44,19 +47,36 @@ angular.module('ePrime')
           return s;
         }
 
+        var _tileHash = _F('chunk.$hash').gt(0);
+
+        function tilesWatch() {  // Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
+          return chunks.some(_tileHash);
+        }
+
         function drawTiles() {
-          //$log.debug('tiles draw');
-          var tiles = GAME.world.scanList();
-          svgStage.renderTiles(tiles);
+          //var tiles = GAME.world.scanList();
+          var len = chunks.length, chunk;
+
+          for(var i = 0; i<len; i++) {
+            chunk=chunks[i].chunk;
+
+            if (chunk.$hash !== 0) {
+              var _tiles = chunk.getTilesArray();
+              svgStage.renderTiles(_tiles);
+              chunk.$hash = 0;
+            }
+
+          }
+
         }
 
         function drawBots() {
           //$log.debug('bots draw');
-          svgStage.renderBots(GAME.bots);
-          svgStage.zoomTo($scope.selected.bot.x, $scope.selected.bot.y);
+          svgStage.renderBots(bots);
+          //svgStage.zoomTo($scope.selected.bot.x, $scope.selected.bot.y);
         }
 
-        $scope.$watch(GAME.world.getHash, drawTiles);
+        $scope.$watch(tilesWatch, debounce(drawTiles));  // drawTiles is as faster than tilesWatch?  debounce?
         $scope.$watch(botsWatch, drawBots);
         $scope.$watch('selected', function(d) {
           svgStage.zoomTo(d.bot.x, d.bot.y);
@@ -117,7 +137,7 @@ angular.module('ePrime')
           callback: function() {
             main.cheat = true;
             main.game.world.scanRange(main.bot.bot.x,main.bot.bot.y,40);
-            d3Draw();
+            //d3Draw();
           }
         });
     }
@@ -170,7 +190,7 @@ angular.module('ePrime')
       if (main.dT === 0) {
         main.takeTurn();
       }
-    };
+    }
 
     var d = [  // move somewhere else
       ['q','NW',-1,-1],
@@ -333,39 +353,164 @@ angular.module('ePrime')
 
     $scope.IntroOptions = {
       disableInteraction: false,
-      showStepNumbers: false,
+      showStepNumbers: true,
       steps: [
-        { intro: '<h2>Welcome to Epsilon-prime</h2>In Epsilon-prime your goal is to conquer the planet of ε-prime. You do this by commanding an army of bots to explore and exploit the resources of ε-prime. You can control your bots individually using your mouse and keyboard or by using command scripts written in JavaScript. The game begins with a simple (and very inefficient) set of scripts for exploring and collecting resources. Using just these scripts you could complete this demo in ~2,500 turns. But you can you do better!' },
-        { element: '#left-panel', intro: 'The game map is located on the left. Use the mouse and scroll wheel (or touch screen) to pan and zoom the map. The @ mark is your starting base.', position: 'right' },
-        { element: '#list', intro: 'On the right is a units lists. All your units are listed here.', position: 'left' },
-        { element: '.list-group-item:nth-child(1)', intro: 'At this time you have one unit… the base. Again the base is identified by the @ symbol.', position: 'left' },
-        { element: '.list-group-item:nth-child(1) .energy-bar', intro: 'The red progress bar indicates the unit’s energy storage and capacity. The base unit begins with 100 J of energy. Energy is needed to move and collected resources.', position: 'left' },
-        { element: '.list-group-item:nth-child(1) .energy-cost', intro: 'Above the energy indicator you will find the units movement cost and charging rate.', position: 'left' },
-        { element: '.list-group-item:nth-child(1) .energy-cost .movement-cost', intro: 'The energy of the base unit is depleted at a very high rate while moving. Notice that the base requires a full charge of 100 J to move one space.', position: 'left' },
-        { element: '.list-group-item:nth-child(1) .energy-cost .recharge-rate', intro: 'The base unit recharges at just over 2 J per turn. At this rate a heavy base unit can only once space move every 44 turns.', position: 'left' },
-        { element: '.list-group-item:nth-child(1) .storage-bar', intro: 'The blue progress bar indicates a units resource storage and capacity. Resources are used to upgrade units or construct new units.', position: 'left' },
-        { element: '.list-group-item:nth-child(1) .construct-button', intro: 'Constructing new units costs 100 kg. Construct a new unit now using the button indicated.', position: 'left' },
-        { element: '.list-group-item:nth-child(2)', intro: 'Your new unit will appear in the list...', position: 'left' },
-        { element: '#left-panel', intro: 'and on the map indicated on with an A.', position: 'right' },
-        { element: '.list-group-item:nth-child(2) .energy-cost', intro: 'Notice that the movement cost and recharge rate are both lower. This unit can move one space every two turns using it\'s own power generation.', position: 'left' },
-        { element: '.list-group-item:nth-child(2)', intro: 'However small units can also charge from larger units. Select the rover by clicking the A in teh bot list (or the map) and press the action key <code>S</code> to charge the Rover using the Base’s energy. This is the action key.  It is also used to unload any unit storage to the base and to mine resources.', position: 'left' },
-        { element: '#left-panel', intro: 'You can now begin exploring the map using the Q-C keys. The letters <code>QWEADZXC</code> are directions of movement (<code>Q</code> for North West, <code>C</code> for South East, etc).  Imagine your unit is located at the action key <code>S</code> on your keyboard.  If you encounter an X on the map this is a resource cache (or mine). Collect resources using the action key <code>S</code>.', position: 'right' },
-        { element: '.list-group-item:nth-child(2) .energy-bar', intro: 'You will notice that the energy depletes as you move and mine. You can use all your energy to mine or return to the base periodically to unload and charge. This can be done several times until your units run out of energy.', position: 'left' },
-        { element: '#play-buttons', intro: 'The only way to regain energy is to take a turn. In the upper left you will see the turn indicator. Use the <i class="fa fa-step-forward"></i> button to advance several turns and regain energy.', position: 'right' },
-        { element: '.list-group-item:nth-child(1)', intro: 'You can use the scripts dropdown to set a bots automatic actions each turn. Select \'Construct\' for the base…', position: 'left' },
-        { element: '.list-group-item:nth-child(2)', intro: 'and \'Collect\' for the bot.', position: 'left' },
-        { element: '#play-buttons', intro: 'Press play button to cycle turns and watch your bots work autonomously.', position: 'right' },
-        { element: '#scripts-button', intro: 'You can modify the action scripts here.', position: 'top' },
-        { element: '#save-button', intro: 'Your game is automatically saved every 20 turns.', position: 'left' },
-        { element: '#stats-button', intro: 'Check your progress here.  <h3>Enjoy</h3>', position: 'left' }
+        {
+          intro: '<h2>Welcome to Epsilon-prime</h2>In Epsilon-prime your goal is to conquer the planet of ε-prime. You do this by commanding an army of bots to explore and exploit the resources of ε-prime. You can control your bots individually using your mouse and keyboard or by using command scripts written in JavaScript. The game begins with a simple (and very inefficient) set of scripts for exploring and collecting resources. Using just these scripts you could complete this demo in ~2,500 turns. But you can you do better!'
+        },
+        {
+          element: '#left-panel',
+          intro: 'The game map is located on the left. Use the mouse and scroll wheel (or touch screen) to pan and zoom the map. The @ mark is your starting base.',
+          position: 'right'
+        },
+        {
+          element: '#list',
+          intro: 'On the right is a units lists. All your units are listed here.',
+          position: 'left'
+        },
+        {
+          element: '.list-group-item:nth-child(1)',
+          intro: 'At this time you have one unit… the base. Again the base is identified by the @ symbol.',
+          position: 'left'
+        },
+        {
+          element: '.list-group-item:nth-child(1) .energy-bar',
+          intro: 'The red progress bar indicates the unit’s energy storage and capacity. The base unit begins with 100 J of energy. Energy is needed to move and collected resources.',
+          position: 'left'
+        },
+        {
+          element: '.list-group-item:nth-child(1) .energy-cost',
+          intro: 'Above the energy indicator you will find the units movement cost and charging rate.',
+          position: 'left'
+        },
+        {
+          element: '.list-group-item:nth-child(1) .energy-cost .movement-cost',
+          intro: 'The energy of the base unit is depleted at a very high rate while moving. Notice that the base requires a full charge of 100 J to move one space.',
+          position: 'left'
+        },
+        {
+          element: '.list-group-item:nth-child(1) .energy-cost .recharge-rate',
+          intro: 'The base unit recharges at just over 2 J per turn. At this rate a heavy base unit can only once space move every 44 turns.',
+          position: 'left'
+        },
+        {
+          element: '.list-group-item:nth-child(1) .storage-bar',
+          intro: 'The blue progress bar indicates a units resource storage and capacity. Resources are used to upgrade units or construct new units.',
+          position: 'left'
+        },
+        {
+          element: '.list-group-item:nth-child(1) .construct-button',
+          intro: 'Constructing new units costs 100 kg. Construct a new unit now using the button indicated.',
+          position: 'left'
+        },
+        {
+          element: '.list-group-item:nth-child(2)',
+          intro: 'Your new unit will appear in the list...',
+          position: 'left',
+          onbeforechange: function() {
+            if (main.bots.length < 2) {
+              this.previousStep();
+            }
+          }
+        },
+        {
+          element: '#left-panel',
+          intro: 'and on the map indicated on with an A.',
+          position: 'right'
+        },
+        {
+          element: '.list-group-item:nth-child(2) .energy-cost',
+          intro: 'Notice that the movement cost and recharge rate are both lower. This unit can move one space every two turns using it\'s own power generation.',
+          position: 'left'
+        },
+        {
+          element: '.list-group-item:nth-child(2)',
+          intro: 'However small units can also charge from larger units. Make the rover the active unit by clicking the A in the bot list...',
+          position: 'left'
+        },
+        {
+          element: '.list-group-item:nth-child(2)',
+          intro: 'Now press the action key <code class="cfp-hotkeys-key">s</code> to charge the Rover using the Base’s energy. This is the action key.  It is also used to unload any unit storage to the base and to mine resources.',
+          position: 'left',
+          onbeforechange: function() {
+            if (!main.bots[1].active) {
+              this.previousStep();
+            }
+          }
+        },
+        {
+          element: '#left-panel',
+          intro: 'You can now begin exploring the map using the <code class="cfp-hotkeys-key">q</code>-<code class="cfp-hotkeys-key">c</code> keys. The letters <code class="cfp-hotkeys-key">qweadzxc</code> are directions of movement (<code class="cfp-hotkeys-key">q</code> for North West, <code class="cfp-hotkeys-key">c</code> for South East, etc).  Imagine your unit is located at the action key <code class="cfp-hotkeys-key">s</code> on your keyboard. ',
+          position: 'right'
+        },
+        {
+          element: '#left-panel',
+          intro: 'If you encounter an X on the map this is a resource cache (or mine). Collect resources using the action key <code class="cfp-hotkeys-key">s</code>.',
+          position: 'right'
+        },
+        {
+          element: '.list-group-item:nth-child(2) .energy-bar',
+          intro: 'You will notice that the energy depletes as you move.  This is because this unit\'s movement cost is greater than it\'s recharge rate. You can use all your energy to mine or return to the base periodically to unload and charge...',
+          position: 'left'
+        },
+        {
+          element: '.list-group-item:nth-child(2) .energy-bar',
+          intro: 'Or use the wait key <code class="cfp-hotkeys-key">.</code> to wait one turn an recharge your unit.',
+          position: 'left'
+        },
+        {
+          element: '#play-buttons',
+          intro: 'You may also use the <i class="fa fa-step-forward"></i> button to advance a turn.',
+          position: 'right'
+        },
+        {
+          element: '.list-group-item:nth-child(1)',
+          intro: 'You can use this dropdown to set a bots automatic actions each turn. Select \'Construct\' for the base...',
+          position: 'left'
+        },
+        {
+          element: '.list-group-item:nth-child(2)',
+          intro: 'and \'Collect\' for the bot.',
+          position: 'left'
+        },
+        {
+          element: '#play-buttons',
+          intro: 'Press play button to automatically cycle turns and watch your bots work autonomously.',
+          position: 'right'
+        },
+        {
+          element: '#scripts-button',
+          intro: 'You can modify the action scripts here.',
+          position: 'top'
+        },
+        {
+          element: '#save-button',
+          intro: 'Your game is automatically saved every 20 turns.',
+          position: 'left'
+        },
+        {
+          element: '#stats-button',
+          intro: 'Check your progress here.',
+          position: 'left' },
+        { intro: '<h3>Enjoy</h3>' }
       ]
     };
+
+    main.introCounter = 1;  // save with game state?
 
     $scope.introChange = function() {
       var intro = this;
 
+      var currentItem = intro._introItems[intro._currentStep];
+
+      if (currentItem.onbeforechange) {
+        currentItem.onbeforechange.call(this);
+      }
+
+      main.introCounter = intro._currentStep+1;
+
       for (var i = intro._currentStep; i < this._options.steps.length; i++) {
-        var currentItem = intro._introItems[i];
+        currentItem = intro._introItems[i];
         var step = intro._options.steps[i];
         if (step.element) {
           currentItem.element = document.querySelector(step.element);

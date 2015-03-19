@@ -71,12 +71,11 @@
 .list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus {
   color: #000;
   background-color: #F7F7F7;
-  border-color: blue;
   outline: none;
 }
 
 .list-group .list-group-item.active:hover, .list-group .list-group-item.active:focus {
-  background-color: #DFDFDF;
+  background-color: #F7F7F7;
   outline: none;
 }
 

@@ -150,6 +150,18 @@
   color: #000;
 }
 
+.bot-panel .row-action-primary i {
+  line-height: 50px !important;
+  font-family: "Courier New", Courier, monospace;
+  border: 2px solid rgba(0, 0, 0, 0.247059);
+  cursor: pointer;
+}
+
+.list-group-item.active .bot-panel .row-action-primary i {
+  border: 2px solid #5555FF;
+  box-sizing: border-box;
+}
+
 .badge.storage, .badge.info {
   background-color: #03a9f4;
   color: #000;
