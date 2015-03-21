@@ -78,6 +78,10 @@
   padding-top: 5px;
 }
 
+.bot-panel .row-action-primary .text-muted {
+  color: #E4E4E4;
+}
+
 .script-btns .row {
   margin-bottom: 6px;
   padding: 0;

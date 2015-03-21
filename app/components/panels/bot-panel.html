@@ -1,6 +1,6 @@
 <div id="bot-panel" class="bot-panel" tabindex="0">
   <div class="row-action-primary">
-    <small class="credit text-muted">#{{$index+1}}</small>
+    <small class="credit text-muted">#{{bot._id}}</small>
     <i>{{bot.bot.t}}</i>
   </div>
   <div class="row-content bot-panel-small">
@@ -26,14 +26,14 @@
     <div class="row">
       <!-- label class="col-sm-2">[J]</label -->
       <div class="col-xs-6 energy-bar">
-        <progressbar class="active" ng-attr-animate="false" ng-class="{'progress-striped': bot.bot.E < bot.bot.mE}" value="bot.bot.E * 100 / bot.bot.mE" type="danger">
+        <progressbar class="active" ng-attr-animate="main.dT > 20 || main.dT === 0" ng-class="{'progress-striped': bot.bot.E < bot.bot.mE}" value="bot.bot.E * 100 / bot.bot.mE" type="danger">
           <span style="color:black; white-space:nowrap;">{{bot.bot.E | number : 1}} / {{bot.bot.mE | number : 0}} [J]</span>
         </progressbar>
       </div>
 
       <!-- label class="col-sm-2">Storage</label -->
       <div class="col-xs-6 storage-bar">
-        <progressbar class="active" ng-attr-animate="false" value="bot.bot.S * 100 / bot.bot.mS" type="info">
+        <progressbar class="active" ng-attr-animate="main.dT > 20 || main.dT === 0" value="bot.bot.S * 100 / bot.bot.mS" type="info">
           <span style="color:black; white-space:nowrap;">{{bot.bot.S}} / {{bot.bot.mS}} [kg]</span>
         </progressbar>
       </div>

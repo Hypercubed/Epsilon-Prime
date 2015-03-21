@@ -55,7 +55,11 @@ angular.module('ePrime')
 
         function drawTiles() {
           //var tiles = GAME.world.scanList();
-          var len = chunks.length, chunk;
+
+
+          svgStage.renderChunks(chunks);
+
+          /* var len = chunks.length, chunk;
 
           for(var i = 0; i<len; i++) {
             chunk=chunks[i].chunk;
@@ -66,7 +70,7 @@ angular.module('ePrime')
               chunk.$hash = 0;
             }
 
-          }
+          } */
 
         }
 
@@ -85,11 +89,7 @@ angular.module('ePrime')
 
         function d3Draw() {  // setup and draw
           $log.debug('d3 draw');
-
-          var tiles = GAME.world.scanList();  // todo: chunk instead
-          var bots = GAME.bots;  // todo: fix this
-
-          d3.select($element[0]).datum([tiles,bots]).call(svgStage);
+          d3.select($element[0]).datum([chunks,bots]).call(svgStage);
         }
 
         d3Draw();
@@ -178,6 +178,14 @@ angular.module('ePrime')
       step();
     };
 
+    main.mine = function(bot) {  // used, move
+      bot = bot || main.bot;
+
+      bot.$bot.mine();  // mine untill done?
+
+      step();
+    };
+
     main.run = function(code) {  // used, move?
       var ret = sandBox.run(code, main.bot.$bot);
       step();
@@ -192,15 +200,15 @@ angular.module('ePrime')
       }
     }
 
-    var d = [  // move somewhere else
-      ['q','NW',-1,-1],
-      ['w','N' , 0,-1],
-      ['e','NE', 1,-1],
-      ['a','W' ,-1, 0],
-      ['d','E' , 1, 0],
-      ['z','SW',-1, 1],
-      ['x','S' , 0, 1],
-      ['c','SE', 1, 1]
+    var d = [  // move somewhere else, combine with directions list in botcomponent
+      [ 'q'         ,'NW',-1,-1],
+      [['w','up']   ,'N' , 0,-1],
+      [ 'e'         ,'NE', 1,-1],
+      [['a','left'] ,'W' ,-1, 0],
+      [['d','right'],'E' , 1, 0],
+      [ 'z'         ,'SW',-1, 1],
+      [['x','down'] ,'S' , 0, 1],
+      [ 'c'         ,'SE', 1, 1]
     ];
 
     /* bot directions */  // move somewhere else
@@ -225,10 +233,25 @@ angular.module('ePrime')
         }
       })
       .add({
+        combo: ',',
+        description: 'Mine',
+        callback: function() {
+          main.mine();
+        }
+      })
+      .add({
         combo: '.',
         description: 'Pass (take turn)',
         callback: function() {
           step();
+        }
+      })
+      .add({
+        combo: 'S',
+        description: 'Save game',
+        callback: function() {
+          GAME.save();
+          return false;
         }
       })
       .add({
@@ -390,7 +413,7 @@ angular.module('ePrime')
         },
         {
           element: '.list-group-item:nth-child(1) .energy-cost .recharge-rate',
-          intro: 'The base unit recharges at just over 2 J per turn. At this rate a heavy base unit can only once space move every 44 turns.',
+          intro: 'The base unit recharges at just over 2 J per turn. At this rate a heavy base unit can only move one space every 44 turns.',
           position: 'left'
         },
         {

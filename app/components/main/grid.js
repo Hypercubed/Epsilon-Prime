@@ -1,5 +1,6 @@
 /* global _F:true */
 /* global d3:true */
+/*jshint -W040 */
 
 (function() {
 
@@ -32,9 +33,12 @@
     //  return [_X(d),_Y(d)];
     //};
 
-    var _id = function(d) {
+    var _posId = function(d) {
       return '@'+[d.x,d.y];
     };
+
+    var _id = _F('_id');
+    var _botTile = _F('bot.t');
 
     var textAttr = {
       'text-anchor': 'middle',
@@ -67,7 +71,7 @@
     function my(selection) {
       selection.each(function(d) {
 
-        var tiles = d[0];  // TODO: not this
+        var chunks = d[0];  // TODO: not this
         var bots = d[1];
 
         if (!container) {
@@ -112,10 +116,42 @@
 
         }
 
-        function renderTiles(tiles) {
+        function renderChunks(chunks) {
 
-          var tilesWrap = gTilesLayer
-            .selectAll('.tile').data(tiles, _id);
+          var gChunkWrap = gTilesLayer
+            .selectAll('.chunk').data(chunks, _id);
+
+          gChunkWrap.enter()
+            .append('g')
+            .attr('transform', 'translate(0,0)')
+            .attr('class','chunk');
+
+          gChunkWrap
+            .each(_renderChunk);
+
+          /* var len = chunks.length, chunk;
+
+          for(var i = 0; i<len; i++) {
+            chunk=chunks[i].chunk;
+
+            if (chunk.$hash !== 0) {
+              var _tiles = chunk.getTilesArray();
+              renderTiles(_tiles);
+              chunk.$hash = 0;
+            }
+
+          } */
+
+        }
+
+        function _renderChunk(d) {
+          if (d.chunk.$hash === 0) { return; }  // dirty check
+          d.chunk.$hash = 0;
+
+          var tiles =  d.chunk.getTilesArray();
+
+          var tilesWrap = d3.select(this)
+            .selectAll('.tile').data(tiles, _posId);
 
           tilesWrap.enter()
             .append('g')
@@ -141,9 +177,38 @@
             .text(_tile);
         }
 
+        /* function renderTiles(tiles) {
+
+          var tilesWrap = d3.select(this)
+            .selectAll('.tile').data(tiles, _posId);
+
+          tilesWrap.enter()
+            .append('g')
+            .attr('class', 'tile')
+            .attr('transform', function(d) {
+              return 'translate('+[_X(d),_Y(d)]+')';
+            })
+            .on('click', clicked)
+            .on('mouseenter', hover)
+            .on('mouseleave', function() {
+              text.text('');
+            })
+            .append('text')
+            .attr(textAttr)
+            //.text(_tile)
+            ;
+
+          tilesWrap  // shouldn't need to do this but itenms
+            //.attr('transform', function(d) {
+            //  return 'translate('+[_X(d),_Y(d)]+')';
+            //})
+            .select('text')
+            .text(_tile);
+        } */
+
         function renderBots(bots) {
           var botsWrap = gBotsLayer
-            .selectAll('.bot').data(bots);
+            .selectAll('.bot').data(bots, _id);
 
           var gBotsEnter = botsWrap.enter()
             .append('g')
@@ -199,7 +264,7 @@
               return d.active;
             })
             .select('text')
-            .text(_F('bot.t'));
+            .text(_botTile);
 
           botsWrap
             //.transition()
@@ -209,11 +274,12 @@
 
         }
 
-        renderTiles(tiles);
+        renderChunks(chunks);
         renderBots(bots);
 
         my.renderBots = renderBots;
-        my.renderTiles = renderTiles;
+        //my.renderTiles = renderTiles;
+        my.renderChunks = renderChunks;
 
         my.zoomTo = function(x,y) {
           var s = zoom.scale();

@@ -28,8 +28,9 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Order system updates by priority
 
 ## Next
-- [ ] Arrows?  More hotkeays (`S` save, `,` to mine,...)
-- [ ] Update tutorial for new mechanics, add callback functions
+- [ ] Arrow keys as alternative?  More hotkeys (`S` (shift-s) save, `,` to mine,...)
+- [ ] More orders (Move to target, mine at target)
+- [-] Update tutorial for new mechanics, add callback functions
 - [ ] Indicate unit is on resource
 - [ ] Clean up and move tutorial
 - [ ] Move more GAME stuff to ecs engine
