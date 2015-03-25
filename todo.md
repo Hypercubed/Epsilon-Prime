@@ -3,15 +3,15 @@
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Bugs
-- [ ] Bot does't find closest base.
-- [ ] Active bot not selected in some cases
+- [x] Bot does't find closest base.
+- [ ] Active bot not selected in some cases (test this)
 - [ ] SVG is not size responsive
 - [x] Active unit no longer shown in map
 - [x] Drop downs in bot list cut off
 - [x] Sometimes base is on top of a mine.
 - [x] Optimize find to only search map if '.X#'.
 - [-] Prevent duplicate scripts with the same name
-- [ ] Too slow?
+- [ ] Too slow?  Test on firefox.
 - [ ] Improve GUI Responsiveness to small screens
 - [ ] Upgrade using base resources?
 - [ ] j/k should only cycle filtered bots?
@@ -28,8 +28,13 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Order system updates by priority
 
 ## Next
-- [ ] Arrow keys as alternative?  More hotkeys (`S` (shift-s) save, `,` to mine,...)
+- [ ] Stop using watchers in map directive
+- [ ] Add $map API
+- [ ] Add $bot.memory
+- [x] Arrow keys as alternative?  More hotkeys (`S` (shift-s) save, `,` to mine,...)
+- [ ] Shortcuts for do until E = 0
 - [ ] More orders (Move to target, mine at target)
+- [ ] Deactivate orders for active bot on manual keypress?
 - [-] Update tutorial for new mechanics, add callback functions
 - [ ] Indicate unit is on resource
 - [ ] Clean up and move tutorial
@@ -38,9 +43,9 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Finish Entity component system
 - [ ] New screen shot
 - [ ] Bot memory? Bot target store.
-- [ ] Improved bug0?
+- [x] Improved bug0?
 - [x] Replace hotkey help with help dialog
-- [ ] Make defaultScripts as scripts service. (crud, reset, validate, run, etc)
+- [ ] Make defaultScripts as scripts service. (crud, reset, validate, run, etc), entities?
 - [x] Prevent deployment if env !== production in gruntfile
 - [x] Tutorial
 - [ ] Tests

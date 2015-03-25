@@ -168,25 +168,23 @@ angular.module('ePrime')
       return bot.canMine() || main.canUnload(bot) || main.canCharge(bot);
     }; */
 
-    main.action = function(bot) {  // used, move
-      bot = bot || main.bot;
+    main.action = function(bot) {  // used, move? Use action script?
+      var $bot = bot ? bot.$bot : main.bot.$bot;
 
-      bot.$bot.unload();
-      bot.$bot.charge();
-      bot.$bot.mine();
+      $bot.unload();
+      $bot.charge();
+      $bot.mine();
 
       step();
     };
 
     main.mine = function(bot) {  // used, move
       bot = bot || main.bot;
-
-      bot.$bot.mine();  // mine untill done?
-
+      while(bot.bot.E > 1 && bot.$bot.mine() !== false) {}  // mine untill done?
       step();
     };
 
-    main.run = function(code) {  // used, move?
+    main.run = function(code) {  // used in bot panel, move?
       var ret = sandBox.run(code, main.bot.$bot);
       step();
       if (ret !== true) {
