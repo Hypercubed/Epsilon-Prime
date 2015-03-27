@@ -144,6 +144,10 @@
 
         }
 
+        var _translate = function(d) {
+          return 'translate('+[_X(d),_Y(d)]+')';
+        };
+
         function _renderChunk(d) {
           if (d.chunk.$hash === 0) { return; }  // dirty check
           d.chunk.$hash = 0;
@@ -156,9 +160,7 @@
           tilesWrap.enter()
             .append('g')
             .attr('class', 'tile')
-            .attr('transform', function(d) {
-              return 'translate('+[_X(d),_Y(d)]+')';
-            })
+            .attr('transform', _translate)
             .on('click', clicked)
             .on('mouseenter', hover)
             .on('mouseleave', function() {
@@ -177,36 +179,7 @@
             .text(_tile);
         }
 
-        /* function renderTiles(tiles) {
-
-          var tilesWrap = d3.select(this)
-            .selectAll('.tile').data(tiles, _posId);
-
-          tilesWrap.enter()
-            .append('g')
-            .attr('class', 'tile')
-            .attr('transform', function(d) {
-              return 'translate('+[_X(d),_Y(d)]+')';
-            })
-            .on('click', clicked)
-            .on('mouseenter', hover)
-            .on('mouseleave', function() {
-              text.text('');
-            })
-            .append('text')
-            .attr(textAttr)
-            //.text(_tile)
-            ;
-
-          tilesWrap  // shouldn't need to do this but itenms
-            //.attr('transform', function(d) {
-            //  return 'translate('+[_X(d),_Y(d)]+')';
-            //})
-            .select('text')
-            .text(_tile);
-        } */
-
-        function renderBots(bots) {
+        function renderBots(bots, dT) {
           var botsWrap = gBotsLayer
             .selectAll('.bot').data(bots, _id);
 
@@ -225,21 +198,8 @@
               return d.active;
             })
             .attr('transform', function(d) {
-              return 'translate('+[_X(d.bot),_Y(d.bot)]+')';
-            })
-            /* .each(function(d) {
-              var $elm = d3.select(this);
-              d.$add('render', {});
-              d.$render = function renderTile() {
-                $elm
-                  .attr('class', 'bot bot-'+d.bot.name.toLowerCase())
-                  .classed('active', d.active)
-                  .attr('transform', 'translate('+[_X(d.bot),_Y(d.bot)]+')')
-                  .select('text')
-                  .text(d.bot.t);
-              };
-              d.$render();
-            })*/;
+              return _translate(d.bot);
+            });
 
           gBotsEnter
             .append('circle')
@@ -267,9 +227,9 @@
             .text(_botTile);
 
           botsWrap
-            //.transition()
+            //.transition().duration(dT > 0 ? dT : 250)
               .attr('transform', function(d) {
-                return 'translate('+[_X(d.bot),_Y(d.bot)]+')';
+                return _translate(d.bot);
               });
 
         }

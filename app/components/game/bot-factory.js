@@ -216,7 +216,7 @@ angular.module('ePrime')
       return isAt(this,x,y);
     }; */
 
-    function Bot() {
+    function Bot(parent) {
 
       this.name = '';
       this.t = TILES.BOT;
@@ -233,6 +233,8 @@ angular.module('ePrime')
       this.active = false;
       this.message = '';
       this.alerts = [];
+
+      this.$parent = parent;
 
     }
 

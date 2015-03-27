@@ -6,7 +6,7 @@
 'use strict';
 
 angular.module('ePrime')
-  .directive('gameMap', function($log, debounce, GAME, Chunk, ngEcs) {  // todo: use entities
+  .directive('gameMap', function($log, debounce, ngEcs) {  // todo: use entities
     return {
       restrict: 'AE',
       scope: {
@@ -14,14 +14,15 @@ angular.module('ePrime')
       },
       link: function link($scope, $element) {
 
+        var bots = ngEcs.systems.bots.$family;
+        var chunks = ngEcs.systems.chunks.$family;
+
         var svgStage = new d3.charts.Grid()
           .on('click', function(d) {
             if (!d.bot) { return; }  // not a bot
 
-            //svgStage.zoomTo(d.bot.x, d.bot.y);
-
-            $scope.$apply(function() {
-              GAME.bots.forEach(function(bot) {
+            $scope.$apply(function() {  // make a callback to main.setBot
+              bots.forEach(function(bot) {
                 bot.active = (bot === d);
                 if (bot.active) {
                   $scope.selected = bot;
@@ -30,10 +31,7 @@ angular.module('ePrime')
             });
           });
 
-        var bots = ngEcs.systems.bots.$family;
-        var chunks = ngEcs.systems.chunks.$family;
-
-        function botsWatch() {  // Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
+        /* function botsWatch() {  // Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
           var s = '';
 
           var ke = bots.length;  // do better, move to GAME service
@@ -45,54 +43,54 @@ angular.module('ePrime')
           }
 
           return s;
-        }
+        } */
 
-        var _tileHash = _F('chunk.$hash').gt(0);
+        //var _tileHash = _F('chunk.$hash').gt(0);
 
-        function tilesWatch() {  // Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
-          return chunks.some(_tileHash);
-        }
+        //function tilesWatch() {  // Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
+        //  return chunks.some(_tileHash);
+        //}
 
-        function drawTiles() {
-          //var tiles = GAME.world.scanList();
-
-
+        /* function drawTiles() {
           svgStage.renderChunks(chunks);
-
-          /* var len = chunks.length, chunk;
-
-          for(var i = 0; i<len; i++) {
-            chunk=chunks[i].chunk;
-
-            if (chunk.$hash !== 0) {
-              var _tiles = chunk.getTilesArray();
-              svgStage.renderTiles(_tiles);
-              chunk.$hash = 0;
-            }
-
-          } */
-
         }
 
         function drawBots() {
-          //$log.debug('bots draw');
-          svgStage.renderBots(bots);
-          //svgStage.zoomTo($scope.selected.bot.x, $scope.selected.bot.y);
-        }
+          svgStage.renderBots(bots, ngEcs.$delay);
+        } */
 
-        $scope.$watch(tilesWatch, debounce(drawTiles));  // drawTiles is as faster than tilesWatch?  debounce?
-        $scope.$watch(botsWatch, drawBots);
+        /* var draw = debounce(function() {
+          svgStage.renderChunks(chunks);
+          svgStage.renderBots(bots, ngEcs.$delay);
+        }); */
+
+        /* scope.$watch(tilesWatch, debounce(drawTiles));  // drawTiles is as faster than tilesWatch?  debounce?
+        $scope.$watch(botsWatch, drawBots); */
+
         $scope.$watch('selected', function(d) {
           svgStage.zoomTo(d.bot.x, d.bot.y);
-          drawBots();
+          svgStage.renderBots(bots, ngEcs.$delay);
         });
 
-        function d3Draw() {  // setup and draw
+        /* function d3Draw() {  // setup and draw
           $log.debug('d3 draw');
           d3.select($element[0]).datum([chunks,bots]).call(svgStage);
-        }
+        } */
 
-        d3Draw();
+        ngEcs.$s('render', {  // todo: set priority
+          $update: function() {  // debounce?
+
+            //$scope.$applyAsync(function() {
+              //var now = Date.now();
+              svgStage.renderChunks(chunks);
+              svgStage.renderBots(bots, ngEcs.$delay);
+              //$log.debug('render', Date.now() - now, 'ms');
+            //});
+
+          }
+        });
+
+        d3.select($element[0]).datum([chunks,bots]).call(svgStage);
 
       }
     };
