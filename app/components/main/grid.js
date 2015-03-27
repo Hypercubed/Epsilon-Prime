@@ -217,10 +217,10 @@
               return d.active;
             })
             .select('text')
-            .text(_botTile);
+              .text(_botTile);
 
           botsWrap
-            .transition().duration(dT > 0 ? dT : 250)
+            //.transition().duration(dT > 0 ? dT : 250)
             .attr('transform', function(d) {
               return _translate(d.bot);
             });

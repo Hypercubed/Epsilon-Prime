@@ -44,12 +44,12 @@
   <div class="container-fluid">
 
     <div id="left-panel" class="col-sm-6 grid-ctrl column">
-      <div game-map id="grid" class="grid well small" selected="main.bot">
+      <div game-map id="grid" class="grid well small" item="main.bot" change="main.botChange">
       </div>
     </div>
 
     <div id="list" class="col-sm-6 ctrl unit-ctrl column">
-      <div sliding-list="bot in main.game.ecs.families.bot" item="main.bot">
+      <div sliding-list="bot in main.game.ecs.families.bot" item="main.bot" change="main.botChange">
         <div class="small" bot-panel="bot" show-controls="opened"></div>
       </div>
     </div>

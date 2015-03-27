@@ -6,113 +6,9 @@
 'use strict';
 
 angular.module('ePrime')
-  .directive('gameMap', function($log, debounce, ngEcs, $timeout) {  // todo: use entities
-    return {
-      restrict: 'AE',
-      scope: {
-        selected: '='
-      },
-      link: function link($scope, $element) {
-
-        var bots = ngEcs.systems.bots.$family;
-        var chunks = ngEcs.systems.chunks.$family;
-
-        var svgStage = new d3.charts.Grid()
-          .on('click', function(d) {
-            if (!d.bot) { return; }  // not a bot
-
-            $scope.$apply(function() {  // make a callback to main.setBot
-              bots.forEach(function(bot) {
-                bot.active = (bot === d);
-                if (bot.active) {
-                  $scope.selected = bot;
-                }
-              });
-            });
-          });
-
-        /* function botsWatch() {  // Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
-          var s = '';
-
-          var ke = bots.length;  // do better, move to GAME service
-          //var ws = GAME.world.size;
-          for(var k = 0; k < ke; k++) {
-            var bot = bots[k].bot;
-            var index = Chunk.getIndex(bot);
-            s += bot.t+index;
-          }
-
-          return s;
-        } */
-
-        //var _tileHash = _F('chunk.$hash').gt(0);
-
-        //function tilesWatch() {  // Creates a fast hash of maps state.  Most tiles don't change. Better to use events?
-        //  return chunks.some(_tileHash);
-        //}
-
-        /* function drawTiles() {
-          svgStage.renderChunks(chunks);
-        }
-
-        function drawBots() {
-          svgStage.renderBots(bots, ngEcs.$delay);
-        } */
-
-        function draw() {
-          svgStage.drawChunks(chunks);
-          svgStage.drawBots(bots, ngEcs.$delay);
-        }
-
-        function update() {
-          //$log.debug('update svg');
-          svgStage.updateChunks(chunks);
-          svgStage.updateBots(ngEcs.$delay);
-        }
-
-        /* scope.$watch(tilesWatch, debounce(drawTiles));  // drawTiles is as faster than tilesWatch?  debounce?
-        $scope.$watch(botsWatch, drawBots); */
-
-        $scope.$watch('selected', function(d) {
-          svgStage.zoomTo(d.bot.x, d.bot.y);
-          svgStage.updateBots(ngEcs.$delay);
-        });
-
-        /* function d3Draw() {  // setup and draw
-          $log.debug('d3 draw');
-          d3.select($element[0]).datum([chunks,bots]).call(svgStage);
-        } */
-
-        ngEcs.$s('render', {  // todo: set priority
-          $addEntity: draw,
-          $update: update
-        });
-
-        d3.select($element[0]).datum([chunks,bots]).call(svgStage);
-
-      }
-    };
-  })
   .controller('MainCtrl', function ($scope, $compile, $log, $route, $window, $modal, hotkeys, modals, siteConfig, isAt, sandBox, TILES, GAME) {
 
     var main = this;
-
-    /* main.canMine = function(bot) {  // TODO: move to bot class?  used?
-      bot = bot || main.bot;
-      return GAME.world.get(bot.x,bot.y).t === TILES.MINE;
-    };
-
-    main.toggleBot = function(bot, flag) {
-      if (arguments.length < 2) {
-        flag = bot.manual;
-      }
-      bot = bot || main.bot;
-      if (flag) {
-        bot.run();
-      } else {
-        bot.stop();
-      }
-    };*/
 
     /* cheat */
     if (siteConfig.debug) {
@@ -142,27 +38,6 @@ angular.module('ePrime')
       main.bot.bot.move(dx,dy);
       step();
     };
-
-    /* main.canUnload = function(bot) {  // git rid or move these to bot-panel?
-      bot = bot || main.bot;
-      if (bot.S <= 0) { return false; }
-      return main.game.bots.some(function(_bot) {
-        return _bot.t === '@' && isAt(_bot, bot) && _bot.S < _bot.mS;
-      });
-    };
-
-    main.canCharge = function(bot) {
-      bot = bot || main.bot;
-      if (bot.E >= bot.mE) { return false; }
-      return main.game.bots.some(function(_bot) {
-        return _bot.t === '@' && _bot.E > 0 && isAt(_bot, bot);
-      });
-    };
-
-    main.canAction = function(bot) {  // used, move
-      bot = bot.bot || main.bot.bot;
-      return bot.canMine() || main.canUnload(bot) || main.canCharge(bot);
-    }; */
 
     main.action = function(bot) {  // used, move? Use action script?
       var $bot = bot ? bot.$bot : main.bot.$bot;
@@ -267,6 +142,15 @@ angular.module('ePrime')
         }
       });
     }
+
+    main.botChange = function(bot) {
+      main.bots.forEach(function(_bot) {
+        _bot.active = (_bot === bot);
+        if (_bot.active) {
+          main.bot = bot;  // get rid of this
+        }
+      });
+    };
 
     function reset() {
       main.play(0);

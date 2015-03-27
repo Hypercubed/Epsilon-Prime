@@ -18,7 +18,7 @@
           </div>
         </div>
         <ul class="list-group">
-          <li class="list-group-item" ng-repeat="item in items | filter:search | limitTo : (opened ? 1 : 1e6) : (opened ? page-1 : 0)"
+          <li class="list-group-item" ng-repeat="item in items | filter:search"
             ng-class="{active: openItem === item, opened: opened }"
             ng-click="select(item)">
             <span sliding-list-inject><span ng-transclude></span></span>

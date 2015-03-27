@@ -16,6 +16,7 @@
       $scope.items.forEach(function(d) {
         d.active = d === item;
       });
+      $scope.change()(item);
     };
 
     $scope.open = function(item){
@@ -90,7 +91,7 @@
         });
 
         $scope.$watch('opened', function(val) {
-          innerScope.opened = $scope.opened;
+          innerScope.opened = val;
         });
 
         $transclude(innerScope, function(clone) {
@@ -108,11 +109,12 @@
       restrict: 'AE',
       transclude: true,
       scope: {
-        openItem: '=item'
+        openItem: '=item',
+        change: '&'
       },
       controller: 'ListController',
       templateUrl: 'components/list/list-template.html',
-      link: function link($scope, $element, $attrs, controller, $transclude) {
+      link: function link($scope, $element, $attrs, controller) {
 
         //scope.item = $scope.openItem;
 

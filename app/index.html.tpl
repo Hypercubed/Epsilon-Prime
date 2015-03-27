@@ -96,6 +96,7 @@
         <script src="components/game/bot-factory.js"></script>
         <script src="components/game/game-service.js"></script>
         <script src="components/main/main-controller.js"></script>
+        <script src="components/main/map-directive.js"></script>
         <script src="components/panels/panel-controllers.js"></script>
         <script src="components/modals/modal-controllers.js"></script>
         <script src="components/list/list-directive.js"></script>
