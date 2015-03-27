@@ -4,8 +4,8 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Bugs
 - [x] Bot does't find closest base.
-- [ ] Active bot not selected in some cases (test this)
-- [ ] SVG is not size responsive
+- [?] Active bot not selected in some cases (test this)
+- [ ] SVG is not size responsive!!!
 - [x] Active unit no longer shown in map
 - [x] Drop downs in bot list cut off
 - [x] Sometimes base is on top of a mine.
