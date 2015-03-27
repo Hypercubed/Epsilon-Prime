@@ -17,7 +17,6 @@
     <link rel="stylesheet" href="bower_components/angular-hotkeys/build/hotkeys.min.css" />
     <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
     <link rel="stylesheet" href="bower_components/intro.js/introjs.css" />
-    <link rel="stylesheet" href="bower_components/ng-joyride/ng-joyride.css" />
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css(.tmp) components/main.css -->
@@ -75,7 +74,6 @@
     <script src="bower_components/angular-localforage/dist/angular-localForage.js"></script>
     <script src="bower_components/d3/d3.js"></script>
     <script src="bower_components/_F/_F.js"></script>
-    <script src="bower_components/SandboxJS/Sandbox.js"></script>
     <script src="bower_components/moment/moment.js"></script>
     <script src="bower_components/angular-moment/angular-moment.js"></script>
     <script src="bower_components/lodash/dist/lodash.compat.js"></script>
@@ -86,7 +84,6 @@
     <script src="bower_components/angular-ecs/dist/angular-ecs.js"></script>
     <script src="bower_components/intro.js/intro.js"></script>
     <script src="bower_components/angular-intro.js/src/angular-intro.js"></script>
-    <script src="bower_components/ng-joyride/ng-joyride.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 

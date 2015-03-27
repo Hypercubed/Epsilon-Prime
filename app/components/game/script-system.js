@@ -124,10 +124,15 @@ angular.module('ePrime')
       return arr;
     } */
 
-    var _name = _F('name');
     function findScript(name) {
-      var scripts = GAME.scripts.filter(_name.eq(name));    // todo: move this, do better
-      return (scripts.length > 0) ? scripts[0] : undefined;
+      var value, list = GAME.scripts, len = list.length;
+      for (var i = 0; i < len; i++) {
+        value = list[i];
+        if (value.name === name) {
+          return value;
+        }
+      }
+      return undefined;
     }
 
     ngEcs.$s('scripts', {

@@ -116,9 +116,10 @@
 
         }
 
-        function renderChunks(chunks) {
+        var gChunkWrap;
+        function drawChunks(chunks) {
 
-          var gChunkWrap = gTilesLayer
+          gChunkWrap = gTilesLayer
             .selectAll('.chunk').data(chunks, _id);
 
           gChunkWrap.enter()
@@ -126,21 +127,14 @@
             .attr('transform', 'translate(0,0)')
             .attr('class','chunk');
 
+          updateChunks();
+
+        }
+
+        function updateChunks() {
+
           gChunkWrap
             .each(_renderChunk);
-
-          /* var len = chunks.length, chunk;
-
-          for(var i = 0; i<len; i++) {
-            chunk=chunks[i].chunk;
-
-            if (chunk.$hash !== 0) {
-              var _tiles = chunk.getTilesArray();
-              renderTiles(_tiles);
-              chunk.$hash = 0;
-            }
-
-          } */
 
         }
 
@@ -179,23 +173,20 @@
             .text(_tile);
         }
 
-        function renderBots(bots, dT) {
-          var botsWrap = gBotsLayer
+        var botsWrap;
+        function drawBots(bots, dT) {
+          botsWrap = gBotsLayer
             .selectAll('.bot').data(bots, _id);
 
           var gBotsEnter = botsWrap.enter()
             .append('g')
+            .attr('class', function(d) {
+              return 'bot';
+            })
             .on('click', clicked)
             .on('mouseenter', hover)
             .on('mouseleave', function() {
               text.text('');
-            })
-            .attr('class', function(d) {
-              return 'bot bot-'+d.bot.name.toLowerCase();
-            })
-            .classed('active', function(d) {
-              //console.log(d);
-              return d.active;
             })
             .attr('transform', function(d) {
               return _translate(d.bot);
@@ -215,31 +206,35 @@
 
           botsWrap.exit().remove();
 
+          updateBots(dT);
+
+        }
+
+        function updateBots(dT) {
+
           botsWrap
-            .attr('class', function(d) {
-              return 'bot bot-'+d.bot.name.toLowerCase();
-            })
             .classed('active', function(d) {
-              //console.log(d);
               return d.active;
             })
             .select('text')
             .text(_botTile);
 
           botsWrap
-            //.transition().duration(dT > 0 ? dT : 250)
-              .attr('transform', function(d) {
-                return _translate(d.bot);
-              });
+            .transition().duration(dT > 0 ? dT : 250)
+            .attr('transform', function(d) {
+              return _translate(d.bot);
+            });
 
         }
 
-        renderChunks(chunks);
-        renderBots(bots);
+        drawChunks(chunks);
+        drawBots(bots);
 
-        my.renderBots = renderBots;
+        my.drawBots = drawBots;
+        my.updateBots = updateBots;
         //my.renderTiles = renderTiles;
-        my.renderChunks = renderChunks;
+        my.drawChunks = drawChunks;
+        my.updateChunks = updateChunks;
 
         my.zoomTo = function(x,y) {
           var s = zoom.scale();

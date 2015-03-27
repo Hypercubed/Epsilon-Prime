@@ -34,7 +34,7 @@ angular.module('ePrime')
     function Accessor(e) {
       var self = this;
 
-      ['name','x','y','S','mS','E','mE'].forEach(function(prop) {
+      ['name','x','y','S','mS','E','mE','mem'].forEach(function(prop) {
         Object.defineProperty(self, prop, {
           get: function() {return e[prop]; }
         });
@@ -233,6 +233,8 @@ angular.module('ePrime')
       this.active = false;
       this.message = '';
       this.alerts = [];
+
+      this.mem = {};
 
       this.$parent = parent;
 

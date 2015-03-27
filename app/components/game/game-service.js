@@ -58,7 +58,7 @@ angular.module('ePrime')
     //localStorageService.set('saveGame', G);
     return $localForage.setItem('saveGame', G).then(function() {
       GAME.stats.saved = new Date();
-      //$log.debug('saved');
+      $log.debug('saved');
     });
 
   };
@@ -175,8 +175,10 @@ angular.module('ePrime')
   ngEcs.$s('turn', {
     $update: function() {
       GAME.stats.turn++;
+      //$log.debug('tick');
 
-      if (GAME.stats.turn % 20 === 0) {  // Move to different timer?
+      //console.log(new Date() - GAME.stats.saved);
+      if (new Date() - GAME.stats.saved > 1000*60*2) {
         GAME.save();
       }
 

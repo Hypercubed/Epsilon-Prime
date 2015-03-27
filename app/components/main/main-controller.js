@@ -6,7 +6,7 @@
 'use strict';
 
 angular.module('ePrime')
-  .directive('gameMap', function($log, debounce, ngEcs) {  // todo: use entities
+  .directive('gameMap', function($log, debounce, ngEcs, $timeout) {  // todo: use entities
     return {
       restrict: 'AE',
       scope: {
@@ -59,17 +59,23 @@ angular.module('ePrime')
           svgStage.renderBots(bots, ngEcs.$delay);
         } */
 
-        /* var draw = debounce(function() {
-          svgStage.renderChunks(chunks);
-          svgStage.renderBots(bots, ngEcs.$delay);
-        }); */
+        function draw() {
+          svgStage.drawChunks(chunks);
+          svgStage.drawBots(bots, ngEcs.$delay);
+        }
+
+        function update() {
+          //$log.debug('update svg');
+          svgStage.updateChunks(chunks);
+          svgStage.updateBots(ngEcs.$delay);
+        }
 
         /* scope.$watch(tilesWatch, debounce(drawTiles));  // drawTiles is as faster than tilesWatch?  debounce?
         $scope.$watch(botsWatch, drawBots); */
 
         $scope.$watch('selected', function(d) {
           svgStage.zoomTo(d.bot.x, d.bot.y);
-          svgStage.renderBots(bots, ngEcs.$delay);
+          svgStage.updateBots(ngEcs.$delay);
         });
 
         /* function d3Draw() {  // setup and draw
@@ -78,16 +84,8 @@ angular.module('ePrime')
         } */
 
         ngEcs.$s('render', {  // todo: set priority
-          $update: function() {  // debounce?
-
-            //$scope.$applyAsync(function() {
-              //var now = Date.now();
-              svgStage.renderChunks(chunks);
-              svgStage.renderBots(bots, ngEcs.$delay);
-              //$log.debug('render', Date.now() - now, 'ms');
-            //});
-
-          }
+          $addEntity: draw,
+          $update: update
         });
 
         d3.select($element[0]).datum([chunks,bots]).call(svgStage);
