@@ -243,8 +243,8 @@ angular.module('ePrime')
       GAME.ecs.$update();
     };
 
-    main.play = function(_dT) {
-      GAME.ecs.$delay = main.dT = _dT;
+    main.play = function(_dT) {  // _dT === fps
+      GAME.ecs.$fps = main.dT = _dT;
       if (_dT > 0) {
         GAME.ecs.$start();
       } else {
