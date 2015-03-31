@@ -1,3 +1,5 @@
+/* global FPSMeter:true */
+
 (function() {
 
 'use strict';
@@ -26,7 +28,13 @@ function ssCopy(src) { // copy objects removing $ props
 }
 
 angular.module('ePrime')
-.service('GAME', function($log, $localForage, debounce, ngEcs, World, Chunk, TILES, defaultScripts) {
+.factory('fpsmeter', function() {  // should be a directive
+  var fpsmeter = new FPSMeter({ decimals: 0, graph: true, theme: 'dark', left: '5px', top: '30px' });
+  fpsmeter.$hide = true;
+  fpsmeter.hide();
+  return fpsmeter;
+})
+.service('GAME', function($log, $localForage, debounce, ngEcs, World, Chunk, TILES, defaultScripts, fpsmeter) {
 
   var GAME = this;  // todo: GAME === ngEcs
 
@@ -34,15 +42,28 @@ angular.module('ePrime')
 
   GAME.scripts = angular.copy(defaultScripts);  // setup?
 
+  function _nameOrTile(_) {
+    return function(d) {
+      d = d.bot;
+      return d.t === _ || d.name === _;
+    };
+  }
+
   GAME.scanList = function(_) { // move?
-
-    function _nameOrTile(d) {
-      return d.bot.t === _ || d.bot.name === _;
-    }
-
-    var bots = (!_) ? this.bots : this.bots.filter(_nameOrTile);
-    var tiles = this.world.scanList(_);
+    var bots = (!_) ? this.bots : this.bots.filter(_nameOrTile(_));
+    var tiles = this.world.findTiles(_);
     return tiles.concat(bots);
+  };
+
+  GAME.findBotAt = function(_,x,y) {  // move
+    var len = this.bots.length, fn = _nameOrTile(_);
+    for (var i = 0; i < len; i++) {
+      var bot = this.bots[i];
+      if (fn(bot) && bot.bot.x === x && bot.bot.y === y) {
+        return bot;
+      }
+    }
+    return null;
   };
 
   GAME.save = function() {
@@ -168,18 +189,20 @@ angular.module('ePrime')
 
   };
 
-  //var apply = debounce(function () {
-    // Do things here.
-  //}, 100);
-
+  var acc = 0;
   ngEcs.$s('turn', {
     $update: function() {
       GAME.stats.turn++;
-      //$log.debug('tick');
+    },
+    $render: function(dt) {
+      fpsmeter.tick();
 
-      //console.log(new Date() - GAME.stats.saved);
-      if (new Date() - GAME.stats.saved > 1000*60*2) {
+      acc += dt;
+
+      if (acc > 60) {
+        $log.debug('game saved');
         GAME.save();
+        acc = 0;
       }
 
     }

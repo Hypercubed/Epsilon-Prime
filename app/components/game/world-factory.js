@@ -7,7 +7,7 @@
 
   /* Private functions */
 
-  function modulo(x,n) {  // move somewher globally usefull
+  function modulo(x,n) {  // move somewhere globally usefull
     return ((x%n)+n)%n;
   }
 
@@ -52,7 +52,7 @@ angular.module('ePrime')
     BASE: '@',
     HOLE: 'O'
   })
-  .factory('Chunk', function (TILES) {  // todo: Chunk component should be view and hash, move position to position component
+  .factory('Chunk', function () {  // todo: Chunk component should be view and hash, move position to position component
     var SIZE = 60;
     var LEN = 60*60;
 
@@ -109,7 +109,7 @@ angular.module('ePrime')
       return this;
     };
 
-    Chunk.prototype.getTilesArray = function() {  // move to Chunk.prototype
+    /* Chunk.prototype.getTilesArray = function() {  // todo: optomise
 
       var r = [];
 
@@ -129,9 +129,51 @@ angular.module('ePrime')
       }
 
       return r;
+    }; */
+
+    Chunk.prototype.getTilesArray = function() {
+      var r = [];
+
+      var X = this.X*SIZE, Y = this.Y*SIZE;
+
+      var len = this.view.length, x, y, z;
+      for(var i = 0; i < len; i++) {
+        z = this.view[i];
+        if (z > 0) {
+          z = String.fromCharCode(z);
+          y = Math.floor(i/SIZE);
+          x = i - y*SIZE;
+          r.push(Chunk.makeTile(x+X,y+Y,z));
+        }
+      }
+
+      return r;
     };
 
-    Chunk.getIndex = function(x,y) {  // todo: if x is index and y is undefined
+    Chunk.prototype.findTiles = function(_) {  // list of all existing tiles, matching criteria
+      var r = [];
+
+      if (arguments.length === 1 && '#.XO'.indexOf(_) < 0) { return r; }
+
+      var X = this.X*SIZE, Y = this.Y*SIZE;  // store in chunk object?
+
+      var len = this.view.length, x, y, z;
+      for(var i = 0; i < len; i++) {
+        z = this.view[i];
+        if (z > 0) {
+          z = String.fromCharCode(z);
+          if (!_ || z === _) {
+            y = Math.floor(i/SIZE);
+            x = i - y*SIZE;
+            r.push(Chunk.makeTile(x+X,y+Y,z));
+          }
+        }
+      }
+
+      return r;
+    };
+
+    Chunk.getIndex = function(x,y) {  // todo: if x is index and y is undefined // memoize?
       if (arguments.length < 2 && angular.isObject(x)) {
         if (angular.isUndefined(x.x) || angular.isUndefined(x.y)) {  // todo
           throw 'Invalid object pass to Chunk.getIndex';
@@ -144,8 +186,8 @@ angular.module('ePrime')
       return y*SIZE+x;
     };
 
-    Chunk.getChunkId = function(x,y) {
-      if (angular.isUndefined(y) && angular.isObject(x)) {
+    Chunk.getChunkId = function(x,y) { // memoize?
+      if (arguments.length < 2 && angular.isObject(x)) {
         if (angular.isUndefined(x.x) || angular.isUndefined(x.y)) {  // todo
           throw 'Invalid object pass to Chunk.getChunkId';
         }
@@ -158,7 +200,7 @@ angular.module('ePrime')
     };
 
     Chunk.makeTile = function(x,y,z) {  // should return a component object
-      return {x: x, y: y, t: z, s: false};  // is s still used?
+      return {x: x, y: y, t: z};  // is s still used?
     };
 
     return Chunk;
@@ -188,12 +230,12 @@ angular.module('ePrime')
 
     var $$chunks = ngEcs.systems.chunks.$family;
 
-    function World(size, seed) {  // todo: remoev size
+    function World(size, seed) {  // todo: remove size
       this.size = size = size || SIZE;  // remove
       this.seed = seed || Math.random();
     }
 
-    World.prototype.getHash = function() {  // remove shuold use hash per chunk
+    World.prototype.getHash = function() {  // used? remove shuold use hash per chunk
       return d3.sum($$chunks, _F('chunk.$hash'));
     };
 
@@ -257,7 +299,7 @@ angular.module('ePrime')
       return Chunk.makeTile(x,y,tile);   // todo: improve storage, store only strings again?
     };
 
-    World.prototype.set = function(x,y,z) {  // get rid of this, does't work if  x is object
+    World.prototype.set = function(x,y,z) {  // used? get rid of this, does't work if  x is object
       this.getChunk(x,y).set(x,y,z);
     };
 
@@ -265,11 +307,11 @@ angular.module('ePrime')
     //  return {x: x, y: y, t: z, s: false};
     //}
 
-    World.prototype.get = function(x,y) {  // rename getTile, move to Chunk, does't work if  x is object
+    World.prototype.get = function(x,y) {  // used? rename getTile, move to Chunk, does't work if  x is object
       return this.getChunk(x,y).getTile(x,y);
     };
 
-    World.prototype.scanRange = function(x,y,R) {
+    World.prototype.scanRange = function(x,y,R) {  // optimize!!
       if (arguments.length < 3) {
         R = y;
         y = x.y;
@@ -279,9 +321,9 @@ angular.module('ePrime')
       var r = [];
       for(var i = x-R; i <= x+R; i++) {
         for(var j = y-R; j <= y+R; j++) {  // to check range
-          var d = Math.sqrt((x-i)*(x-i)+(y-j)*(y-j));
+          var d = Math.sqrt((x-i)*(x-i)+(y-j)*(y-j));  // euclidian?
           if (d < R) {
-            var t = this.scanTile(i,j);
+            var t = this.scanTile(i,j);  // calls getChunk each time, improve
             r.push(t);
           }
         }
@@ -289,7 +331,7 @@ angular.module('ePrime')
       return r;
     };
 
-    World.prototype._scanList = function() {
+    World.prototype._scanList = function() {  // used?
       var r = [];
       for(var i = 0; i < SIZE; i++) {
         for(var j = 0; j < SIZE; j++) {
@@ -302,7 +344,7 @@ angular.module('ePrime')
       return r;
     };
 
-    World.prototype.scanChunk = function(chunk) {  // move to Chunk.prototype
+    World.prototype.scanChunk = function(chunk) {  // used?
       //console.log('scanChunk',chunk);
 
       var r = [];
@@ -325,7 +367,7 @@ angular.module('ePrime')
       return r;
     };
 
-    World.prototype.scanList = function(_) {  // list of all existing tiles
+    World.prototype.findTiles = function(_) {  // list of all existing tiles, matching criteria
       if (angular.isDefined(_) && '#.XO'.indexOf(_) < 0) { return []; }
 
       var r = [];
@@ -333,22 +375,23 @@ angular.module('ePrime')
       for (var k in $$chunks) {
         var chunk = $$chunks[k].chunk;
 
-        var X = chunk.X*SIZE,
+        /* var X = chunk.X*SIZE,
             Y = chunk.Y*SIZE;
 
-        var XE = X+SIZE,
-            YE = Y+SIZE;
-
-        for(var x = X; x < XE; x++) { // try other way around  index -> x,y
-          for(var y = Y; y < YE; y++) {
-            var z = chunk.get(x,y);
-            if (z !== TILES.EMPTY) {
-              if (!_ || z === _) {
-                r.push(Chunk.makeTile(x,y,z));
-              }
+        var len = chunk.view.length, x, y, z;
+        for(var i = 0; i < len; i++) {
+          z = chunk.get(i);
+          if (z !== TILES.EMPTY) {
+            if (!_ || z === _) {
+              y = Math.floor(i/SIZE);
+              x = i - y*SIZE;
+              r.push(Chunk.makeTile(x+X,y+Y,z));
             }
           }
-        }
+        } */
+
+        Array.prototype.push.apply(r,chunk.findTiles(_));
+
       }
 
       return r;
@@ -376,11 +419,11 @@ angular.module('ePrime')
       return 0;
     };
 
-    World.prototype.canMine = function(x,y) {  // this should not be here? improve
+    World.prototype.canMine = function(x,y) {  // used? this should not be here? improve
       return this.getChunk(x,y).get(x,y) === TILES.MINE;
     };
 
-    World.prototype.canMove = function(x,y) {  // move
+    World.prototype.canMove = function(x,y) {  // used? move
       var t = this.get(x,y);
       return t !== null && t.t !== TILES.MOUNTAIN;
     };

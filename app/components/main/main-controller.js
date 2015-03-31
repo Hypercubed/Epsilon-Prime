@@ -1,4 +1,3 @@
-/* global d3:true */
 /* _global _F:true */
 
 (function() {
@@ -6,7 +5,7 @@
 'use strict';
 
 angular.module('ePrime')
-  .controller('MainCtrl', function ($scope, $compile, $log, $route, $window, $modal, hotkeys, modals, siteConfig, isAt, sandBox, TILES, GAME) {
+  .controller('MainCtrl', function ($scope, $compile, $log, $route, $window, $modal, hotkeys, modals, siteConfig, isAt, sandBox, fpsmeter, TILES, GAME) {
 
     var main = this;
 
@@ -129,6 +128,18 @@ angular.module('ePrime')
         callback: function() {
           main.help();
         }
+      })
+      .add({
+        combo: '~',
+        description: 'Show / hide FPS meter',
+        callback: function() {
+          if (fpsmeter.$hide) {
+            fpsmeter.show();
+          } else {
+            fpsmeter.hide();
+          }
+          fpsmeter.$hide = !fpsmeter.$hide;
+        }
       });
 
     function setup() {
@@ -241,6 +252,7 @@ angular.module('ePrime')
 
     main.takeTurn = function() {
       GAME.ecs.$update();
+      GAME.ecs.$render();
     };
 
     main.play = function(_dT) {  // _dT === fps

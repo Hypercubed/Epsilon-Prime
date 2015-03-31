@@ -47,7 +47,7 @@ angular.module('ePrime')
 
         ngEcs.$s('render', {  // todo: set priority
           $addEntity: draw,
-          $update: update
+          $render: update
         });
 
         d3.select($element[0]).datum([chunks,bots]).call(svgStage);

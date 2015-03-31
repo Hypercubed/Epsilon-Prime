@@ -28,11 +28,12 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Order system updates by priority
 
 ## Next
-- [ ] Stop using watchers in map directive
-- [ ] Add $map API
-- [ ] Add $bot.memory
+- [ ] Bots could improve by keeping track of current chunk
+- [?] Stop using watchers in map directive
+- [ ] Add $map API to readme
+- [ ] Add $bot.memory to readme
 - [x] Arrow keys as alternative?  More hotkeys (`S` (shift-s) save, `,` to mine,...)
-- [ ] Shortcuts for do until E = 0
+- [ ] Shortcuts for do until E = 0?
 - [ ] More orders (Move to target, mine at target)
 - [ ] Deactivate orders for active bot on manual keypress?
 - [-] Update tutorial for new mechanics, add callback functions
@@ -42,12 +43,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Improve bot logging, error system.
 - [ ] Finish Entity component system
 - [ ] New screen shot
-- [ ] Bot memory? Bot target store.
-- [x] Improved bug0?
-- [x] Replace hotkey help with help dialog
 - [ ] Make defaultScripts as scripts service. (crud, reset, validate, run, etc), entities?
-- [x] Prevent deployment if env !== production in gruntfile
-- [x] Tutorial
 - [ ] Tests
 - [ ] Move bot hot keys to bots controller?
 - [ ] Improve editor save/validation

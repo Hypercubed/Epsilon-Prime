@@ -33,8 +33,12 @@
     //  return [_X(d),_Y(d)];
     //};
 
-    var _posId = function(d) {
-      return '@'+[d.x,d.y];
+    //var _posId = function(d) {
+    //  return '@'+[d.x,d.y];
+    //};
+    
+    var _translate = function(d) {
+      return 'translate('+[_X(d),_Y(d)]+')';
     };
 
     var _id = _F('_id');
@@ -138,9 +142,7 @@
 
         }
 
-        var _translate = function(d) {
-          return 'translate('+[_X(d),_Y(d)]+')';
-        };
+
 
         function _renderChunk(d) {
           if (d.chunk.$hash === 0) { return; }  // dirty check
@@ -149,12 +151,12 @@
           var tiles =  d.chunk.getTilesArray();
 
           var tilesWrap = d3.select(this)
-            .selectAll('.tile').data(tiles, _posId);
+            .selectAll('.tile').data(tiles);
 
           tilesWrap.enter()
             .append('g')
             .attr('class', 'tile')
-            .attr('transform', _translate)
+            //.attr('transform', _translate)
             .on('click', clicked)
             .on('mouseenter', hover)
             .on('mouseleave', function() {
@@ -165,10 +167,8 @@
             //.text(_tile)
             ;
 
-          tilesWrap  // shouldn't need to do this but itenms
-            //.attr('transform', function(d) {
-            //  return 'translate('+[_X(d),_Y(d)]+')';
-            //})
+          tilesWrap  // shouldn't need to do this but change order
+            .attr('transform', _translate)
             .select('text')
             .text(_tile);
         }
@@ -180,7 +180,7 @@
 
           var gBotsEnter = botsWrap.enter()
             .append('g')
-            .attr('class', function(d) {
+            .attr('class', function() {
               return 'bot';
             })
             .on('click', clicked)
@@ -210,7 +210,7 @@
 
         }
 
-        function updateBots(dT) {
+        function updateBots() {
 
           botsWrap
             .classed('active', function(d) {

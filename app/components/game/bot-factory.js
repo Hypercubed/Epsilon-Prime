@@ -61,12 +61,12 @@ angular.module('ePrime')
     }
 
     BotProxy.prototype.unload = function(_) {  // should unload to co-located @
-      var home = this.findNearest(_ || '@');  // gets closest
+      var home = this.findAt(_ || '@');  // todo: just check bot entities
       return (home) ? this.unloadTo(home) : null;
     };
 
     BotProxy.prototype.charge = function(_) {  // should charge to co-located @
-      var home = this.findNearest(_ || '@'); // gets closest
+      var home = this.findAt(_ || '@'); // todo: just check bot entities
       return (home) ? home.bot.chargeBot(this.$parent) : null;
     };
 
@@ -476,23 +476,18 @@ angular.module('ePrime')
     };
 
     Bot.prototype.canMine = function() {
-      if (GAME.world.get(this.x,this.y).t === TILES.MINE) {  // use world.canMine?
-        if (this.E >= 1 && this.S < this.mS) {
-          return true;
-        }
-      }
-      return false;
+      return this.E >= 1 &&
+        this.S < this.mS &&
+        GAME.world.get(this.x,this.y).t === TILES.MINE;
     };
 
     Bot.prototype.mine = function() {
-      if (GAME.world.get(this.x,this.y).t === TILES.MINE) {  // use world.canMine?
-        if (this.E >= 1 && this.S < this.mS) {
-          this.E--;
-          var dS = GAME.world.dig(this.x,this.y);  // TODO: bot effeciency
-          dS = this.load(dS);
-          GAME.stats.S += dS;
-          return dS;
-        }
+      if (this.canMine()) {
+        this.E--;
+        var dS = GAME.world.dig(this.x,this.y);  // TODO: bot effeciency?
+        dS = this.load(dS);
+        GAME.stats.S += dS;
+        return dS;
       }
       return false;
     };
@@ -596,22 +591,26 @@ angular.module('ePrime')
       return GAME.world.scan(this);
     };
 
+    Bot.prototype.findAt = function(_) {  // move
+      return GAME.findBotAt(_, this.x, this.y);
+    };
+
     Bot.prototype.findNearest = function(_) {
       var self = this;
       var r = 1e10;
       var ret = null;
 
       GAME.scanList(_)
-      .forEach(function(e) {  // do better
-        if (e !== self) {
-          var b = e.bot || e;
-          var _r = distance(b,self);
-          if (_r < r) {
-            ret = e;
-            r = _r;
+        .forEach(function(e) {  // do better
+          if (e !== self) {
+            var b = e.bot || e;
+            var _r = distance(b,self);
+            if (_r < r) {
+              ret = e;
+              r = _r;
+            }
           }
-        }
-      });
+        });
 
       return ret;
     };
