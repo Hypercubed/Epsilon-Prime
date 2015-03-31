@@ -4,7 +4,7 @@
 
 ** This is a transcript of the in-game tutorial **
 
-# Welcome to Epsilon-prime
+## Welcome to Epsilon-prime
 
 In Epsilon-prime your goal is to conquer the planet of ε-prime. You do this by commanding an army of bots to explore and exploit the resources of ε-prime. You can control your bots individually using your mouse and keyboard or by using command scripts written in JavaScript. The game begins with a simple (and very inefficient) set of scripts for exploring and collecting resources. Using just these scripts you could complete this demo in ~2,500 turns. But you can you do better!
 
@@ -58,4 +58,4 @@ Your game is automatically saved approximately every 60 seconds.
 
 Check your progress here.
 
-## Enjoy
+### Enjoy
