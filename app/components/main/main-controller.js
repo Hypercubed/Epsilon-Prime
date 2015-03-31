@@ -398,7 +398,7 @@ angular.module('ePrime')
         },
         {
           element: '#save-button',
-          intro: 'Your game is automatically saved every 20 turns.',
+          intro: 'Your game is automatically saved approximately every 60 seconds.',
           position: 'left'
         },
         {

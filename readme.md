@@ -43,7 +43,7 @@ When starting you will see your base (indicated by an `@` on the map).  Around t
 The base unit begins with full energy and a full stock of resources.  Newly constructed units begin with zero energy.  Energy is harvested at a rate indicated by [J/d] in the bot panel, this indicates that amount of energy harvested at the beginning of each turn (day).  Each unit has an current and maximum energy storage indicated by a progress bar in the unit list.
 
 ### Movement
-Units can move in any of eight directions (see direction keys below).  [J/km] indicates the amount of energy required for movement.  The starting base requires 100 units of energy to move one space.  Notice that the base has a maximum energy storage equal to its movement cost.  It can move at most one space per turn and only when fully charged.  The a new unit, however, can move up to 10 spaces when fully charged.  A unit can be moved manually using the bot panel, hot keys, or as directed by command scripts.  A unit can move and mine as many times as desired per turn until energy is depleted.  Energy is not recovered until the next turn.
+Units can move in any of eight directions (see direction keys below).  [J/km] indicates the amount of energy required for movement.  The starting base requires 100 units of energy to move one space.  Notice that the base has a maximum energy storage equal to its movement cost.  It can move at most one space per turn and only when fully charged.  The a new unit, however, can move up to 20 spaces when fully charged.  A unit can be moved manually using the bot panel, hot keys, or as directed by command scripts.  When a unit is moved using the keyboard one turn is consumed.
 
 With a bot selected (indicated by a circle in the map and highlighting in the bot list) you can use the following hotkeys.
 
@@ -69,7 +69,7 @@ Constructing a new unit costs 100 resource units.  This will create a new unit w
 Upgrading a unit costs 10 resource units.  After an upgrade the units maximum energy and maximum resource storage capacity each increase by 10 units.  The bots charging rate and movement cost also increase.  A bots movement costs increases faster than its maximum energy storage.  When the movement cost exceeds the maximum energy storage capacity the unit can no longer move.  Your base begins at the threshold of immovability.  If it is upgraded it will no longer be able to move.  Do you upgrade quickly or wait?
 
 ### Saving
-The game is automatically saved to your browser's local storage every 20 turns.  To ensure you don't lose any progress press the ~SAVE~ button in the lower right.  This will save your progress and pause the game (if it is running).  You may then close your browser without losing any progress.
+The game is automatically saved to your browser's local storage approximately every 60 seconds.  To ensure you don't lose any progress press the ~SAVE~ button in the lower right.  This will save your progress and pause the game (if it is running).  You may then close your browser without losing any progress.
 
 ### Scripts
 Pressing the ~Scripts~ button on the bottom left will pause the game and open the scripts panel.  If you modify a script in the script panel it will not be applied until you press the save button.  After pressing save any bots currently using this script will automatically start using the new version.  You may also create a new script to apply to select bots.
@@ -109,6 +109,7 @@ The bot first try to unload its current storage and charge from a base.  If the 
 * `x`, `y`   -- x and y positions
 * `E`, `mE`  -- current and maximum energy capacity
 * `S`, `mS`  -- current and maximum storage capacity
+* `mem`      -- persistent bot memory storage
 
 ## $bot methods
 
@@ -172,7 +173,33 @@ Example:
 ```
 $bot.moveTo($bot.x + 5,$bot.y + 5);
 var bob = $bot.find('Bob');
-$bot.moveTo(bob.x,bob.y);
+if (bob) {
+  $bot.moveTo(bob.x,bob.y);
+}
+```
+
+## $map methods
+
+### get({number},{number})
+Gets the tile located at the given x,y position.
+
+Example:
+```
+var tile = $map.get($bot.x + 5,$bot.y + 5);
+if (tile.t === 'X') {
+  $bot.moveTo(tile.x,tile.y);
+}
+```
+
+## $console methods
+
+### log(...)
+Prints to browser debugging console.
+
+Example:
+```
+var tile = $map.get($bot.x + 5,$bot.y + 5);
+console.log(tile);
 ```
 
 ## License

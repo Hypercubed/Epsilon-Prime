@@ -3,13 +3,9 @@
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
 ## Bugs
-- [x] Bot does't find closest base.
 - [?] Active bot not selected in some cases (test this)
+- [ ] Can't find variable: Uint8ClampedArray in Safari 5.1.7 (shim?)
 - [ ] SVG is not size responsive!!!
-- [x] Active unit no longer shown in map
-- [x] Drop downs in bot list cut off
-- [x] Sometimes base is on top of a mine.
-- [x] Optimize find to only search map if '.X#'.
 - [-] Prevent duplicate scripts with the same name
 - [ ] Too slow?  Test on firefox.
 - [ ] Improve GUI Responsiveness to small screens
@@ -18,17 +14,13 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Trap errors in GAME.load.
 
 ## ECS
-- [x] Chunks -> Entities?
 - [ ] Decompose BotComponents (Bot, Tile/sprite, Move, Charging)
-- [x] Add filters to systems
-- [ ] Move draw to system?
-- [x] Entity messages ie. .$on('upgrade', fn), .$emit('upgrade')
-- [x] common families
-- [x] remove entities
-- [ ] Order system updates by priority
+- [x] Move draw to system?
+- [-] Order system updates by priority
 
 ## Next
-- [ ] Bots could improve by keeping track of current chunk
+- [ ] In game API docs
+- [ ] Bots methods could improve by keeping track of current chunk
 - [?] Stop using watchers in map directive
 - [ ] Add $map API to readme
 - [ ] Add $bot.memory to readme
@@ -43,7 +35,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Improve bot logging, error system.
 - [ ] Finish Entity component system
 - [ ] New screen shot
-- [ ] Make defaultScripts as scripts service. (crud, reset, validate, run, etc), entities?
+- [ ] Make defaultScripts as scripts service (or entities?). (crud, reset, validate, run, etc)
 - [ ] Tests
 - [ ] Move bot hot keys to bots controller?
 - [ ] Improve editor save/validation
@@ -59,29 +51,31 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] d3 hover/click dispatch
   - [x] Bots
   - [ ] Tiles
-- [ ] Pan to unit on select
+- [x] Pan to unit on select
 - [ ] Indicate stuck bots?
 - [x] Ensure base starts on plain
 - [ ] Clean up classes -> Entity component system
 - [x] Implement $bot.log()
 - [ ] Improve drawing more?  Draw by chunk, bot (entities).
-- [ ] Rebalance gameplay.
+- [ ] Re-balance gameplay.
 - [ ] More/better Tooltips?
 - [ ] Need to indicate when unit is on mine.
 - [ ] Indicate overlapping units.
 - [ ] Clean terminology (bots, resources, energy units, etc)
 
 ## Decisions
-- [ ] Always charging, pause scripts only?
+- [-] Always charging, pause scripts only?
 - [x] Start with full energy?
-- [ ] Can bot scripts command other bots?  $bot.find('A').moveTo($bot.x,$bot.y);?
+- [ ] Can bot scripts command other bots?  $bot.find('A').moveTo($bot.x,$bot.y)?
+- [ ] Can bot scripts access other bot's memory?  $bot.find('Base').mem?
 - [ ] Limit map and number of bots for performance?
+- [ ] Limit FPS in firefox?
 - [ ] Map full screen?
-- [ ] Work on small screens.
+- [ ] Work on small screens. Responsive design.
 - [ ] Bots can carry other bots?
 - [ ] End game shows easter egg?
 - [x] Start with rover, upgrade to base?  Start with base, build first rover?
-- [ ] Use ui-router?
+- [-] Use ui-router?
 - [x] Add about screen.
 - [ ] Faster bot (drone)? mE = mS = 1 (Can never upgrade using current rules)
 - [ ] Allow scripting of change script?  Change, stop, include.
