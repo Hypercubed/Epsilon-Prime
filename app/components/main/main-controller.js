@@ -333,7 +333,7 @@ angular.module('ePrime')
         },
         {
           element: '.list-group-item:nth-child(2) .energy-cost',
-          intro: 'Notice that the movement cost and recharge rate are both lower. This unit can move one space every two turns using it\'s own power generation.',
+          intro: 'Notice that the movement cost and recharge rate are both lower. This unit can move one space every two turns using its own power generation.',
           position: 'left'
         },
         {
@@ -363,7 +363,7 @@ angular.module('ePrime')
         },
         {
           element: '.list-group-item:nth-child(2) .energy-bar',
-          intro: 'You will notice that the energy depletes as you move.  This is because this unit\'s movement cost is greater than it\'s recharge rate. You can use all your energy to mine or return to the base periodically to unload and charge...',
+          intro: 'You will notice that the energy depletes as you move.  This is because this unit\'s movement cost is greater than its recharge rate. You can use all your energy to mine or return to the base periodically to unload and charge...',
           position: 'left'
         },
         {
