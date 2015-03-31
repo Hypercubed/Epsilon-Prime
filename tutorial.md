@@ -2,7 +2,7 @@
 
 ![Capture](http://cdn.rawgit.com/Hypercubed/Epsilon-Prime/master/app/images/eprime.png)
 
-** This is a transcript of the in-game tutorial **
+*This is a transcript of the in-game tutorial*
 
 ## Welcome to Epsilon-prime
 
@@ -30,7 +30,7 @@ Your new unit will appear in the list...
 
 and on the map indicated on with an A.
 
-Notice that the movement cost and recharge rate are both lower. This unit can move one space every two turns using it's own power generation.
+Notice that the movement cost and recharge rate are both lower. This unit can move one space every two turns using its own power generation.
 
 However small units can also charge from larger units. Make the rover the active unit by clicking the A in the bot list...
 
@@ -40,7 +40,7 @@ You can now begin exploring the map using the `q`-`c` keys. The letters `qweadz
 
 If you encounter an X on the map this is a resource cache (or mine). Collect resources using the action key `s`
 
-You will notice that the energy depletes as you move.  This is because this unit\'s movement cost is greater than it\'s recharge rate. You can use all your energy to mine or return to the base periodically to unload and charge...
+You will notice that the energy depletes as you move.  This is because this unit\'s movement cost is greater than its recharge rate. You can use all your energy to mine or return to the base periodically to unload and charge...
 
 Or use the wait key `.` to wait one turn an recharge your unit.
 
