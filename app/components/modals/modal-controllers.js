@@ -24,9 +24,9 @@
       });
     };
 
-    modals.openHelp = function() {
+    modals.openHelp = function(template) {
       return $modal.open({
-        templateUrl: 'components/modals/help-model.html',
+        templateUrl: template || 'components/modals/help-model.html',
         backdrop: 'static',
         keyboard: true,
         size: 'lg',
@@ -36,7 +36,7 @@
 
     return modals;
   })
-  
+
   .controller('HelpInstanceCtrl', function ($scope, hotkeys) {
 
     $scope.hotkeys = hotkeys;

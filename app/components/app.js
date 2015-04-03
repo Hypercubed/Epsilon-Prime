@@ -16,7 +16,8 @@ angular
     'LocalForageModule',
     'angular-intro',
     'hc.thirdParty',
-    'hc.ngEcs'
+    'hc.ngEcs',
+    'hc.marked'
   ])
   .config(function ($routeProvider) {
     $routeProvider

@@ -87,8 +87,6 @@ angular.module('ePrime')
         method = aether.createMethod();
       }
 
-      //aether.depth = 1; //hack to avoid rebuilding globals
-
       try {
 
         var generator = method($consoleInterface, $bot, $mapInterface);

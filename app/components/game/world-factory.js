@@ -45,7 +45,7 @@ angular.module('ePrime')
   .constant('TILES', {
     EMPTY: String.fromCharCode(0),
     MOUNTAIN: '#',
-    FIELD: '·',
+    FIELD: '.',
     MINE: 'X',
     HILL: ',',
     BOT: 'A',
@@ -368,30 +368,13 @@ angular.module('ePrime')
     };
 
     World.prototype.findTiles = function(_) {  // list of all existing tiles, matching criteria
-      if (angular.isDefined(_) && '#.XO'.indexOf(_) < 0) { return []; }
+      if (arguments.length < 1 && '#.XO'.indexOf(_) < 0) { return []; }
 
       var r = [];
 
       for (var k in $$chunks) {
-        var chunk = $$chunks[k].chunk;
-
-        /* var X = chunk.X*SIZE,
-            Y = chunk.Y*SIZE;
-
-        var len = chunk.view.length, x, y, z;
-        for(var i = 0; i < len; i++) {
-          z = chunk.get(i);
-          if (z !== TILES.EMPTY) {
-            if (!_ || z === _) {
-              y = Math.floor(i/SIZE);
-              x = i - y*SIZE;
-              r.push(Chunk.makeTile(x+X,y+Y,z));
-            }
-          }
-        } */
-
+        var chunk = $$chunks[k].chunk;  //console.log($bot.find('.'));
         Array.prototype.push.apply(r,chunk.findTiles(_));
-
       }
 
       return r;

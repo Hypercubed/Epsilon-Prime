@@ -5,7 +5,7 @@
   'use strict';
 
   angular.module('ePrime')
-  .controller('EditorCtrl', function($log, $modalInstance, initialScriptId, defaultScripts, GAME, aether) {
+  .controller('EditorCtrl', function($log, $modalInstance, initialScriptId, defaultScripts, GAME, aether, modals) {
 
     var editor = this;
 
@@ -99,6 +99,10 @@
 
       _session
         .setTabSize(2);
+    };
+
+    editor.help = function() {
+      modals.openHelp('components/modals/api-help-model.html');
     };
 
     editor.reset();

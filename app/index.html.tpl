@@ -85,6 +85,8 @@
     <script src="bower_components/intro.js/intro.js"></script>
     <script src="bower_components/angular-intro.js/src/angular-intro.js"></script>
     <script src="bower_components/fpsmeter/dist/fpsmeter.js"></script>
+    <script src="bower_components/marked/lib/marked.js"></script>
+    <script src="bower_components/angular-marked/angular-marked.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 

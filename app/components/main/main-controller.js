@@ -184,6 +184,19 @@ angular.module('ePrime')
         });
     }
 
+    main.help = function(template) {
+      var _dT = main.dT;
+      main.play(0);
+
+      hotkeys.pause();
+
+      modals.openHelp(template).result
+      .then(null, function() {
+        main.play(_dT);
+        hotkeys.unpause();
+      });
+    };
+
     main.reset = function() {
       pauseDialog('<h1 class="text-center">Are you sure?<h1>', true);
     };
@@ -192,19 +205,6 @@ angular.module('ePrime')
       if (e.bot.canRelocate()) {  // use component
         pauseDialog('<h1 class="text-center">Congratulations<h1><h3 class="text-center">You have set off to explore another planet.</h3>', true);
       }
-    };
-
-    main.help = function() {
-      var _dT = main.dT;
-      main.play(0);
-
-      hotkeys.pause();
-
-      modals.openHelp().result
-        .then(null, function() {
-          main.play(_dT);
-          hotkeys.unpause();
-        });
     };
 
     main.save = function() {

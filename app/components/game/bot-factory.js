@@ -56,8 +56,8 @@ angular.module('ePrime')
       this.charge = BotProxy.prototype.charge.bind(e.bot);
       this.construct = BotProxy.prototype.construct.bind(e.bot);
       this.find = BotProxy.prototype.find.bind(e.bot);
+      this.distanceTo = BotProxy.prototype.distanceTo.bind(e.bot);
       this.log = BotProxy.prototype.log.bind(e.bot);
-
     }
 
     BotProxy.prototype.unload = function(_) {  // should unload to co-located @
@@ -74,13 +74,16 @@ angular.module('ePrime')
       this.construct(_ || null);
     };
 
+    BotProxy.prototype.distanceTo = function(_) {
+      return distance(this,_);
+    };
+
     BotProxy.prototype.find = function(_) {
       var n = this.findNearest(_);
       if (!n) { return null; }
       if (n.$bot) {
         n = new Copy(n.bot);
       }
-      n.r  = distance(n,this);
       return n;
     };
 
