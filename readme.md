@@ -14,6 +14,8 @@ Epsilon-Prime is a personal project and under active development.  It is playabl
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Hypercubed/Epsilon-Prime?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
+Also see [angular-ecs](https://github.com/Hypercubed/angular-ecs)
+
 ## Current Features
 * Fog of war.
 * "Near-Infinite" procedurally generated terrain.
@@ -176,6 +178,15 @@ var bob = $bot.find('Bob');
 if (bob) {
   $bot.moveTo(bob.x,bob.y);
 }
+```
+
+### distanceTo({object})
+Returns the distance (in steps) to the given object position.
+
+Example:
+```
+var bob = $bot.find('Bob');
+console.log($bot.distanceTo(bob));
 ```
 
 ## $map methods
