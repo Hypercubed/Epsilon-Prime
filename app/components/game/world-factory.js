@@ -130,6 +130,23 @@ angular.module('ePrime')
 
       return r;
     }; */
+    
+    Chunk.prototype.getAllTilesArray = function() {
+      var r = [];
+
+      var X = this.X*SIZE, Y = this.Y*SIZE;
+
+      var len = this.view.length, x, y, z;
+      for(var i = 0; i < len; i++) {
+        z = this.view[i];
+        z = String.fromCharCode(z);
+        y = Math.floor(i/SIZE);
+        x = i - y*SIZE;
+        r.push(Chunk.makeTile(x+X,y+Y,z));
+      }
+
+      return r;
+    };
 
     Chunk.prototype.getTilesArray = function() {
       var r = [];

@@ -36,7 +36,7 @@
     //var _posId = function(d) {
     //  return '@'+[d.x,d.y];
     //};
-    
+
     var _translate = function(d) {
       return 'translate('+[_X(d),_Y(d)]+')';
     };
@@ -167,7 +167,7 @@
             //.text(_tile)
             ;
 
-          tilesWrap  // shouldn't need to do this but change order
+          tilesWrap  // shouldn't need to do this but tiles change order and text
             .attr('transform', _translate)
             .select('text')
             .text(_tile);

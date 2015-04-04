@@ -59,7 +59,7 @@ angular.module('ePrime')
     });
     /*jshint +W106 */
   })
-  .service('sandBox', function(aether, GAME) {  // move, create tests
+  .service('sandBox', function(aether, GAME, $log) {  // move, create tests
 
     var $consoleInterface = {
       log: console.log.bind(console)
@@ -103,9 +103,14 @@ angular.module('ePrime')
         }
 
       } catch(err) {
-        var m = err.stack || '';
-        console.log('User script error', err.message, m);
-        return err.message;
+        var m;
+        var a = aether.lastStatementRange;
+        if (a && a[0]) {
+          m = (a[0].row+1) +':' + a[0].col;
+        }
+        $log.debug(aether);
+        $log.warn('User script error', err.message, m || err.stack || '');
+        return err.message+m;
       }
 
       return true;

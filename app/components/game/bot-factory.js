@@ -389,8 +389,11 @@ angular.module('ePrime')
     Bot.prototype.moveTo = function(x,y) {  // this is so bad!!!
 
       if (angular.isObject(x)) {  // TODO: Utility
-        y = x.y;
-        x = x.x;
+        y = +x.y || 0;
+        x = +x.x || 0;
+      } else {
+        x = +x || 0;
+        y = +y || 0;
       }
 
       if (isAt(this, x,y)) {

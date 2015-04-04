@@ -94,6 +94,11 @@
 
     editor.aceLoaded = function(_editor){
       var _session = _editor.getSession();
+
+      _editor.setShowPrintMargin(false);
+
+      _session.setUseWrapMode(false);
+
       _session
           .setUndoManager(new ace.UndoManager());
 
