@@ -96,7 +96,7 @@ if (tile.t === 'X') {
 }
 ```
 
-## $console methods
+## console methods
 
 ### log(...)
 Prints to browser debugging console.
