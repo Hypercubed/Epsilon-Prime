@@ -9,6 +9,21 @@ angular.module('ePrime')
 
     var main = this;
 
+    main.introCounter = 1;  // save with game state?
+    main.dT = 0;
+    main.cheat = false;
+    main.game = GAME;
+    main.bots = GAME.bots;  // get rid of this
+
+    main.bots.forEach(function(bot) {
+      if (bot.active) {
+        main.bot = bot;  // get rid of this
+      }
+    });
+
+    $scope.autoStart = !!GAME.tutorial;
+    delete GAME.tutorial;
+
     /* cheat */
     if (siteConfig.debug) {
       hotkeys.bindTo($scope)
@@ -70,12 +85,12 @@ angular.module('ePrime')
 
     var d = [  // move somewhere else, combine with directions list in botcomponent
       [ 'q'         ,'NW',-1,-1],
-      [['w','up']   ,'N' , 0,-1],
+      [ 'w'         ,'N' , 0,-1],
       [ 'e'         ,'NE', 1,-1],
-      [['a','left'] ,'W' ,-1, 0],
-      [['d','right'],'E' , 1, 0],
+      [ 'a'         ,'W',-1, 0],
+      [ 'd'         ,'E' , 1, 0],
       [ 'z'         ,'SW',-1, 1],
-      [['x','down'] ,'S' , 0, 1],
+      [ 'x'         ,'S' , 0, 1],
       [ 'c'         ,'SE', 1, 1]
     ];
 
@@ -141,18 +156,6 @@ angular.module('ePrime')
           fpsmeter.$hide = !fpsmeter.$hide;
         }
       });
-
-    function setup() {
-      main.cheat = false;
-      main.game = GAME;
-      main.bots = GAME.bots;  // get rid of this
-
-      main.bots.forEach(function(bot) {
-        if (bot.active) {
-          main.bot = bot;  // get rid of this
-        }
-      });
-    }
 
     main.botChange = function(bot) {
       main.bots.forEach(function(_bot) {
@@ -246,12 +249,8 @@ angular.module('ePrime')
       }).result.then(done,done);
     };
 
-    setup();
-
-    main.dT = 0;   // move all this to GAME service?
-
-    main.takeTurn = function() {
-      GAME.ecs.$update();
+    main.takeTurn = function(dt) {
+      GAME.ecs.$update(dt || 0.1);
       GAME.ecs.$render();
     };
 
@@ -268,27 +267,52 @@ angular.module('ePrime')
       disableInteraction: false,
       showStepNumbers: true,
       steps: [
-        {
-          intro: '<h2>Welcome to Epsilon-prime</h2>In Epsilon-prime your goal is to conquer the planet of ε-prime. You do this by commanding an army of bots to explore and exploit the resources of ε-prime. You can control your bots individually using your mouse and keyboard or by using command scripts written in JavaScript. The game begins with a simple (and very inefficient) set of scripts for exploring and collecting resources. Using just these scripts you could complete this demo in ~2,500 turns. But you can you do better!'
-        },
+        //{
+        //  intro: '<h2>Welcome to Epsilon-prime</h2>In Epsilon-prime your goal is to conquer the planet of ε-prime. You do this by commanding an army of bots to explore and exploit the resources of ε-prime. You can control your bots individually using your mouse and keyboard or by using command scripts written in JavaScript. The game begins with a simple (and very inefficient) set of scripts for exploring and collecting resources. Using just these scripts you could complete this demo in ~2,500 turns. But you can you do better!'
+        //},
         {
           element: '#left-panel',
-          intro: 'The game map is located on the left. Use the mouse and scroll wheel (or touch screen) to pan and zoom the map. The @ mark is your starting base.',
+          intro: 'The game map is located on the left. Use the mouse and scroll wheel (or touch screen) to pan and zoom the map. The A mark is your starting unit.',
           position: 'right'
         },
         {
           element: '#list',
-          intro: 'On the right is a units lists. All your units are listed here.',
+          intro: 'On the right is a units lists.',
           position: 'left'
         },
         {
           element: '.list-group-item:nth-child(1)',
-          intro: 'At this time you have one unit… the base. Again the base is identified by the @ symbol.',
+          intro: 'At this time you have one unit… the rover. Again the starting unit is identified by the A symbol.',
           position: 'left'
         },
         {
           element: '.list-group-item:nth-child(1) .energy-bar',
-          intro: 'The red progress bar indicates the unit’s energy storage and capacity. The base unit begins with 100 J of energy. Energy is needed to move and collected resources.',
+          intro: 'The red progress bar indicates the unit’s energy storage and energy capacity. The rover begins with no energy but can harvest upto 10 J. Energy is needed to move and collect resources.',
+          position: 'left'
+        },
+        {
+          element: '#play-buttons',
+          intro: 'Press the wait key <code class="cfp-hotkeys-key">.</code> or use use the <i class="fa fa-step-forward"></i> button to advance several turns.',
+          position: 'right'
+        },
+        {
+          onafterchange: function() {
+            if (main.bot.bot.E < 2) {
+              this.previousStep().refresh();
+            }
+          },
+          element: '.list-group-item:nth-child(1) .energy-bar',
+          intro: 'Your unit\'s energy increase',
+          position: 'left'
+        },
+        {
+          element: '#movement-buttons',
+          intro: 'You can now begin exploring the map using the <code class="cfp-hotkeys-key">q</code>-<code class="cfp-hotkeys-key">c</code> keys. The letters <code class="cfp-hotkeys-key">qweadzxc</code> are directions of movement (<code class="cfp-hotkeys-key">q</code> for North West, <code class="cfp-hotkeys-key">c</code> for South East, etc).  Imagine your unit is located at the action key <code class="cfp-hotkeys-key">s</code> on your keyboard. ',
+          position: 'right'
+        },
+        {
+          element: '.list-group-item:nth-child(1) .energy-bar',
+          intro: 'You will notice that the energy depletes as you move.  This is because this unit\'s movement cost is greater than its recharge rate.',
           position: 'left'
         },
         {
@@ -298,13 +322,18 @@ angular.module('ePrime')
         },
         {
           element: '.list-group-item:nth-child(1) .energy-cost .movement-cost',
-          intro: 'The energy of the base unit is depleted at a very high rate while moving. Notice that the base requires a full charge of 100 J to move one space.',
+          intro: 'The energy of a unit is depleted while moving. Notice that the unit requires 1 J to move one space.',
           position: 'left'
         },
         {
           element: '.list-group-item:nth-child(1) .energy-cost .recharge-rate',
-          intro: 'The base unit recharges at just over 2 J per turn. At this rate a heavy base unit can only move one space every 44 turns.',
+          intro: 'The unit recharges at 5 J per second. At this rate a unit can move five (5) spaces every second, not counting stored energy.',
           position: 'left'
+        },
+        {
+          element: '#left-panel',
+          intro: 'If you encounter an X on the map this is a resource cache (or mine). Collect resources using the action key <code class="cfp-hotkeys-key">s</code>.',
+          position: 'right'
         },
         {
           element: '.list-group-item:nth-child(1) .storage-bar',
@@ -312,19 +341,36 @@ angular.module('ePrime')
           position: 'left'
         },
         {
-          element: '.list-group-item:nth-child(1) .construct-button',
-          intro: 'Constructing new units costs 100 kg. Construct a new unit now using the button indicated.',
+          element: '.list-group-item:nth-child(1) .upgrade-button',
+          intro: 'Upgrading units costs 10 kg.  You may stop the tutorial now and explore.  Return to the tutrial when you have upgraded your unit several times.  <p /><b>If you continue the tutorial now your unit will automatically upgrade several times.  Normally this would cost resources that you need to collect.</b>',
           position: 'left'
         },
         {
-          element: '.list-group-item:nth-child(2)',
-          intro: 'Your new unit will appear in the list...',
-          position: 'left',
+          onafterchange: function() {
+            if (main.bot.bot.mS < 100) {
+              main.bot.bot.S = 90;
+              main.bot.bot.upgrade(90);
+            }
+          },
+          element: '.list-group-item:nth-child(1) .energy-cost',
+          intro: 'Notice that the movement cost and recharge rate are both higher after upgrading. Now the unit requires a full charge to move one space and the recharge rate is higher.',
+          position: 'left'
+        },
+        {
+          element: '.list-group-item:nth-child(1) .construct-button',
+          intro: 'Once a unit reaches this level (maximum storage greater than 100) it is able to construct new units.  Constructing new units costs 100 kg.  Continue exploring and collect 100 kg of storage. <br /><b>If you continue the tutorial now your unit will construct a new unit.  Again this would normally cost resources that you must to collect.',
+          position: 'left'
+        },
+        {
           onbeforechange: function() {
             if (main.bots.length < 2) {
-              this.previousStep();
+              main.bot.bot.S = 100;
+              main.bot.bot.construct();
             }
-          }
+          },
+          element: '.list-group-item:nth-child(2)',
+          intro: 'Your new unit will appear in the list...',
+          position: 'left'
         },
         {
           element: '#left-panel',
@@ -333,48 +379,23 @@ angular.module('ePrime')
         },
         {
           element: '.list-group-item:nth-child(2) .energy-cost',
-          intro: 'Notice that the movement cost and recharge rate are both lower. This unit can move one space every two turns using its own power generation.',
+          intro: 'Notice that the movement cost and recharge rate are again low.',
           position: 'left'
         },
         {
           element: '.list-group-item:nth-child(2)',
-          intro: 'However small units can also charge from larger units. Make the rover the active unit by clicking the A in the bot list...',
+          intro: 'Small units can also charge from larger units. Make the new unit active unit by clicking the A in the bot list...',
           position: 'left'
         },
         {
           element: '.list-group-item:nth-child(2)',
           intro: 'Now press the action key <code class="cfp-hotkeys-key">s</code> to charge the Rover using the Base’s energy. This is the action key.  It is also used to unload any unit storage to the base and to mine resources.',
           position: 'left',
-          onbeforechange: function() {
+          onafterchange: function() {
             if (!main.bots[1].active) {
               this.previousStep();
             }
           }
-        },
-        {
-          element: '#left-panel',
-          intro: 'You can now begin exploring the map using the <code class="cfp-hotkeys-key">q</code>-<code class="cfp-hotkeys-key">c</code> keys. The letters <code class="cfp-hotkeys-key">qweadzxc</code> are directions of movement (<code class="cfp-hotkeys-key">q</code> for North West, <code class="cfp-hotkeys-key">c</code> for South East, etc).  Imagine your unit is located at the action key <code class="cfp-hotkeys-key">s</code> on your keyboard. ',
-          position: 'right'
-        },
-        {
-          element: '#left-panel',
-          intro: 'If you encounter an X on the map this is a resource cache (or mine). Collect resources using the action key <code class="cfp-hotkeys-key">s</code>.',
-          position: 'right'
-        },
-        {
-          element: '.list-group-item:nth-child(2) .energy-bar',
-          intro: 'You will notice that the energy depletes as you move.  This is because this unit\'s movement cost is greater than its recharge rate. You can use all your energy to mine or return to the base periodically to unload and charge...',
-          position: 'left'
-        },
-        {
-          element: '.list-group-item:nth-child(2) .energy-bar',
-          intro: 'Or use the wait key <code class="cfp-hotkeys-key">.</code> to wait one turn an recharge your unit.',
-          position: 'left'
-        },
-        {
-          element: '#play-buttons',
-          intro: 'You may also use the <i class="fa fa-step-forward"></i> button to advance a turn.',
-          position: 'right'
         },
         {
           element: '.list-group-item:nth-child(1)',
@@ -409,26 +430,51 @@ angular.module('ePrime')
       ]
     };
 
-    main.introCounter = 1;  // save with game state?
-
-    $scope.introChange = function() {
-      var intro = this;
-
-      var currentItem = intro._introItems[intro._currentStep];
-
-      if (currentItem.onbeforechange) {
-        currentItem.onbeforechange.call(this);
-      }
-
-      main.introCounter = intro._currentStep+1;
-
-      for (var i = intro._currentStep; i < this._options.steps.length; i++) {
-        currentItem = intro._introItems[i];
+    function refreshIntro(intro) {
+      for (var i = 0; i < intro._options.steps.length; i++) {
+        var currentItem = intro._introItems[i];
         var step = intro._options.steps[i];
         if (step.element) {
           currentItem.element = document.querySelector(step.element);
           currentItem.position = step.position;
         }
+      }
+    }
+
+    $scope.introAfterChange = function() {
+      var intro = this;
+
+      main.introCounter = intro._currentStep+1;
+
+      refreshIntro(intro);
+
+      var currentItem = intro._introItems[intro._currentStep];
+      if (currentItem.onafterchange) {
+
+        $scope.$apply(function() {
+          currentItem.onafterchange.call(intro);
+        });
+
+        refreshIntro(intro);
+
+      }
+
+    };
+
+    $scope.introBeforeChange = function() {
+      var intro = this;
+
+      refreshIntro(intro);
+
+      var currentItem = intro._introItems[intro._currentStep];
+      if (currentItem.onbeforechange) {
+
+        $scope.$apply(function() {
+          currentItem.onbeforechange.call(intro);
+        });
+
+        refreshIntro(intro);
+
       }
 
     };

@@ -34,11 +34,12 @@ angular.module('ePrime')
   fpsmeter.hide();
   return fpsmeter;
 })
-.service('GAME', function($log, $localForage, debounce, ngEcs, World, Chunk, TILES, defaultScripts, fpsmeter) {
+.service('GAME', function($log, $localForage, debounce, ngEcs, World, Chunk, TILES, defaultScripts, fpsmeter, $modal) {
 
   var GAME = this;  // todo: GAME === ngEcs
 
   GAME.ecs = ngEcs;  // eventually GAME === ngEcs
+  ngEcs.$interval = 0.1;
 
   GAME.scripts = angular.copy(defaultScripts);  // setup?
 
@@ -88,8 +89,8 @@ angular.module('ePrime')
 
     return $localForage.getItem('saveGame').then(function(G) {  // trap errors
       if (!G) {
-        GAME.start();
-        return $log.debug('saveGame not found');
+        $log.debug('saveGame not found');
+        return GAME.start();
       }
 
       $log.debug('game loaded',arguments);
@@ -97,8 +98,8 @@ angular.module('ePrime')
       angular.copy(G.scripts, GAME.scripts);
 
       if (!G.entities || !G.world) {
-        GAME.start();
-        return $log.debug('saveGame not found');
+        $log.debug('saveGame not found');
+        return GAME.start();
       }
 
       angular.extend(GAME.world, G.world);
@@ -152,32 +153,21 @@ angular.module('ePrime')
   };
 
   GAME.start = function() {
-
-    var home = GAME.ecs.$e({
+    var home = ngEcs.$e({
       $bot: {},
       bot: {
-        name: 'Base',
+        name: 'Rover',
         x: 30,
         y: 10,
-        S: 100,
-        mS: 100,
-        E: 100,
-        mE: 100,
-        t: TILES.BASE,
         $game: GAME
       },
       render: {},
-      /* tile: {
-        x: 30,
-        y: 10,
-        t: TILES.BASE
-      }, */
       active: true
     });
 
-    GAME.bots = GAME.ecs.families.bot;  // get rid of this
+    GAME.bots = ngEcs.families.bot;  // get rid of this
 
-    GAME.world.scanRange(home.bot);
+    GAME.world.scanRange(home.bot, 2);
 
     var chunk = GAME.world.getChunk(home.bot.x, home.bot.y);
 
@@ -185,7 +175,13 @@ angular.module('ePrime')
       chunk.set(home.bot.x, home.bot.y, TILES.FIELD);
     }
 
-    return GAME;
+    return $modal.open({
+      templateUrl: 'components/modals/start-model.html'
+    }).result.then(function () {  // start
+    }, function () {              // demo (set seed?, construct bot, ensure a mine is in range)
+      GAME.tutorial = true;
+      console.log('demo', GAME);
+    });
 
   };
 

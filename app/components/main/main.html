@@ -1,4 +1,4 @@
-<div id="header" ng-intro-options="IntroOptions" ng-intro-method="startIntro" ng-intro-autorefresh="true" ng-intro-onbeforechange="introChange">
+<div id="header" ng-intro-options="IntroOptions" ng-intro-method="startIntro" ng-intro-autorefresh="true" ng-intro-onafterchange="introAfterChange" ng-intro-onbeforechange="introBeforeChange" ng-intro-autostart="autoStart">
   <div class="container-fluid muted credit">
     Turn: {{main.game.stats.turn}}
 
@@ -15,12 +15,12 @@
       </button>
       <button class="btn btn-sm" tooltip="Play game"
         tooltip-placement="bottom" tooltip-animation="false"
-        ng-disabled="main.dT === 5" ng-click="main.play(6)">
+        ng-disabled="main.dT === 6" ng-click="main.play(6)">
         <i class="fa fa-play"></i>
       </button>
       <button class="btn btn-sm"
         tooltip="Play game (fast)" tooltip-placement="bottom" tooltip-animation="false"
-        ng-disabled="main.dT === 30" ng-click="main.play(60)">
+        ng-disabled="main.dT === 30" ng-click="main.play(30)">
         <i class="fa fa-forward"></i>
       </button>
     </span>

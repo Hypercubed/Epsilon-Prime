@@ -149,7 +149,7 @@ angular.module('ePrime')
       $update: function() {
         //mezclar2(this.$family);
         this.$family.forEach(function(e) {
-          if(e.script.halted !== true) {
+          if( /* !e.active  && */ e.script.halted !== true) {
             var script = findScript(e.script.scriptName);
             var ret = sandBox.run(script, e.$bot);
             if (ret !== true) {

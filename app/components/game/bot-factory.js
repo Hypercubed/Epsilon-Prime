@@ -160,10 +160,10 @@ angular.module('ePrime')
 
     ngEcs.$s('charging', {
       $require: ['bot'],
-      $update: function() {
+      $update: function(dt) {
         this.$family.forEach(function(e) {  // todo: for loop
           var bot = e.bot;
-          ngEcs.stats.E += bot.charge(bot.chargeRate);
+          ngEcs.stats.E += bot.charge(bot.chargeRate*0.1 /* *dt */ );
         });
       }
     });
@@ -537,15 +537,16 @@ angular.module('ePrime')
 
     var DIS = 1+1;  // 1+Discharge exponent, faster discharge means lower effeciency
     var CHAR = 0.5; // Charging effeciency
-    var I = 1; // moves per turn for base
+    var I = 1; // moves per turn for rover
     var E = 2/3;  // surface/volume exponent
-    var N = CHAR*I/(Math.pow(20, E));  // normilization factor
+    var N = 10*CHAR*I/(Math.pow(20, E));  // normilization factor
 
-    Bot.prototype.upgrade = function() {
-      if (this.S >= 10) {
-        this.S -= 10;
-        this.mS += 10;
-        this.mE += 10;
+    Bot.prototype.upgrade = function(C) {
+      C = C || 10;
+      if (this.S >= C) {
+        this.S -= C;
+        this.mS += C;
+        this.mE += C;
         this.update();
       }
     };

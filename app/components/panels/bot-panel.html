@@ -1,5 +1,5 @@
 <div id="bot-panel" class="bot-panel" tabindex="0">
-  <div class="row-action-primary">
+  <div class="row-action-primary" ng-click="main.botChange(bot)">
     <small class="credit text-muted">#{{bot._id}}</small>
     <i>{{bot.bot.t}}</i>
   </div>
@@ -19,21 +19,23 @@
         <!-- label class="col-sm-2">MC</label-->
         <div class="col-sm-6 movement-cost">-{{bot.bot.moveCost | number : 0}} [J/km]</div>
         <!-- label class="col-sm-2">Ch</label -->
-        <div class="col-sm-6 recharge-rate">+{{bot.bot.chargeRate | number : 2}} [J/d]</div>
+        <div class="col-sm-6 recharge-rate">+{{bot.bot.chargeRate | number : 2}} [J/s]</div>
       </div>
     </div>
 
     <div class="row">
       <!-- label class="col-sm-2">[J]</label -->
-      <div class="col-xs-6 energy-bar">
-        <progressbar class="active" ng-attr-animate="main.dT > 20 || main.dT === 0" ng-class="{'progress-striped': bot.bot.E < bot.bot.mE}" value="bot.bot.E * 100 / bot.bot.mE" type="danger">
+      <div class="col-xs-6 energy-bar" style="overflow: hidden;">
+
+        <progressbar class="active" animate="false" ng-class="{'progress-striped': bot.bot.E < bot.bot.moveCost}" value="bot.bot.E * 100 / bot.bot.mE" type="danger">
           <span style="color:black; white-space:nowrap;">{{bot.bot.E | number : 1}} / {{bot.bot.mE | number : 0}} [J]</span>
+          <span style="position: absolute; border-right: 1px dashed black; height: 100%; left: 15px;" ng-style="{ width: bot.bot.moveCost * 100 / bot.bot.mE + '%' }">&nbsp;</span>
         </progressbar>
       </div>
 
       <!-- label class="col-sm-2">Storage</label -->
       <div class="col-xs-6 storage-bar">
-        <progressbar class="active" ng-attr-animate="main.dT > 20 || main.dT === 0" value="bot.bot.S * 100 / bot.bot.mS" type="info">
+        <progressbar class="active" animate="false" value="bot.bot.S * 100 / bot.bot.mS" type="info">
           <span style="color:black; white-space:nowrap;">{{bot.bot.S}} / {{bot.bot.mS}} [kg]</span>
         </progressbar>
       </div>
@@ -43,10 +45,11 @@
       <div class="col-xs-6">
 
         <div class="row col-xs-10">
-          <div class="input-group">
+          <div class="input-group" ng-show="main.bots.length > 1">
             <select class="form-control input-sm"
               ng-options="script.name as script.name for script in main.game.scripts"
               ng-model="bot.script.scriptName"
+              xxxng-disabled="bot.active"
               ng-change="setScript(bot, bot.script.scriptName)">
               <option value="">Waiting</option>
             </select>
@@ -73,10 +76,10 @@
 
       </div>
       <div class="col-xs-6">
-        <button class="btn btn-info btn-xs" tooltip="Upgrade bot"
+        <button class="btn btn-info btn-xs upgrade-button" tooltip="Upgrade bot"
           ng-click="bot.bot.upgrade(); $event.stopPropagation();"
           ng-disabled="bot.bot.S < 10"
-          ng-show="main.bots.length > 1">
+          xxxng-show="bot.bot.mE < 100 || main.bots.length > 1">
           <i class="fa fa-level-up"></i>
           <span class="badge">-10 kg</span>
         </button>
@@ -93,12 +96,12 @@
 
   </div>
 
-  <div ng-if="opened">
+  <div ng-if="opened || main.bots.length === 1">
     <hr class="clearfix">
     <tabset type="pills" justified="true">
       <tab heading="Manual Control">
         <div class="row">
-          <div class="col-lg-6 text-center">
+          <div id="movement-buttons" class="col-lg-6 text-center">
             <u>Movement</u><br />
             <button class="btn btn-primary btn-mono btn-lg" ng-click="main.move(-1,-1);" ng-disabled="!bot.bot.canMove(-1,-1)">Q</button>
             <button class="btn btn-primary btn-mono btn-lg" ng-click="main.move( 0,-1);" ng-disabled="!bot.bot.canMove( 0,-1)">W</button>
