@@ -19,32 +19,32 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [-] Order system updates by priority
 
 ## Next
-- [ ] In game API docs
+- [ ] Better in game API help
+- [ ] Bot failure rate.
 - [ ] Bots methods could improve by keeping track of current chunk
 - [?] Stop using watchers in map directive
-- [ ] Add $map API to readme
+- [x] Add $map API to readme
 - [ ] Add $bot.memory to readme
-- [x] Arrow keys as alternative?  More hotkeys (`S` (shift-s) save, `,` to mine,...)
+- [ ] More hotkeys (`S` (shift-s) save, `,` to mine,...)
 - [ ] Shortcuts for do until E = 0?
 - [ ] More orders (Move to target, mine at target)
 - [ ] Deactivate orders for active bot on manual keypress?
-- [-] Update tutorial for new mechanics, add callback functions
-- [ ] Indicate unit is on resource
-- [ ] Clean up and move tutorial
+- [x] Update tutorial for new mechanics, add callback functions
+- [ ] Move tutorial to service.
 - [ ] Move more GAME stuff to ecs engine
-- [ ] Improve bot logging, error system.
+- [ ] Improve $bot logging, error system.
 - [ ] Finish Entity component system
 - [ ] New screen shot
 - [ ] Make defaultScripts as scripts service (or entities?). (crud, reset, validate, run, etc)
 - [ ] Tests
-- [ ] Move bot hot keys to bots controller?
+- [ ] Move hot keys somewhere?
 - [ ] Improve editor save/validation
 - [ ] Remove bot actions in MainCtrl, use main.bot.$bot?
 - [ ] Change save rate to time based not turns?
 - [ ] Better handling Aether errors
 - [ ] Try other Aether supported languages?
 - [ ] Upgrade units using heavy resources?
-- [x] $bot.find should search both time and name.
+- [x] $bot.find should search both tile and name.
   - [ ] Wildcard?
 - [ ] Indicate bot's current target, (and heading, and action?)
 - [ ] Set target using map?
@@ -56,7 +56,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [x] Ensure base starts on plain
 - [ ] Clean up classes -> Entity component system
 - [x] Implement $bot.log()
-- [ ] Improve drawing more?  Draw by chunk, bot (entities).
+- [ ] Improve drawing more?
 - [ ] Re-balance gameplay.
 - [ ] More/better Tooltips?
 - [ ] Need to indicate when unit is on mine.
@@ -64,7 +64,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Clean terminology (bots, resources, energy units, etc)
 
 ## Decisions
-- [-] Always charging, pause scripts only?
+- [-] Puase scripts, keep charging?
 - [x] Start with full energy?
 - [ ] Can bot scripts command other bots?  $bot.find('A').moveTo($bot.x,$bot.y)?
 - [ ] Can bot scripts access other bot's memory?  $bot.find('Base').mem?
@@ -78,7 +78,7 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [-] Use ui-router?
 - [x] Add about screen.
 - [ ] Faster bot (drone)? mE = mS = 1 (Can never upgrade using current rules)
-- [ ] Allow scripting of change script?  Change, stop, include.
+- [ ] Allow scripting of change script?  Change, halt, include.
 - [x] Upgrade self or upgrade in base?
 - [ ] replace progress bars (with sparkline?)
 - [ ] add progress circles/bars around units?

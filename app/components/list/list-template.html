@@ -7,10 +7,10 @@
         <div class="panel-heading">
           <div class="row">
             <div class="col-xs-6">
-              <a class="btn btn-link" ng-click="close()" ng-show="opened"><span class="small glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Back</a>
+              <a class="btn btn-link" ng-click="close()" ng-show="opened" ng-cloak><span class="small glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Back</a>
             </div>
             <div class="col-xs-6">
-              <form class="col-xs-12 form-control filter">
+              <form class="col-xs-12 form-control filter" ng-show="items.length > 1" ng-cloak>
                 <span class="glyphicon glyphicon-search search-icon pull-left"></span>
                 <input class="pull-right" ng-model="search.bot.name" placeholder="filter">
               </form>

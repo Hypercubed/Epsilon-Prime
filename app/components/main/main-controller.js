@@ -277,17 +277,17 @@ angular.module('ePrime')
         },
         {
           element: '#list',
-          intro: 'On the right is a units lists.',
+          intro: 'On the right is your units list.',
           position: 'left'
         },
         {
           element: '.list-group-item:nth-child(1)',
-          intro: 'At this time you have one unit… the rover. Again the starting unit is identified by the A symbol.',
+          intro: 'At this time you have one unit. Here also the starting unit is identified by the <i>A</i> symbol.',
           position: 'left'
         },
         {
           element: '.list-group-item:nth-child(1) .energy-bar',
-          intro: 'The red progress bar indicates the unit’s energy storage and energy capacity. The rover begins with no energy but can harvest upto 10 J. Energy is needed to move and collect resources.',
+          intro: 'This progress bar indicates the unit’s energy and energy storage capacity. The unit begins with no energy but can harvest upto 10 J. Energy is needed to move and collect resources.',
           position: 'left'
         },
         {
@@ -302,7 +302,7 @@ angular.module('ePrime')
             }
           },
           element: '.list-group-item:nth-child(1) .energy-bar',
-          intro: 'Your unit\'s energy increase',
+          intro: 'Your unit’s energy will increase.',
           position: 'left'
         },
         {
@@ -322,7 +322,7 @@ angular.module('ePrime')
         },
         {
           element: '.list-group-item:nth-child(1) .energy-cost .movement-cost',
-          intro: 'The energy of a unit is depleted while moving. Notice that the unit requires 1 J to move one space.',
+          intro: 'Notice that the unit requires 1 J to move one space.',
           position: 'left'
         },
         {
@@ -337,12 +337,12 @@ angular.module('ePrime')
         },
         {
           element: '.list-group-item:nth-child(1) .storage-bar',
-          intro: 'The blue progress bar indicates a units resource storage and capacity. Resources are used to upgrade units or construct new units.',
+          intro: 'This progress bar indicates a unit’s resources and storage capacity. Resources are used to upgrade units or construct new units.',
           position: 'left'
         },
         {
           element: '.list-group-item:nth-child(1) .upgrade-button',
-          intro: 'Upgrading units costs 10 kg.  You may stop the tutorial now and explore.  Return to the tutrial when you have upgraded your unit several times.  <p /><b>If you continue the tutorial now your unit will automatically upgrade several times.  Normally this would cost resources that you need to collect.</b>',
+          intro: 'Upgrading units costs 10 kg.  You should pause the tutorial now and explore.  Return to the tutrial when you have upgraded your unit several times.  <p /><b>If you continue the tutorial now we will automatically upgrade your unit several times.  Normally this would cost resources that you need to collect.</b>',
           position: 'left'
         },
         {
@@ -353,12 +353,12 @@ angular.module('ePrime')
             }
           },
           element: '.list-group-item:nth-child(1) .energy-cost',
-          intro: 'Notice that the movement cost and recharge rate are both higher after upgrading. Now the unit requires a full charge to move one space and the recharge rate is higher.',
+          intro: 'Notice that the movement cost and recharge rate are both higher after upgrading. Now the unit requires a full charge to move one space and even though recharge rate is higher you unit is now effectively slower.  Also notice that the unit is indicated with a <i>@</i>',
           position: 'left'
         },
         {
           element: '.list-group-item:nth-child(1) .construct-button',
-          intro: 'Once a unit reaches this level (maximum storage greater than 100) it is able to construct new units.  Constructing new units costs 100 kg.  Continue exploring and collect 100 kg of storage. <br /><b>If you continue the tutorial now your unit will construct a new unit.  Again this would normally cost resources that you must to collect.',
+          intro: 'Once a unit has a storage capacity greater than 100 it is able to construct new units.  Constructing new units costs 100 kg.  You should pause the tutorial and continue exploring to collect 100 kg of storage. <br /><b>If you continue the tutorial we will construct a new unit for you.  Again this would normally cost resources that you must to collect.',
           position: 'left'
         },
         {
@@ -384,7 +384,7 @@ angular.module('ePrime')
         },
         {
           element: '.list-group-item:nth-child(2)',
-          intro: 'Small units can also charge from larger units. Make the new unit active unit by clicking the A in the bot list...',
+          intro: 'Small units can also charge from larger units. Make the new unit active unit by clicking the <i>A</i> in the bot list...',
           position: 'left'
         },
         {
@@ -426,7 +426,7 @@ angular.module('ePrime')
           element: '#stats-button',
           intro: 'Check your progress here.',
           position: 'left' },
-        { intro: '<h3>Enjoy</h3>' }
+        { intro: 'How quickly can you collect 500 kg in the base unit?  <h3>Good luck!</h3>' }
       ]
     };
 

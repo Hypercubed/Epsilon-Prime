@@ -156,7 +156,7 @@ angular.module('ePrime')
     var home = ngEcs.$e({
       $bot: {},
       bot: {
-        name: 'Rover',
+        name: 'Base',
         x: 30,
         y: 10,
         $game: GAME
@@ -177,11 +177,9 @@ angular.module('ePrime')
 
     return $modal.open({
       templateUrl: 'components/modals/start-model.html'
-    }).result.then(function () {  // start
-    }, function () {              // demo (set seed?, construct bot, ensure a mine is in range)
+    }).result.then(function () {  // tutorial
       GAME.tutorial = true;
-      console.log('demo', GAME);
-    });
+    }, function() {});
 
   };
 
