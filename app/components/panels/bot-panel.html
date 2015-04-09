@@ -78,17 +78,17 @@
       <div class="col-xs-6">
         <button class="btn btn-info btn-xs upgrade-button" tooltip="Upgrade bot"
           ng-click="bot.bot.upgrade(); $event.stopPropagation();"
-          ng-disabled="bot.bot.S < 10"
+          ng-disabled="bot.bot.S < bot.bot.upgradeCost"
           xxxng-show="bot.bot.mE < 100 || main.bots.length > 1">
           <i class="fa fa-level-up"></i>
-          <span class="badge">-10 kg</span>
+          <span class="badge">-{{::bot.bot.upgradeCost}} kg</span>
         </button>
         <button class="btn btn-info btn-xs construct-button" tooltip="Construct new bot"
           ng-click="bot.bot.construct(); $event.stopPropagation();"
-          ng-if="bot.bot.mS >= 100"
-          ng-disabled="bot.bot.S < 100">
+          ng-show="bot.bot.mS >= bot.bot.constructCost"
+          ng-disabled="bot.bot.S < bot.bot.constructCost">
           <i class="fa fa-user-plus"></i>
-          <span class="badge">-100 kg</span>
+          <span class="badge">-{{::bot.bot.constructCost}} kg</span>
         </button>
 
       </div>

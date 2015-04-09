@@ -1,4 +1,4 @@
-<div id="header" ng-intro-options="IntroOptions" ng-intro-method="startIntro" ng-intro-autorefresh="true" ng-intro-onafterchange="introAfterChange" ng-intro-onbeforechange="introBeforeChange" ng-intro-autostart="autoStart">
+<div id="header" ng-intro-options="main.intro.options" ng-intro-method="startIntro" ng-intro-autorefresh="true" ng-intro-onafterchange="main.intro.afterChange" ng-intro-onbeforechange="main.intro.beforeChange" ng-intro-autostart="autoStart">
   <div class="container-fluid muted credit">
     Turn: {{main.game.stats.turn}}
 
@@ -34,7 +34,7 @@
       <button class="btn btn-sm" ng-click="main.help('components/modals/help-model.html')">
         <i class="fa fa-question-circle"></i>
       </button>
-      <a class="btn btn-sm" ng-click="startIntro(main.introCounter || 1)">Tutorial</a>
+      <a class="btn btn-sm" ng-click="startIntro(main.intro.counter || 1)">Tutorial</a>
     </div>
 
  </div>

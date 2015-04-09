@@ -552,20 +552,23 @@ angular.module('ePrime')
     };
 
     Bot.prototype.update = function() {
-      if (this.mS >= 100) {
-        this.t = TILES.BASE;
-      }
       this.mass = this.mE + this.mS;
       this.moveCost =  Math.pow(this.mass/20, DIS);
       this.chargeRate = N*Math.pow(this.mass, E);
+      this.upgradeCost = 10;
+      this.constructCost = 20;
+
+      if (this.mS >= this.constructCost) {
+        this.t = TILES.BASE;
+      }
     };
 
     Bot.prototype.canConstruct = function() {  // where used? Move this to component
-      return this.S >= 100;
+      return this.S >= this.constructCost;
     };
 
     Bot.prototype.construct = function(script) {  // todo: move to construct component
-      if (this.S >= 100) {
+      if (this.S >= this.constructCost) {
         //var self = this;
 
         var bot = GAME.ecs.$e({
@@ -584,7 +587,7 @@ angular.module('ePrime')
           });
         }
 
-        this.S -= 100;
+        this.S -= this.constructCost;
         return bot;
       }
       return null;

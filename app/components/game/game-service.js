@@ -176,10 +176,12 @@ angular.module('ePrime')
     }
 
     return $modal.open({
+      keyboard: false,
+      backdrop: 'static',
       templateUrl: 'components/modals/start-model.html'
-    }).result.then(function () {  // tutorial
-      GAME.tutorial = true;
-    }, function() {});
+    }).result.then(function (ret) {
+      GAME.tutorial = ret;
+    });
 
   };
 
