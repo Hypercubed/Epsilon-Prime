@@ -9,13 +9,31 @@
     return Math.max(Math.abs(dx),Math.abs(dy));
   }
 
-angular.module('ePrime')
-  .value('isAt', function isAt(obj,x,y) {
+  var mathSign = Math.sign || function (value) {  // polyfill for Math.sign
+    var number = +value;
+    if (number === 0) { return number; }
+    if (Number.isNaN(number)) { return number; }
+    return number < 0 ? -1 : 1;
+  };
+
+  function isAt(obj,x,y) {
     if (angular.isObject(x)) {
       return x.x === obj.x && x.y === obj.y;
     }
     return x === obj.x && y === obj.y;
-  })
+  }
+
+  function modulo(x,n) {  // move somewher globally usefull
+    return ((x%n)+n)%n;
+  }
+
+  function rnd(x) {
+    x = Math.round(x);
+    return x === 0 ? 0 : x/Math.abs(x);
+  }
+
+angular.module('ePrime')
+  .value('isAt', isAt)
   .run(function(ngEcs) {
 
     //function find(bot, _) {  // used by unload and charge, move?
@@ -158,29 +176,26 @@ angular.module('ePrime')
       return $bot;
     } */
 
-    ngEcs.$s('charging', {
+    ngEcs.$s('bots', {
       $require: ['bot'],
+      $addEntity: function(e) {  // should be part of scripting?
+        e.$bot = new BotProxy(e);
+        e.bot.update();
+      },
       $update: function(dt) {
-        this.$family.forEach(function(e) {  // todo: for loop
-          var bot = e.bot;
-          ngEcs.stats.E += bot.charge(bot.chargeRate*0.1 /* *dt */ );
-        });
+        var i = -1,arr = this.$family,len = arr.length,bot,dE;
+        while (++i < len) {
+          bot = arr[i].bot;
+          dE = +Math.min(bot.chargeRate*dt, bot.mE-bot.E).toFixed(4);
+          bot.E += dE;
+          ngEcs.stats.E += dE;
+        }
       }
     });
 
-    ngEcs.$s('bots', {
-      $require: ['bot'],
-      $addEntity: function(e) {
-        e.$bot = new BotProxy(e);
-        e.bot.update();
-      }//,
-      //$update: function() {
-      //  this.$family.forEach(function(e) {  // restore interface for safety
-      //    e.$bot = new BotProxy(e);
-      //  });
-      //}
-    });
-
+    //var e = this.E;
+    //this.E = +Math.min(e + dE, this.mE).toFixed(4);
+    //return this.E - e;
 
     /* ngEcs.$s('botsRender', {
       $require: ['bot','render'],
@@ -202,11 +217,14 @@ angular.module('ePrime')
   })
   .run(function (isAt, TILES, GAME, ngEcs) {  // Bot components
 
-    var mathSign = Math.sign || function (value) {  // polyfill for Math.sign
-      var number = +value;
-      if (number === 0) { return number; }
-      if (Number.isNaN(number)) { return number; }
-      return number < 0 ? -1 : 1;
+    var botParams = {
+      mS0: 10,  // Starting storage capacity
+      mE0: 10,  // Starting energy capacity
+      DIS: 1+0,  // 1+Discharge exponent, faster discharge means lower effeciency
+      CHAR: 0.5, // Charging effeciency
+      I: 1, // moves per turn for starting unit
+      E: 2/3,  // surface/volume exponent,
+      constructCost: 20
     };
 
     /* function Tile() {
@@ -377,14 +395,7 @@ angular.module('ePrime')
       console.log(d, a);
     }); */
 
-    function modulo(x,n) {  // move somewher globally usefull
-      return ((x%n)+n)%n;
-    }
 
-    function rnd(x) {
-      x = Math.round(x);
-      return x === 0 ? 0 : x/Math.abs(x);
-    }
 
     Bot.prototype.moveTo = function(x,y) {  // this is so bad!!!
 
@@ -532,31 +543,31 @@ angular.module('ePrime')
     };
 
     Bot.prototype.canUpgrade = function() {
-      return this.S >= 10;
+      return this.S >= this.upgradeCost;
     };
 
-    var DIS = 1+1;  // 1+Discharge exponent, faster discharge means lower effeciency
-    var CHAR = 0.5; // Charging effeciency
-    var I = 1; // moves per turn for rover
-    var E = 2/3;  // surface/volume exponent
-    var N = 10*CHAR*I/(Math.pow(20, E));  // normilization factor
+    //var DIS = 1+1;  // 1+Discharge exponent, faster discharge means lower effeciency
+    //var CHAR = 0.5; // Charging effeciency
+    //var I = 1; // moves per turn for rover
+    //var E = 2/3;  // surface/volume exponent
+    var N = 10*botParams.CHAR*botParams.I/(Math.pow(20, botParams.E));  // normilization factor
 
-    Bot.prototype.upgrade = function(C) {
-      C = C || 10;
-      if (this.S >= C) {
-        this.S -= C;
-        this.mS += C;
-        this.mE += C;
+    Bot.prototype.upgrade = function() {
+      //C = C || this.upgradeCost;
+      if (this.S >= this.upgradeCost) {
+        this.S -= this.upgradeCost;
+        this.mS += 10;
+        this.mE += 10;
         this.update();
       }
     };
 
     Bot.prototype.update = function() {
       this.mass = this.mE + this.mS;
-      this.moveCost =  Math.pow(this.mass/20, DIS);
-      this.chargeRate = N*Math.pow(this.mass, E);
-      this.upgradeCost = 10;
-      this.constructCost = 20;
+      this.moveCost =  Math.pow(this.mass/20, botParams.DIS);
+      this.chargeRate = N*Math.pow(this.mass, botParams.E);
+      this.upgradeCost = 0.5*this.mass;
+      this.constructCost = botParams.constructCost;
 
       if (this.mS >= this.constructCost) {
         this.t = TILES.BASE;
@@ -564,11 +575,11 @@ angular.module('ePrime')
     };
 
     Bot.prototype.canConstruct = function() {  // where used? Move this to component
-      return this.S >= this.constructCost;
+      return this.S >= botParams.constructCost;
     };
 
     Bot.prototype.construct = function(script) {  // todo: move to construct component
-      if (this.S >= this.constructCost) {
+      if (this.S >= botParams.constructCost) {
         //var self = this;
 
         var bot = GAME.ecs.$e({

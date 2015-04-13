@@ -61,6 +61,8 @@ angular.module('ePrime')
   })
   .service('sandBox', function(aether, GAME, $log) {  // move, create tests
 
+    var sandBox = this;
+
     var $consoleInterface = {
       log: console.log.bind(console)
     };
@@ -69,7 +71,7 @@ angular.module('ePrime')
       get: GAME.world.get.bind(GAME.world)
     };
 
-    this.run = function(script, $bot) {
+    sandBox.run = function(script, $bot) {
 
       if (script === null) {
         return;
@@ -87,19 +89,19 @@ angular.module('ePrime')
         method = aether.createMethod();
       }
 
+      var result = { done: false };
       try {
 
-        var generator = method($consoleInterface, $bot, $mapInterface);
+        var generator = method($consoleInterface, $bot, $mapInterface); // does this need to be done each time?
         aether.sandboxGenerator(generator);
 
         var c = 0;
-        var result = { done: false };
         while (!result.done && c++ < 200000) {
           result = generator.next();
         }
 
         if (!result.done) {  // todo: throw error?
-          throw new Error('User script execution limit'+c);
+          result.error = 'User script execution limit';
         }
 
       } catch(err) {
@@ -110,10 +112,11 @@ angular.module('ePrime')
         }
         $log.debug(aether);
         $log.warn('User script error', err.message, m || err.stack || '');
-        return err.message+m;
+
+        result.error = err.message+m;
       }
 
-      return true;
+      return result;
 
     };
 
@@ -136,6 +139,27 @@ angular.module('ePrime')
       return undefined;
     }
 
+    ngEcs.$s('action', {
+      $require: ['bot'],  // todo active
+      $update: function() {
+        var i = -1,arr = this.$family,len = arr.length,e;
+        while (++i < len) {
+          e = arr[i];
+
+          if (e.script) {  // set or clear skip
+            e.script.skip = !!e.action;
+          }
+
+          if (e.bot.E < 1) { continue; }
+
+          if (e.action) {
+            e.action();
+          }
+
+        }
+      }
+    });
+
     ngEcs.$s('scripts', {
       $require: ['bot','script'],
       $addEntity: function(e) {
@@ -147,16 +171,50 @@ angular.module('ePrime')
         }
       },
       $update: function() {
-        //mezclar2(this.$family);
-        this.$family.forEach(function(e) {
-          if( /* !e.active  && */ e.script.halted !== true) {
-            var script = findScript(e.script.scriptName);
+        var i = -1,arr = this.$family,len = arr.length,e;
+        while (++i < len) {
+          e = arr[i];
+
+          if( e.script.halted === true || e.script.skip === true) {
+            e.script.skip = false;
+            continue;
+          }
+
+          if (e.bot.E < 1) { continue; }
+
+          var script = findScript(e.script.scriptName);  // don't do this
+          //var E = e.bot.E;
+          //var ret = true;
+          while (e.bot.E > 1) {
             var ret = sandBox.run(script, e.$bot);
-            if (ret !== true) {
-              e.bot.error(ret);
+            if (ret.error) {
+              e.bot.error(ret.error);
+              continue;
+            }
+            if (ret.done) {
+              break;
             }
           }
-        });
+
+        }
+        //mezclar2(this.$family);
+        /* this.$family.forEach(function(e) {
+          if( e.script.halted !== true) {
+            var script = findScript(e.script.scriptName);  // don't do this
+            //var E = e.bot.E;
+            //var ret = true;
+            //while (ret && e.bot.E > 0) {
+              var ret = sandBox.run(script, e.$bot);
+              if (ret.error) {
+                return e.bot.error(ret.error);
+              }
+              //if (E === e.bot.E) {
+              //  return;
+              //}
+              //E = e.bot.E;
+            //}
+          }
+        }); */
       }
     });
 

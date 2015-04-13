@@ -29,7 +29,7 @@
 
         <progressbar class="active" animate="false" ng-class="{'progress-striped': bot.bot.E < bot.bot.moveCost}" value="bot.bot.E * 100 / bot.bot.mE" type="danger">
           <span style="color:black; white-space:nowrap;">{{bot.bot.E | number : 1}} / {{bot.bot.mE | number : 0}} [J]</span>
-          <span style="position: absolute; border-right: 1px dashed black; height: 100%; left: 15px;" ng-style="{ width: bot.bot.moveCost * 100 / bot.bot.mE + '%' }">&nbsp;</span>
+          <span style="position: absolute; border-right: 1px dashed black; height: 100%; left: 15px; top: 0;" ng-style="{ width: bot.bot.moveCost * 100 / bot.bot.mE + '%' }">&nbsp;</span>
         </progressbar>
       </div>
 
@@ -81,14 +81,14 @@
           ng-disabled="bot.bot.S < bot.bot.upgradeCost"
           xxxng-show="bot.bot.mE < 100 || main.bots.length > 1">
           <i class="fa fa-level-up"></i>
-          <span class="badge">-{{::bot.bot.upgradeCost}} kg</span>
+          <span class="badge">-{{bot.bot.upgradeCost}} kg</span>
         </button>
         <button class="btn btn-info btn-xs construct-button" tooltip="Construct new bot"
           ng-click="bot.bot.construct(); $event.stopPropagation();"
           ng-show="bot.bot.mS >= bot.bot.constructCost"
           ng-disabled="bot.bot.S < bot.bot.constructCost">
           <i class="fa fa-user-plus"></i>
-          <span class="badge">-{{::bot.bot.constructCost}} kg</span>
+          <span class="badge">-{{bot.bot.constructCost}} kg</span>
         </button>
 
       </div>

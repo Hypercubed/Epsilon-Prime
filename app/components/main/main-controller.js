@@ -50,22 +50,62 @@ angular.module('ePrime')
         });
     }
 
+    main.wait = function() {
+      var e = main.bot;
+
+      e.action = function() {
+        e.action = null;
+        if (main.dT === 0) { GAME.ecs.$stop(); }
+      };
+
+      step();
+    };
+
     main.move = function(dx,dy) {
-      main.bot.bot.move(dx,dy);
+      var e = main.bot;
+
+      e.action = function() {
+        if (e.bot.E >= e.bot.moveCost || e.bot.E >= e.bot.mE) {
+          e.bot.move(dx,dy);
+          e.action = null;
+          if (main.dT === 0) { GAME.ecs.$stop(); }
+        }
+      };
+
       step();
     };
 
-    main.action = function(bot) {  // used, move? Use action script?
-      var $bot = bot ? bot.$bot : main.bot.$bot;
+    main.action = function(e) {  // used, move? Use action script?
+      e = e || main.bot;
+      var $bot = e.$bot;
 
-      $bot.unload();
-      $bot.charge();
-      $bot.mine();
+      e.action = function() {
+        $bot.unload();
+        $bot.charge();
+        $bot.mine();
+        e.action = null;
+        if (main.dT === 0) { GAME.ecs.$stop(); }
+      };
 
       step();
     };
 
-    main.mine = function(bot) {  // used, move
+    main.mine = function(e) {  // used, move? Use action script?
+      e = e || main.bot;
+      var $bot = e.$bot;
+
+      e.action = function() {
+        if (e.bot.E >= 1) {
+          $bot.mine();
+          e.action = null;
+          if (main.dT === 0) { GAME.ecs.$stop(); }
+        }
+      };
+
+      step();
+    };
+
+    /* main.mine = function(bot) {  // used, move
       bot = bot || main.bot;
       while(bot.bot.E > 1 && bot.$bot.mine() !== false) {}  // mine untill done?
       step();
@@ -77,11 +117,13 @@ angular.module('ePrime')
       if (ret !== true) {
         main.bot.bot.error(ret);
       }
-    };
+    }; */
 
     function step() {
       if (main.dT === 0) {
-        main.takeTurn();
+        //main.takeTurn();
+        GAME.ecs.$fps = 30;
+        GAME.ecs.$start();
       }
     }
 
@@ -128,7 +170,7 @@ angular.module('ePrime')
         combo: '.',
         description: 'Pass (take turn)',
         callback: function() {
-          step();
+          main.wait();
         }
       })
       .add({
