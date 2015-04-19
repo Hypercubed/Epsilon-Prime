@@ -17,8 +17,10 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Decompose BotComponents (Bot, Tile/sprite, Move, Charging)
 - [x] Move draw to system?
 - [-] Order system updates by priority
+- [ ]  Move accumulator to engine
 
 ## Next
+- [ ] Make action queue a component e.action.queue.push(fn);
 - [ ] Better in game API help
 - [ ] Bot failure rate.
 - [ ] Bots methods could improve by keeping track of current chunk

@@ -176,20 +176,21 @@ angular.module('ePrime')
       return $bot;
     } */
 
-    ngEcs.$s('bots', {
+    ngEcs.$s('bots', {  // todo: create charging component
       $require: ['bot'],
       $addEntity: function(e) {  // should be part of scripting?
         e.$bot = new BotProxy(e);
         e.bot.update();
       },
-      $update: function(dt) {
-        var i = -1,arr = this.$family,len = arr.length,bot,dE;
-        while (++i < len) {
-          bot = arr[i].bot;
-          dE = +Math.min(bot.chargeRate*dt, bot.mE-bot.E).toFixed(4);
+      $updateEach: function(e,dt) {
+        //console.log(bot);
+        //var i = -1,arr = this.$family,len = arr.length,bot,dE;
+        //while (++i < len) {
+          var bot = e.bot;
+          var dE = +Math.min(bot.chargeRate*dt, bot.mE-bot.E);
           bot.E += dE;
           ngEcs.stats.E += dE;
-        }
+        //}
       }
     });
 
@@ -215,14 +216,62 @@ angular.module('ePrime')
     }); */
 
   })
+  .run(function(ngEcs) {
+    function ActionComponent() {
+      this.queue = [];
+    }
+
+    ActionComponent.prototype.push = function(fn) {
+      this.queue.push(fn);
+    };
+
+    ActionComponent.prototype.next = function() {
+      return this.queue.shift();
+    };
+
+    ActionComponent.prototype.clear = function() {
+      this.queue = [];
+    };
+
+    ngEcs.$c('action', ActionComponent);
+
+    ngEcs.$s('action', {  // todo: move
+      $require: ['bot','action'],
+      $updateEach: function(e) {
+
+        //console.log(e);
+
+        //var i = -1,arr = this.$family,len = arr.length,e;
+        //while (++i < len) {
+          //e = arr[i];
+
+          if (e.script) {  // is this necessary?
+            e.script.skip = e.action.queue.length > 0;
+          }
+
+          if (e.bot.E < 1) { return; }  // todo: make while
+
+          if (e.action.queue.length > 0) { // remove action component when done?
+            var fn = e.action.next();
+            var ret = fn(e);
+            if (ret.next) {
+              e.action.push(ret.next);
+            }
+          }
+
+        //}
+      }
+    });
+
+  })
   .run(function (isAt, TILES, GAME, ngEcs) {  // Bot components
 
     var botParams = {
       mS0: 10,  // Starting storage capacity
       mE0: 10,  // Starting energy capacity
-      DIS: 1+0,  // 1+Discharge exponent, faster discharge means lower effeciency
+      DIS: 2,  // 1+Discharge exponent, faster discharge means lower effeciency
       CHAR: 0.5, // Charging effeciency
-      I: 1, // moves per turn for starting unit
+      I: 0.5, // moves per turn for starting unit
       E: 2/3,  // surface/volume exponent,
       constructCost: 20
     };
@@ -588,6 +637,7 @@ angular.module('ePrime')
             x: this.x,
             y: this.y,
           },
+          action: {},
           render: {}
         });
 

@@ -130,7 +130,7 @@ angular.module('ePrime')
 
       return r;
     }; */
-    
+
     Chunk.prototype.getAllTilesArray = function() {
       var r = [];
 
@@ -237,7 +237,7 @@ angular.module('ePrime')
   })
   .factory('World', function ($log, TILES, Chunk, ngEcs) {
 
-    // this shoud only be methdos that span across chunks, everything else should be in Chunk component
+    // this should only be methods that span across chunks, everything else should be in Chunk component
 
     /* constants */
     var SIZE = 60;

@@ -11,7 +11,7 @@ angular.module('ePrime')
 
     var main = this;
 
-    main.dT = 0;
+    main.dT = 6;  // 1/time between autoturns, move?
     main.cheat = false;
     main.game = GAME;
     main.bots = GAME.bots;  // get rid of this
@@ -25,6 +25,9 @@ angular.module('ePrime')
 
     $scope.autoStart = !!GAME.tutorial;
     delete GAME.tutorial;
+
+    GAME.ecs.$start();
+    //main.play(main.dT);
 
     /* cheat */
     if (siteConfig.debug) {
@@ -50,59 +53,60 @@ angular.module('ePrime')
         });
     }
 
+    const SUCCESS = { done: true };
+
     main.wait = function() {
       var e = main.bot;
 
-      e.action = function() {
-        e.action = null;
-        if (main.dT === 0) { GAME.ecs.$stop(); }
-      };
+      e.action.push(function() {
+        return SUCCESS;
+      });  //noop
 
-      step();
+      //step();
     };
 
     main.move = function(dx,dy) {
-      var e = main.bot;
 
-      e.action = function() {
-        if (e.bot.E >= e.bot.moveCost || e.bot.E >= e.bot.mE) {
+      //main.bot.action.clear();
+
+      main.bot.action.push(function move(e) {
+        if (e.bot.E >= e.bot.moveCost || e.bot.moveCost >= e.bot.mE) {
           e.bot.move(dx,dy);
-          e.action = null;
-          if (main.dT === 0) { GAME.ecs.$stop(); }
+          return SUCCESS;
         }
-      };
+        return { next: move };
+      });
 
-      step();
+      //step();
     };
 
-    main.action = function(e) {  // used, move? Use action script?
+    main.action = function(e) {
       e = e || main.bot;
-      var $bot = e.$bot;
 
-      e.action = function() {
+      e.action.push(function(e) {
+        var $bot = e.$bot;
         $bot.unload();
         $bot.charge();
         $bot.mine();
-        e.action = null;
-        if (main.dT === 0) { GAME.ecs.$stop(); }
-      };
+        return SUCCESS;
+      });
 
-      step();
+      //step();
     };
 
     main.mine = function(e) {  // used, move? Use action script?
       e = e || main.bot;
-      var $bot = e.$bot;
 
-      e.action = function() {
+      e.action.push(function mine(e) {
+        var $bot = e.$bot;
         if (e.bot.E >= 1) {
           $bot.mine();
-          e.action = null;
-          if (main.dT === 0) { GAME.ecs.$stop(); }
+          return SUCCESS;
         }
-      };
+        return { next: mine };
+      });
 
-      step();
+      //step();
     };
 
     /* main.mine = function(bot) {  // used, move
@@ -119,13 +123,14 @@ angular.module('ePrime')
       }
     }; */
 
-    function step() {
-      if (main.dT === 0) {
+    //function step() {
+      //GAME.ecs.$systems.action.acc = GAME.dT;
+      //if (main.dT === 0) {
         //main.takeTurn();
-        GAME.ecs.$fps = 30;
-        GAME.ecs.$start();
-      }
-    }
+      //  GAME.ecs.$fps = 30;
+      //  GAME.ecs.$start();
+      //}
+    //}
 
     var d = [  // move somewhere else, combine with directions list in botcomponent
       [ 'q'         ,'NW',-1,-1],
@@ -218,30 +223,35 @@ angular.module('ePrime')
     }
 
     function pauseDialog(message,showReset) {
-      var _dT = main.dT;
-      main.play(0);
-
-      hotkeys.pause();
+      freeze();
 
       modals.pauseConfirm(message,showReset).result
         .then(reset, function() {
           GAME.save();
-          main.play(_dT);
-          hotkeys.unpause();
+          unfreeze();
         });
     }
 
-    main.help = function(template) {
-      var _dT = main.dT;
+    var _dT;
+    function freeze() {
+      _dT = main.dT;
       main.play(0);
 
       hotkeys.pause();
+      GAME.ecs.$stop();
+    }
+
+    function unfreeze() {
+      main.play(_dT);
+      hotkeys.unpause();
+      GAME.ecs.$start();
+    }
+
+    main.help = function(template) {
+      freeze();
 
       modals.openHelp(template).result
-        .then(null, function() {
-          main.play(_dT);
-          hotkeys.unpause();
-        });
+        .then(null, unfreeze);
     };
 
     main.reset = function() {
@@ -274,12 +284,11 @@ angular.module('ePrime')
         });
       }
 
-      var _dT = main.dT;
-      main.play(0);
+      freeze();
 
       function done() {
         GAME.save();
-        main.play(_dT);
+        unfreeze();
       }
 
       $modal.open({
@@ -293,19 +302,16 @@ angular.module('ePrime')
       }).result.then(done,done);
     };
 
-    main.takeTurn = function(dt) {
-      GAME.ecs.$update(dt || 0.1);
-      GAME.ecs.$render();
+    main.takeTurn = function() {
+      GAME.ecs.systems.scripts.acc = 1/main.dT;
     };
 
-    main.play = function(_dT) {  // _dT === fps
-      GAME.ecs.$fps = main.dT = _dT;
-      if (_dT > 0) {
-        GAME.ecs.$start();
-      } else {
-        GAME.ecs.$stop();
-      }
+    main.play = function(_dT) {
+      main.dT = _dT;
+      GAME.ecs.systems.scripts.interval = 1/_dT;  // move GAME.dT to scripts systems?
     };
+
+
 
   });
 

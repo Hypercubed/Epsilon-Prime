@@ -40,6 +40,7 @@ angular.module('ePrime')
 
   GAME.ecs = ngEcs;  // eventually GAME === ngEcs
   ngEcs.$interval = 0.1;
+  GAME.dT = 1;
 
   GAME.scripts = angular.copy(defaultScripts);  // setup?
 
@@ -159,8 +160,10 @@ angular.module('ePrime')
         name: 'Base',
         x: 30,
         y: 10,
+        E: 10,
         $game: GAME
       },
+      action: {},
       render: {},
       active: true
     });
@@ -185,24 +188,31 @@ angular.module('ePrime')
 
   };
 
-  var acc = 0;
-  ngEcs.$s('turn', {
+  ngEcs.$s('fpsMeter', {
     $update: function() {
-      GAME.stats.turn++;
-    },
-    $render: function(dt) {
       fpsmeter.tick();
-
-      acc += dt;
-
-      if (acc > 60) {
-        $log.debug('game saved');
-        GAME.save();
-        acc = 0;
-      }
-
     }
   });
+
+  ngEcs.$s('saveGame', {
+    interval: 60,
+    $update: function() {
+      $log.debug('game saved');
+      GAME.save();
+    }
+  });
+
+  /* ngEcs.$s('tick', {
+    acc: 0,
+    $update: function(dt) {
+      fpsmeter.tick();
+
+      this.acc += dt;
+      if (this.acc < GAME.dT) { return; }
+      this.acc = 0;
+      GAME.stats.turn++;
+    }
+  }); */
 
   //GAME.takeTurn = function() {  // system
   //  ngEcs.$update(ngEcs.$interval);

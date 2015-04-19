@@ -125,6 +125,7 @@
         var rhs = match[2];
 
         $scope.items = $parse(rhs)($scope.$parent);
+        //$scope.opened = $scope.items.length < 2;
 
         controller.parent = $scope.$parent;
         controller.valueKey = lhs;

@@ -139,28 +139,9 @@ angular.module('ePrime')
       return undefined;
     }
 
-    ngEcs.$s('action', {
-      $require: ['bot'],  // todo active
-      $update: function() {
-        var i = -1,arr = this.$family,len = arr.length,e;
-        while (++i < len) {
-          e = arr[i];
-
-          if (e.script) {  // set or clear skip
-            e.script.skip = !!e.action;
-          }
-
-          if (e.bot.E < 1) { continue; }
-
-          if (e.action) {
-            e.action();
-          }
-
-        }
-      }
-    });
-
     ngEcs.$s('scripts', {
+      acc: 0,
+      interval: 1,
       $require: ['bot','script'],
       $addEntity: function(e) {
         var script = findScript(e.script.scriptName);
@@ -171,6 +152,9 @@ angular.module('ePrime')
         }
       },
       $update: function() {
+
+        GAME.stats.turn++;
+
         var i = -1,arr = this.$family,len = arr.length,e;
         while (++i < len) {
           e = arr[i];
@@ -197,24 +181,7 @@ angular.module('ePrime')
           }
 
         }
-        //mezclar2(this.$family);
-        /* this.$family.forEach(function(e) {
-          if( e.script.halted !== true) {
-            var script = findScript(e.script.scriptName);  // don't do this
-            //var E = e.bot.E;
-            //var ret = true;
-            //while (ret && e.bot.E > 0) {
-              var ret = sandBox.run(script, e.$bot);
-              if (ret.error) {
-                return e.bot.error(ret.error);
-              }
-              //if (E === e.bot.E) {
-              //  return;
-              //}
-              //E = e.bot.E;
-            //}
-          }
-        }); */
+
       }
     });
 
