@@ -20,11 +20,12 @@
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css(.tmp) components/main.css -->
-    <link rel="stylesheet" href="components/app.css">
-    <link rel="stylesheet" href="components/main/main.css">
-    <link rel="stylesheet" href="components/main/grid.css">
-    <link rel="stylesheet" href="components/editor/editor.css">
-    <link rel="stylesheet" href="components/list/list.css">
+    <link rel="stylesheet" href="components/app.css" />
+    <link rel="stylesheet" href="components/main/main.css" />
+    <link rel="stylesheet" href="components/main/grid.css" />
+    <link rel="stylesheet" href="components/editor/editor.css" />
+    <link rel="stylesheet" href="components/list/list.css" />
+    <link rel="stylesheet" href="components/panels/bot-panel.css" />
     <!-- endbuild -->
 
   </head>
@@ -35,7 +36,6 @@
 
     <div ng-view=""></div>
 
-    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
      <script>
        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

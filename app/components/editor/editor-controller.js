@@ -57,7 +57,7 @@
       }
     };
 
-    function deDupNames() {
+    function deDupNames() {  // get rid of this
       var names = editor.scripts.map(_F('name'));
 
       editor.scripts.forEach(function(d,i) {  // cheap way to unique names

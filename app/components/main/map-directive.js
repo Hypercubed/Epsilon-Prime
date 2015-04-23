@@ -15,8 +15,8 @@ angular.module('ePrime')
       },
       link: function link($scope, $element) {
 
-        var bots = ngEcs.systems.bots.$family;
-        var chunks = ngEcs.systems.chunks.$family;
+        var bots = ngEcs.families.bot;
+        var chunks = ngEcs.families.chunk;
 
         var svgStage = new d3.charts.Grid()
           .on('click', function(d) {

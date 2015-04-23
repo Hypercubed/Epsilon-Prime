@@ -106,7 +106,7 @@ angular.module('ePrime')
     };
 
     BotProxy.prototype.log = function(msg) {
-      this.bot.addAlert('success', msg);
+      this.addAlert('success', msg);
     };
 
     /* function createAccessor(bot) {
@@ -176,7 +176,8 @@ angular.module('ePrime')
       return $bot;
     } */
 
-    ngEcs.$s('bots', {  // todo: create charging component
+    ngEcs.$s('charging', {  // todo: create charging component
+      factor: 1,
       $require: ['bot'],
       $addEntity: function(e) {  // should be part of scripting?
         e.$bot = new BotProxy(e);
@@ -187,7 +188,7 @@ angular.module('ePrime')
         //var i = -1,arr = this.$family,len = arr.length,bot,dE;
         //while (++i < len) {
           var bot = e.bot;
-          var dE = +Math.min(bot.chargeRate*dt, bot.mE-bot.E);
+          var dE = +Math.min(bot.chargeRate*dt*this.factor, bot.mE-bot.E);
           bot.E += dE;
           ngEcs.stats.E += dE;
         //}
@@ -264,17 +265,17 @@ angular.module('ePrime')
     });
 
   })
-  .run(function (isAt, TILES, GAME, ngEcs) {  // Bot components
-
-    var botParams = {
-      mS0: 10,  // Starting storage capacity
-      mE0: 10,  // Starting energy capacity
-      DIS: 2,  // 1+Discharge exponent, faster discharge means lower effeciency
-      CHAR: 0.5, // Charging effeciency
-      I: 0.5, // moves per turn for starting unit
-      E: 2/3,  // surface/volume exponent,
-      constructCost: 20
-    };
+  .constant('botParams', {
+    mS0: 10,  // Starting storage capacity
+    mE0: 10,  // Starting energy capacity
+    DIS: 2,  // 1+Discharge exponent, faster discharge means lower effeciency
+    CHAR: 0.5, // Charging effeciency
+    I: 0.5, // moves per turn for starting unit
+    E: 2/3,  // surface/volume exponent,
+    constructCost: 20,
+    maxBots: 10
+  })
+  .run(function (isAt, TILES, GAME, ngEcs, botParams) {  // Bot components
 
     /* function Tile() {
       this.x = 0;
@@ -323,7 +324,11 @@ angular.module('ePrime')
     };
 
     Bot.prototype.error = function(msg) {  // move
-      this.$parent.script.halted = true;
+      console.log('bot error', msg);
+      if (this.$parent.script) {
+        this.$parent.script.halted = true;
+      }
+      //this.$parent.script.halted = true;
       //this.message = msg; // used as error flag, get rid of this
       this.addAlert('danger',msg);
       //this.setCode(null);
@@ -624,11 +629,11 @@ angular.module('ePrime')
     };
 
     Bot.prototype.canConstruct = function() {  // where used? Move this to component
-      return this.S >= botParams.constructCost;
+      return (ngEcs.families.bot.length < botParams.maxBots) && (this.S >= botParams.constructCost);
     };
 
     Bot.prototype.construct = function(script) {  // todo: move to construct component
-      if (this.S >= botParams.constructCost) {
+      if (this.canConstruct()) {
         //var self = this;
 
         var bot = GAME.ecs.$e({

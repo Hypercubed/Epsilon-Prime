@@ -7,32 +7,6 @@
   font-family: "Courier New", Courier, monospace;
 }
 
-.ctrl hr {
-  margin-top: 4px;
-  margin-bottom: 4px;
-}
-
-.ctrl .nav {
-  margin-bottom: 10px;
-}
-
-.ctrl .log {
-  width: 100%;
-  height: 300px;
-  border: 1px solid #ccc;
-  margin-bottom: 5px;
-}
-
-.ctrl .progress {
-  margin-bottom: 0px;
-  height: 20px;
-}
-
-.ctrl .progress-bar {
-  color: #000;
-  font-weight: bold;
-}
-
 .unit-ctrl {
 
 }
@@ -73,100 +47,16 @@
   margin-bottom: 0px;
 }
 
-.bot-panel {
-  outline:0;
-  padding-top: 5px;
-}
-
-.bot-panel .row-action-primary .text-muted {
-  color: #E4E4E4;
-}
-
-.script-btns .row {
-  margin-bottom: 6px;
-  padding: 0;
-}
-
-.script-btn .btn-hover {
-  opacity: 0;
-  -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-  transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-}
-
-.script-btn:hover .btn-hover {
-  opacity: 0.8;
-}
-
-.bot-panel .radio {
-  margin-top: 7px;
-  margin-bottom: 0;
-}
-
-.bot-panel .btn-group.active {
-  opacity: .65;
-  box-shadow: inset 0 3px 5px rgba(0,0,0,0.125);
-}
-
-.bot-panel .row-action-primary {
-  padding-right: 0;
-}
-
-.bot-panel .row-action-primary {
-  float: left;
-  display: inline-block;
-  padding-right: 16px;
-}
-
-.bot-panel .row-action-primary i {
-  background: rgba(0, 0, 0, 0.25);
-  border-radius: 100%;
-  text-align: center;
-  line-height: 56px;
-  font-size: 20px;
-  color: white;
-  display: block;
-  width: 56px;
-  height: 56px;
-}
-
-.bot-panel .row-content {
-  display: inline-block;
-  width: calc(100% - 92px);
-  min-height: 66px;
-}
-
-.bot-panel .console > span {
-  position: absolute;
-  margin-top: 8px;
-}
-
-.bot-panel .console > input {
-  margin-left: 18px;
-  width: 90%;
-}
-
 .btn-info .badge, .btn-danger .badge {
   color: #000;
 }
 
-.badge.energy, .badge.danger {
+.badge.danger {
   background-color: #f44336;
   color: #000;
 }
 
-.bot-panel .row-action-primary i {
-  line-height: 50px !important;
-  font-family: "Courier New", Courier, monospace;
-  border: 2px solid rgba(0, 0, 0, 0.247059);
-  cursor: pointer;
-}
-
-.list-group-item.active .bot-panel .row-action-primary i {
-  border: 2px solid #5555FF;
-  box-sizing: border-box;
-}
-
-.badge.storage, .badge.info {
+.badge.info {
   background-color: #03a9f4;
   color: #000;
 }
@@ -197,4 +87,13 @@
   font-size: 10px;
   line-height: 1.5;
   border-radius: 3px;
+}
+
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }

@@ -7,7 +7,7 @@
 'use strict';
 
 angular.module('ePrime')
-  .controller('MainCtrl', function ($scope, $compile, $log, $route, $window, $modal, hotkeys, modals, siteConfig, isAt, sandBox, fpsmeter, gameIntro, TILES, GAME) {
+  .controller('MainCtrl', function ($scope, $compile, $log, $route, $window, $modal, hotkeys, modals, siteConfig, isAt, sandBox, fpsmeter, gameIntro, botParams, TILES, GAME) {
 
     var main = this;
 
@@ -16,6 +16,8 @@ angular.module('ePrime')
     main.game = GAME;
     main.bots = GAME.bots;  // get rid of this
     main.intro = gameIntro;
+    main.botParams = botParams;
+    main.userHist = [];
 
     main.bots.forEach(function(bot) {
       if (bot.active) {
@@ -62,12 +64,11 @@ angular.module('ePrime')
         return SUCCESS;
       });  //noop
 
-      //step();
     };
 
     main.move = function(dx,dy) {
 
-      //main.bot.action.clear();
+      main.bot.action.clear();
 
       main.bot.action.push(function move(e) {
         if (e.bot.E >= e.bot.moveCost || e.bot.moveCost >= e.bot.mE) {
@@ -77,7 +78,6 @@ angular.module('ePrime')
         return { next: move };
       });
 
-      //step();
     };
 
     main.action = function(e) {
@@ -91,7 +91,6 @@ angular.module('ePrime')
         return SUCCESS;
       });
 
-      //step();
     };
 
     main.mine = function(e) {  // used, move? Use action script?
@@ -106,31 +105,16 @@ angular.module('ePrime')
         return { next: mine };
       });
 
-      //step();
-    };
-
-    /* main.mine = function(bot) {  // used, move
-      bot = bot || main.bot;
-      while(bot.bot.E > 1 && bot.$bot.mine() !== false) {}  // mine untill done?
-      step();
     };
 
     main.run = function(code) {  // used in bot panel, move?
       var ret = sandBox.run(code, main.bot.$bot);
-      step();
-      if (ret !== true) {
-        main.bot.bot.error(ret);
+      if (ret.error) {
+        main.bot.bot.addAlert('danger',ret.error);
+      } else {
+        main.userHist.push(code);  // make a service/factory
       }
-    }; */
-
-    //function step() {
-      //GAME.ecs.$systems.action.acc = GAME.dT;
-      //if (main.dT === 0) {
-        //main.takeTurn();
-      //  GAME.ecs.$fps = 30;
-      //  GAME.ecs.$start();
-      //}
-    //}
+    };
 
     var d = [  // move somewhere else, combine with directions list in botcomponent
       [ 'q'         ,'NW',-1,-1],
@@ -308,10 +292,9 @@ angular.module('ePrime')
 
     main.play = function(_dT) {
       main.dT = _dT;
+      GAME.ecs.systems.charging.factor = _dT > 6 ? 5 : 1;
       GAME.ecs.systems.scripts.interval = 1/_dT;  // move GAME.dT to scripts systems?
     };
-
-
 
   });
 

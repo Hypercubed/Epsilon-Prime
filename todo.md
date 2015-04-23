@@ -14,35 +14,39 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Trap errors in GAME.load.
 
 ## ECS
-- [ ] Decompose BotComponents (Bot, Tile/sprite, Move, Charging)
+- [ ] Further decompose BotComponents (Bot, Tile/sprite, Move, Charging)
 - [x] Move draw to system?
-- [-] Order system updates by priority
-- [ ]  Move accumulator to engine
+- [-] Order system updates by priority, add scenes
+- [x] Move accumulator to engine
 
 ## Next
-- [ ] Make action queue a component e.action.queue.push(fn);
+- [ ] Make defaultScripts as scripts service (or entities?). (crud, reset, validate, run, etc)
+- [ ] Improve editor save/validation
+- [ ] Re-balance gameplay, decide starting conditions, game flow.
+- [ ] Store scripts separately from rest of the game?
+- [ ] Achievements.
+- [ ] MoveTo populates action queue.
+- [ ] Trusted code/actions.
+- [x] Make action queue a component e.action.queue.push(fn);
 - [ ] Better in game API help
-- [ ] Bot failure rate.
 - [ ] Bots methods could improve by keeping track of current chunk
 - [?] Stop using watchers in map directive
 - [x] Add $map API to readme
-- [ ] Add $bot.memory to readme
-- [ ] More hotkeys (`S` (shift-s) save, `,` to mine,...)
+- [-] Add $bot.memory to readme
+- [x] More hotkeys (`S` (shift-s) save, `,` to mine,...)
 - [ ] Shortcuts for do until E = 0?
 - [ ] More orders (Move to target, mine at target)
 - [ ] Deactivate orders for active bot on manual keypress?
 - [x] Update tutorial for new mechanics, add callback functions
-- [ ] Move tutorial to service.
+- [x] Move tutorial to service.
 - [ ] Move more GAME stuff to ecs engine
 - [ ] Improve $bot logging, error system.
 - [ ] Finish Entity component system
 - [ ] New screen shot
-- [ ] Make defaultScripts as scripts service (or entities?). (crud, reset, validate, run, etc)
 - [ ] Tests
 - [ ] Move hot keys somewhere?
-- [ ] Improve editor save/validation
-- [ ] Remove bot actions in MainCtrl, use main.bot.$bot?
-- [ ] Change save rate to time based not turns?
+- [ ] Re-factor bot actions in MainCtrl?
+- [x] Change save rate to time based not turns?
 - [ ] Better handling Aether errors
 - [ ] Try other Aether supported languages?
 - [ ] Upgrade units using heavy resources?
@@ -52,27 +56,27 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Set target using map?
 - [ ] d3 hover/click dispatch
   - [x] Bots
-  - [ ] Tiles
+  - [x] Tiles
 - [x] Pan to unit on select
 - [ ] Indicate stuck bots?
+- [ ] Indicate halted bots on map.
 - [x] Ensure base starts on plain
-- [ ] Clean up classes -> Entity component system
+- [-] Clean up classes -> Entity component system
 - [x] Implement $bot.log()
 - [ ] Improve drawing more?
-- [ ] Re-balance gameplay.
 - [ ] More/better Tooltips?
 - [ ] Need to indicate when unit is on mine.
 - [ ] Indicate overlapping units.
 - [ ] Clean terminology (bots, resources, energy units, etc)
 
 ## Decisions
-- [-] Puase scripts, keep charging?
+- [-] Pause scripts, keep charging?
 - [x] Start with full energy?
 - [ ] Can bot scripts command other bots?  $bot.find('A').moveTo($bot.x,$bot.y)?
 - [ ] Can bot scripts access other bot's memory?  $bot.find('Base').mem?
-- [ ] Limit map and number of bots for performance?
+- [ ] Limit map and number of bots for performance?  Wrap map.
 - [ ] Limit FPS in firefox?
-- [ ] Map full screen?
+- [ ] Map full screen? Resizable panels?
 - [ ] Work on small screens. Responsive design.
 - [ ] Bots can carry other bots?
 - [ ] End game shows easter egg?
@@ -80,9 +84,9 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [-] Use ui-router?
 - [x] Add about screen.
 - [ ] Faster bot (drone)? mE = mS = 1 (Can never upgrade using current rules)
-- [ ] Allow scripting of change script?  Change, halt, include.
+- [ ] Allow scripting of change script?  Change, halt, import.
 - [x] Upgrade self or upgrade in base?
-- [ ] replace progress bars (with sparkline?)
+- [ ] replace progress bars with sparkline?
 - [ ] add progress circles/bars around units?
 - [x] User rename bots?
   - [ ] User assign labels (A,B,C,...,@)?
@@ -94,14 +98,15 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [ ] Environmental effects (Solar intensity, etc)
 - [ ] Async Programming?  Support ES6 in user scripts?
 - [ ] Aliens? Alien tech?
-- [ ] Tech tree
+- [ ] Tech tree.
 - [ ] Multi-Language support
 - [ ] Use $animate
 - [ ] Environment modifications.
 
-## Bot upgrades
-- [ ] Improve Scanner range?
-- [ ] Increase mining efficiency?
-- [ ] Improve engine?
+## Bot features
+- [ ] Bot failure rate?
+- [ ] Upgrade scanner range?
+- [ ] Upgrade mining efficiency?
+- [ ] Upgrade engine?
 - [ ] Mountain borer?
 - [ ] Flight?

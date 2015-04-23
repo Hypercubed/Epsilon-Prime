@@ -1,0 +1,148 @@
+.ctrl hr {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.ctrl .nav {
+  margin-bottom: 10px;
+}
+
+.ctrl .log {
+  width: 100%;
+  height: 300px;
+  border: 1px solid #ccc;
+  margin-bottom: 5px;
+}
+
+.ctrl .progress {
+  margin-bottom: 0px;
+  height: 20px;
+}
+
+.progress .label {
+  color:black;
+  white-space:nowrap;
+  background-color: transparent;
+}
+
+.progress .v-bar {
+  position: absolute;
+  border-right: 1px dashed black;
+  height: 100%;
+  left: 15px;
+  top: 0;
+}
+
+.ctrl .progress-bar {
+  color: #000;
+  font-weight: bold;
+}
+
+.bot-panel {
+  outline:0;
+  padding-top: 5px;
+}
+
+.bot-panel .row-action-primary .text-muted {
+  color: #E4E4E4;
+}
+
+.bot-log .alert {
+  padding: 3px;
+  padding-right: 35px;
+  margin-bottom: 0px;
+  border-radius: 0;
+}
+
+.bot-log .alert-info, .bot-log .alert-danger, .bot-log .alert-warning, .bot-log .alert-success {
+  background-color: transparent;
+}
+.bot-log .alert-danger {
+  color: #f44336;
+}
+.bot-log .alert-success {
+  color: #0f9d58;
+}
+
+.stats-table td {
+  padding-right: 8px;
+}
+
+.script-btns .row {
+  margin-bottom: 6px;
+  padding: 0;
+}
+
+.script-btn .btn-hover {
+  opacity: 0;
+  -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+  transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+}
+
+.script-btn:hover .btn-hover {
+  opacity: 0.8;
+}
+
+.bot-panel .radio {
+  margin-top: 7px;
+  margin-bottom: 0;
+}
+
+.bot-panel .btn-group.active {
+  opacity: .65;
+  box-shadow: inset 0 3px 5px rgba(0,0,0,0.125);
+}
+
+.bot-panel .row-action-primary {
+  padding-right: 0;
+}
+
+.bot-panel .row-action-primary {
+  float: left;
+  display: inline-block;
+  padding-right: 16px;
+}
+
+.bot-panel .row-action-primary i {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 100%;
+  text-align: center;
+  line-height: 56px;
+  font-size: 20px;
+  color: white;
+  display: block;
+  width: 56px;
+  height: 56px;
+}
+
+.bot-panel .row-content {
+  display: inline-block;
+  width: calc(100% - 92px);
+  min-height: 66px;
+}
+
+.bot-panel .console > span {
+  position: absolute;
+  margin-top: 8px;
+}
+
+.bot-panel .console > input {
+  margin-left: 18px;
+  width: 90%;
+}
+
+.bot-panel .row-action-primary i {
+  line-height: 50px !important;
+  font-family: "Courier New", Courier, monospace;
+  border: 2px solid rgba(0, 0, 0, 0.247059);
+  cursor: pointer;
+}
+
+.list-group-item.active .bot-panel .row-action-primary i {
+  border: 2px solid #5555FF;
+  box-sizing: border-box;
+}
+
+.bot-panel-small .row {
+  margin-bottom: 2px;
+}
