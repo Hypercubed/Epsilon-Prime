@@ -9,7 +9,7 @@
 
       <div class="row">
         <div class="col-sm-4">
-          <input class="form-control input-sm col-sm-6" name="name" ng-model="editor.script.name" placeholder="Name this script…" required/>
+          <input class="form-control input-sm col-sm-6" name="name" ng-model="editor.name" placeholder="Name this script…" required/>
         </div>
         <div class="col-sm-4 control-label">
           <label ng-messages="form.name.$error">
@@ -21,15 +21,14 @@
             <div class="btn-group">
               <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                 <span class="fa fa-code" aria-hidden="true"></span>
-                <i>Script:</i>
-                <b>{{editor.script.name}}</b> <span class="caret"></span>
+                <i>Scripts</i> <span class="caret"></span>
               </button>
               <ul class="dropdown-menu" role="menu">
                 <li ng-repeat="(name,script) in editor.scripts">
-                  <a href="#/" ng-click="editor.load(script)">
+                  <a href="#/" ng-click="editor.load(name)">
                     <span class="fa fa-code" aria-hidden="true"></span>
                     {{name}}
-                    <button class="close" ng-click="editor.delete(script); $event.stopPropagation();"><span aria-hidden="true">&times;</span></button>
+                    <button class="close" ng-click="editor.delete(name); $event.stopPropagation();"><span aria-hidden="true">&times;</span></button>
                   </a>
                 </li>
                 <li class="divider"></li>
@@ -38,7 +37,7 @@
                 <li><a href ng-click="editor.new()">
                   <i class="fa fa-plus-square"></i> New script
                 </a></li>
-                <li><a href ng-click="editor.new('copy of '+editor.script.name, editor.script.code)">
+                <li><a href ng-click="editor.new('copy of '+editor.name, editor.code)">
                   <i class="fa fa-files-o"></i> Duplicate script
                 </a></li>
                 <!-- li><a href ng-click="editor.delete(editor.script)">Delete script</a></li -->
@@ -56,7 +55,7 @@
         mode: 'javascript',
         firstLineNumber: 1,
         onLoad : editor.aceLoaded
-      }" ng-model="editor.script.code" name="code" required></textarea>
+      }" ng-model="editor.code" name="code" required></textarea>
     </div>
     <div ng-messages="form.code.$error" class="col-xs-12 bg-danger">
       <div ng-message="required">required</div>
@@ -67,9 +66,9 @@
         <button class="btn btn-danger" ng-click="editor.resetToDefaultScripts(form)">Reset default scripts</button>
       </div>
       <div class="button-group pull-right">
-        <button class="btn btn-default" ng-click="editor.validate(editor.script, form)">Validate</button>
+        <button class="btn btn-default" ng-click="editor.validate(editor.code, form)">Validate</button>
         <button class="btn btn-default" ng-click="editor.reset(form)">Reset</button>
-        <button class="btn btn-default" ng-click="$close()">Cancel</button>
+        <button class="btn btn-default" ng-click="$dismiss()">Cancel</button>
         <button class="btn btn-primary" ng-click="editor.save()">Save</button>
       </div>
       <div class="clearfix"></div>

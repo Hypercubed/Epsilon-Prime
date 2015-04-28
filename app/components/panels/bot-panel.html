@@ -68,12 +68,12 @@
             <select class="form-control input-sm"
               ng-options="k as k for (k, v) in main.game.scripts"
               ng-model="bot.script.scriptName"
-              ng-change="setScript(bot, bot.script.scriptName)">
+              ng-change="main.setScript(bot, bot.script.scriptName)">
               <option value="">Waiting</option>
             </select>
             <span class="input-group-btn">
               <button class="btn btn-link btn-xxs"
-                ng-click="main.showScripts(bot.script.scriptName)">
+                ng-click="main.editBotScript(bot)">
                 <i class="glyphicon glyphicon-edit"></i>
               </button>
             </span>
@@ -117,10 +117,10 @@
 
             <u class="col-xs-11 text-center">Script</u>
 
-            <div class="row script-btn" ng-repeat="script in main.game.scripts">
+            <div class="row script-btn" ng-repeat="(key, script) in main.game.scripts">
               <button class="btn btn-primary col-xs-11"
                 ng-click="main.run(script.code);">
-                {{script.name | limitTo : 10}}
+                {{key | limitTo : 10}}
               </button>
               <button class="btn btn-sm btn-link btn-hover col-xs-1"
                 ng-click="main.showScripts(script.name)">

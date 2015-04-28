@@ -19,9 +19,10 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [-] Order system updates by priority, add scenes
 - [x] Move accumulator to engine
 - [ ] Standardize component constructor `Component(entity, instance)`
-- [ ] Call addEntity after all components added when using ecs.$e()
+- [x] Call addEntity after all components added when using ecs.$e()
 
 ## Next
+- [ ] When opening scripts model from units list return id on save.
 - [-] Make defaultScripts as scripts service (or entities?). (crud, reset, validate, run, etc)
 - [-] Improve editor save/validation
 - [ ] Use Position component

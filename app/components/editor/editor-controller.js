@@ -9,14 +9,14 @@
 
     var editor = this;
 
-    editor.script = {};
+    editor.code = '';
+    editor.name = initialScriptId;
+
     editor.scripts = GAME.scripts;
 
     editor.load = function(_) {
-      if (typeof _ === 'string') {
-        _ = GAME.scripts[_];
-      }
-      angular.copy(_, editor.script);
+      editor.name = _ || '';
+      editor.code = GAME.scripts[_] ? GAME.scripts[_].code : '';
     };
 
     editor.reset = function(form) {
@@ -25,7 +25,7 @@
         form.$setUntouched();
         form.code.$error = {};
       }
-      editor.load(initialScriptId);
+      editor.load(editor.name);
     };
 
     editor.resetToDefaultScripts = function() {
@@ -35,7 +35,9 @@
     editor.new = function(name, code) {
       name = name || 'new';
       code = code || 'console.log($bot.name, $bot.x, $bot.y);';
-      editor.script = {name: name, code: code };
+
+      editor.name = name;
+      editor.code = code;
     };
 
     editor.delete = function(_) {
@@ -47,11 +49,11 @@
 
     var _message = _F('message');
 
-    editor.validate = function(script, form) {
+    editor.validate = function(code, form) {
 
       form.code.$error.syntaxError = false;
-      if (script.code && script.code.length > 0) {
-        aether.transpile(script.code);
+      if (code && code.length > 0) {
+        aether.transpile(code);
 
         if (aether.problems.errors.length > 0) {
           form.code.$error.syntaxError = aether.problems.errors.map(_message).join('\n');
@@ -61,13 +63,13 @@
     };
 
     editor.save = function(_) {
-      _ = _ || editor.script.name;
+      _ = _ || editor.name;
 
       GAME.scripts[_] = GAME.scripts[_] || {};
-      angular.copy(editor.script, GAME.scripts[_]);  // todo: ssCopy
+      GAME.scripts[_].code = editor.code;
       GAME.scripts[_].$method = null;
 
-      $modalInstance.close();
+      $modalInstance.close(_);
     };
 
     editor.aceLoaded = function(_editor){

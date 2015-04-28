@@ -353,6 +353,42 @@ angular.module('ePrime')
       }).result.then(done,done);
     };
 
+    main.editBotScript = function(bot) {
+
+      freeze();
+
+      function close(_) {
+        console.log('close');
+        main.setScript(bot, _);
+        GAME.save();
+        unfreeze();
+      }
+
+      function dismiss() {
+        console.log('dismiss');
+        GAME.save();
+        unfreeze();
+      }
+
+      $modal.open({
+        templateUrl: 'components/editor/editor.html',
+        size: 'lg',
+        backdrop: 'static',
+        controller: 'EditorCtrl as editor',
+        resolve: {
+          initialScriptId: function() { return bot.script ? bot.script.scriptName : ''; }
+        }
+      }).result.then(close,dismiss);
+    };
+
+    main.setScript = function(bot, scriptName) {
+      if (scriptName === null || scriptName.length < 1) {
+        bot.$remove('script');
+        return;
+      }
+      bot.$add('script', {scriptName: scriptName, halted: false});　　// rename scriptName -> name, use script component constructor?
+    };
+
     main.takeTurn = function() {
       GAME.ecs.systems.scripts.acc = 1/main.dT;
     };

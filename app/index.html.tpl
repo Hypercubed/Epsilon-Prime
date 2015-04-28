@@ -81,6 +81,7 @@
     <script src="bower_components/ng-debounce/angular-debounce.js"></script>
     <script src="bower_components/eventemitter2/lib/eventemitter2.js"></script>
     <script src="bower_components/angular-third-party/dist/angular-third-party.js"></script>
+    <script src="bower_components/js-signals/dist/signals.js"></script>
     <script src="bower_components/angular-ecs/dist/angular-ecs.js"></script>
     <script src="bower_components/intro.js/intro.js"></script>
     <script src="bower_components/angular-intro.js/src/angular-intro.js"></script>
