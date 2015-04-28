@@ -7,7 +7,51 @@
 'use strict';
 
 angular.module('ePrime')
-  .controller('MainCtrl', function ($scope, $compile, $log, $route, $window, $modal, hotkeys, modals, siteConfig, isAt, sandBox, fpsmeter, gameIntro, botParams, TILES, GAME) {
+  .factory('ACTIONS', function(Position) {
+
+    var ACTIONS = {  // move to factory?
+      SUCCESS: { done: true },
+      action: function(e) {
+        var $bot = e.$bot;
+        $bot.unload();
+        $bot.charge();
+        $bot.mine();
+        return ACTIONS.SUCCESS;
+      },
+      wait: function() {
+        return ACTIONS.SUCCESS;
+      },
+      move: function(dx,dy) {
+        return function move(e) {
+          if (e.bot.E >= e.bot.moveCost || e.bot.moveCost >= e.bot.mE) {
+            e.bot.move(dx,dy);
+            return ACTIONS.SUCCESS;
+          }
+          return { next: move };
+        };
+      },
+      moveTo: function(x,y) {
+        return function moveTo(e) {
+          if (e.bot.moveCost >= e.bot.mE) { return ACTIONS.SUCCESS; }
+          if (e.bot.E >= e.bot.moveCost) {
+            e.bot.moveTo(x,y);
+          }
+          return (e.position.isAt(x, y)) ? ACTIONS.SUCCESS : { next: moveTo };
+        };
+      },
+      mine: function mine(e) {
+        var $bot = e.$bot;
+        if (e.bot.E >= 1) {
+          $bot.mine();
+          return ACTIONS.SUCCESS;
+        }
+        return { next: mine };
+      }
+    };
+
+    return ACTIONS;
+  })
+  .controller('MainCtrl', function ($scope, $compile, $log, $route, $window, $modal, hotkeys, modals, siteConfig, Position, sandBox, fpsmeter, gameIntro, botParams, ACTIONS, TILES, GAME) {
 
     var main = this;
 
@@ -31,80 +75,70 @@ angular.module('ePrime')
     GAME.ecs.$start();
     //main.play(main.dT);
 
-    /* cheat */
-    if (siteConfig.debug) {
-      hotkeys.bindTo($scope)
-        .add({
-          combo: 'f',
-          //description: '',
-          callback: function() {
-            main.cheat = true;
-            GAME.bots.forEach(function(d) {
-              d.bot.E = d.bot.mE;
-            });
-          }
-        })
-        .add({
-          combo: 'g',
-          //description: '',
-          callback: function() {
-            main.cheat = true;
-            main.game.world.scanRange(main.bot.bot.x,main.bot.bot.y,40);
-            //d3Draw();
-          }
-        });
-    }
 
-    const SUCCESS = { done: true };
 
-    main.wait = function() {
-      var e = main.bot;
+    //const SUCCESS = { done: true };
 
-      e.action.push(function() {
-        return SUCCESS;
-      });  //noop
-
-    };
-
-    main.move = function(dx,dy) {
-
-      main.bot.action.clear();
-
-      main.bot.action.push(function move(e) {
-        if (e.bot.E >= e.bot.moveCost || e.bot.moveCost >= e.bot.mE) {
-          e.bot.move(dx,dy);
-          return SUCCESS;
-        }
-        return { next: move };
-      });
-
-    };
-
-    main.action = function(e) {
-      e = e || main.bot;
-
-      e.action.push(function(e) {
+    /* var ACTIONS = {  // move to factory?
+      SUCCESS: { done: true },
+      action: function(e) {
         var $bot = e.$bot;
         $bot.unload();
         $bot.charge();
         $bot.mine();
-        return SUCCESS;
-      });
+        return ACTIONS.SUCCESS;
+      },
+      wait: function() {
+        return ACTIONS.SUCCESS;
+      },
+      move: function(dx,dy) {
+        return function move(e) {
+          if (e.bot.E >= e.bot.moveCost || e.bot.moveCost >= e.bot.mE) {
+            e.bot.move(dx,dy);
+            return ACTIONS.SUCCESS;
+          }
+          return { next: move };
+        };
+      },
+      moveTo: function(x,y) {
+        return function moveTo(e) {
+          if (e.bot.moveCost >= e.bot.mE) { return ACTIONS.SUCCESS; }
+          if (e.bot.E >= e.bot.moveCost) {
+            e.bot.moveTo(x,y);
+          }
+          return (Position.isAt(e.bot, x, y)) ? ACTIONS.SUCCESS : { next: moveTo };
+        };
+      },
+      mine: function mine(e) {
+        var $bot = e.$bot;
+        if (e.bot.E >= 1) {
+          $bot.mine();
+          return ACTIONS.SUCCESS;
+        }
+        return { next: mine };
+      }
+    }; */
 
+    main.wait = function() {
+      var e = main.bot;
+
+      e.action.push(ACTIONS.wait);  //noop
+
+    };
+
+    main.move = function(dx,dy) {
+      main.bot.action.clear();
+      main.bot.action.push(ACTIONS.move(dx,dy));
+    };
+
+    main.action = function(e) {
+      e = e || main.bot;
+      e.action.push(ACTIONS.action);
     };
 
     main.mine = function(e) {  // used, move? Use action script?
       e = e || main.bot;
-
-      e.action.push(function mine(e) {
-        var $bot = e.$bot;
-        if (e.bot.E >= 1) {
-          $bot.mine();
-          return SUCCESS;
-        }
-        return { next: mine };
-      });
-
+      e.action.push(ACTIONS.mine);
     };
 
     main.run = function(code) {  // used in bot panel, move?
@@ -142,10 +176,37 @@ angular.module('ePrime')
     /* bot actions */  // move somewhere else
     hotkeys.bindTo($scope)
       .add({
+        combo: '?',
+        description: 'Show / hide this help menu',
+        callback: function() {
+          main.help();
+        }
+      })
+      .add({
+        combo: '~',
+        description: 'Show / hide FPS meter',
+        callback: function() {
+          if (fpsmeter.$hide) {
+            fpsmeter.show();
+          } else {
+            fpsmeter.hide();
+          }
+          fpsmeter.$hide = !fpsmeter.$hide;
+        }
+      })
+      .add({
         combo: 's',
         description: 'Action (Unload/load/mine)',
         callback: function() {
           main.action();
+        }
+      })
+      .add({
+        combo: 'H',
+        description: 'Move to home',
+        callback: function() {
+          main.bot.action.clear();
+          main.bot.action.push(ACTIONS.moveTo(main.bots[0].bot.x,main.bots[0].bot.y));
         }
       })
       .add({
@@ -169,26 +230,32 @@ angular.module('ePrime')
           GAME.save();
           return false;
         }
-      })
+      });
+
+    /* cheat */
+    if (siteConfig.debug) {
+      hotkeys.bindTo($scope)
       .add({
-        combo: '?',
-        description: 'Show / hide this help menu',
+        combo: 'C',
+        description: 'Enable cheats',
         callback: function() {
-          main.help();
+          main.cheat = true;
+          GAME.bots.forEach(function(d) {
+            d.bot.E = d.bot.mE;
+          });
         }
       })
       .add({
-        combo: '~',
-        description: 'Show / hide FPS meter',
+        combo: 'M',
+        description: 'Show map',
         callback: function() {
-          if (fpsmeter.$hide) {
-            fpsmeter.show();
-          } else {
-            fpsmeter.hide();
-          }
-          fpsmeter.$hide = !fpsmeter.$hide;
+          main.cheat = true;
+          main.game.world.scanRange(main.bot.bot.x,main.bot.bot.y,40);
+          //d3Draw();
         }
       });
+    }
+
 
     main.botChange = function(bot) {
       main.bots.forEach(function(_bot) {
@@ -260,13 +327,13 @@ angular.module('ePrime')
 
     main.showScripts = function(_) {
 
-      if (typeof _ === 'string') {  //  move to dialog?
+      /* if (typeof _ === 'string') {  //  move to dialog?
         GAME.scripts.forEach(function(d, i) {  // improve this
           if (d.name === _) {
             _ = i;
           }
         });
-      }
+      } */
 
       freeze();
 

@@ -56,13 +56,12 @@ angular.module('ePrime')
     var SIZE = 60;
     var LEN = 60*60;
 
-    function Chunk(_, X, Y) {
+    function Chunk() {
 
-      _ = Array.isArray(_) ? _ : LEN;
-      this.view = new Uint8ClampedArray(_);
+      this.view = new Uint8ClampedArray(LEN);
 
-      this.X = Math.floor(X);  // store offset rather than index?
-      this.Y = Math.floor(Y);
+      this.X = 0;
+      this.Y = 0;
       this.size = SIZE;
       this.$hash = 1;  // start dirty
     }
@@ -235,7 +234,7 @@ angular.module('ePrime')
     });
 
   })
-  .factory('World', function ($log, TILES, Chunk, ngEcs) {
+  .factory('World', function ($log, $entities, $systems, TILES, Chunk, ngEcs) {
 
     // this should only be methods that span across chunks, everything else should be in Chunk component
 
@@ -245,7 +244,7 @@ angular.module('ePrime')
     var digYield = poisson(1.26);
     var mineMTTF = 0.05;
 
-    var $$chunks = ngEcs.systems.chunks.$family;
+    var $$chunks = $systems.chunks.$family;
 
     function World(size, seed) {  // todo: remove size
       this.size = size = size || SIZE;  // remove
@@ -264,11 +263,19 @@ angular.module('ePrime')
 
     World.prototype.getChunk = function(x,y) {  // makes chunks object
       var id = Chunk.getChunkId(x,y);
-      var e = ngEcs.entities[id];
+      var e = $entities[id];
+
       if (!e) {
         $log.debug('new chunk',id);
-        var chunk = new Chunk(this.size, x / this.size, y / this.size);
-        e = ngEcs.$e(id, { chunk: chunk });
+
+        var X = Math.floor(x / this.size);
+        var Y = Math.floor(y / this.size);
+
+        e = ngEcs.$e(id, {
+          chunk: { X: X, Y: Y },
+          position: { x: X*this.size, y: Y*this.size}
+        });
+
       }
       return e.chunk;
     };
@@ -328,7 +335,7 @@ angular.module('ePrime')
       return this.getChunk(x,y).getTile(x,y);
     };
 
-    World.prototype.scanRange = function(x,y,R) {  // optimize!!
+    World.prototype.scanRange = function(x,y,R) {  // optimize!!  interate over chunkcs, check bounds
       if (arguments.length < 3) {
         R = y;
         y = x.y;

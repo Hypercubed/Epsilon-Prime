@@ -4,5 +4,5 @@ angular
     debug: <%- debug %>,
     name: 'eprime',
     version: 0.1,
-    store: 0
+    store: 2
   });

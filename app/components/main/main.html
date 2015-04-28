@@ -66,10 +66,10 @@
         <i>Scripts</i>
       </button>
       <ul class="dropdown-menu" role="menu">
-        <li ng-repeat="script in main.game.scripts">
-          <a href ng-click="main.showScripts(script.name)">
+        <li ng-repeat="(name, script) in main.game.scripts">
+          <a href ng-click="main.showScripts(name)">
             <i class="fa fa-code" aria-hidden="true"></i>
-            {{script.name}}
+            {{name}}
           </a>
         </li>
         <li class="divider"></li>

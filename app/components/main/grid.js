@@ -13,7 +13,9 @@
       width = 500,
       height = 500;
 
-    var _tile = _F('t');
+    var _tile = _F('t', function(d) {
+      return d.replace('.', '·');
+    });
     //var _x = _F('x');
     //var _y = _F('y');
 
@@ -51,6 +53,17 @@
       y: 0
     };
 
+    var colors = {
+      '#': d3.rgb(67, 65, 52),
+      'X': d3.rgb('#03a9f4').darker(),
+      '.': d3.rgb(145, 140, 140),
+      'O': d3.rgb(145, 140, 140).darker()
+    };
+
+    function _tileColor(d) {  // make scale
+      return colors[d.t];
+    }
+
     var container, svg, gBotsLayer, gTilesLayer, text;
 
     function zoomed() {
@@ -61,10 +74,14 @@
       .scaleExtent([0.5, 10])
       .on('zoom', zoomed);
 
-    var dispatch = d3.dispatch('click');
+    var dispatch = d3.dispatch('click', 'dblclick');
 
-    function clicked(d) {  // TODO: dispatch
+    function clicked(d) {
       dispatch.click(d);
+    }
+
+    function dblclicked(d) {
+      dispatch.dblclick(d);
     }
 
     function hover(d) {
@@ -103,8 +120,19 @@
 
           container = svg.append('g');
 
-          gTilesLayer = container.append('g').attr('class','tilesLayer');
-          gBotsLayer = container.append('g').attr('class','botsLayer');
+          gTilesLayer = container.append('g')
+            .attr('class','tilesLayer')
+            .attr('transform', 'translate(0,0)');
+
+          gBotsLayer = container.append('g')
+            .attr('class','botsLayer')
+            .attr('transform', 'translate(-1,-1)');
+
+          d3.select(this).on('mousemove', function() {
+            var x = d3.event.clientX - width / 2,
+                y = d3.event.clientY - height / 2;
+            gBotsLayer.attr('transform', 'translate(' +( x * 0.005) + ',' + (y * 0.005) + ')');
+          });
 
           text = svg.append('g')
             .attr('class','hover-text')
@@ -142,8 +170,6 @@
 
         }
 
-
-
         function _renderChunk(d) {
           if (d.chunk.$hash === 0) { return; }  // dirty check
           d.chunk.$hash = 0;
@@ -158,6 +184,7 @@
             .attr('class', 'tile')
             //.attr('transform', _translate)
             .on('click', clicked)
+            .on('dblclick', dblclicked)
             .on('mouseenter', hover)
             .on('mouseleave', function() {
               text.text('');
@@ -170,11 +197,12 @@
           tilesWrap  // shouldn't need to do this but tiles change order and text
             .attr('transform', _translate)
             .select('text')
+            .style('fill', _tileColor)
             .text(_tile);
         }
 
         var botsWrap;
-        function drawBots(bots, dT) {
+        function drawBots(bots) {
           botsWrap = gBotsLayer
             .selectAll('.bot').data(bots, _id);
 
@@ -189,7 +217,7 @@
               text.text('');
             })
             .attr('transform', function(d) {
-              return _translate(d.bot);
+              return _translate(d.position);
             });
 
           gBotsEnter
@@ -206,7 +234,7 @@
 
           botsWrap.exit().remove();
 
-          updateBots(dT);
+          updateBots();
 
         }
 
@@ -222,7 +250,7 @@
           botsWrap
             //.transition().duration(dT > 0 ? dT : 250)
             .attr('transform', function(d) {
-              return _translate(d.bot);
+              return _translate(d.position);
             });
 
         }

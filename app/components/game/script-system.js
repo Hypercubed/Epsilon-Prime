@@ -30,7 +30,7 @@ angular.module('ePrime')
   .config(function(thirdPartyProvider) {
     thirdPartyProvider.register('Aether');
   })
-  .constant('defaultScripts', [   // make a hash
+  /* .constant('defaultScripts', [   // make a hash
     { name: 'Collect', code: collect },
     { name: 'Action', code: '$bot.mine();\n$bot.charge();\n$bot.unload();' },
     //{ name: 'Mine', code: '$bot.mine();' },
@@ -38,7 +38,13 @@ angular.module('ePrime')
     //{ name: 'Unload', code: '$bot.unload();' },
     { name: 'Upgrade', code: '$bot.upgrade();' },
     { name: 'Construct', code: '$bot.construct();' }
-  ])
+  ]) */
+  .constant('defaultScripts', {
+    'Collect': { code: collect },
+    'Action': { code: '$bot.mine();\n$bot.charge();\n$bot.unload();' },
+    'Upgrade': { code: '$bot.upgrade();' },
+    'Construct': { code: '$bot.construct();' }
+  })
   .service('aether', function(Aether) {
     /*jshint -W106 */
     return new Aether({
@@ -128,7 +134,7 @@ angular.module('ePrime')
       return arr;
     } */
 
-    function findScript(name) {
+    /* function findScript(name) {
       var value, list = GAME.scripts, len = list.length;
       for (var i = 0; i < len; i++) {
         value = list[i];
@@ -137,50 +143,50 @@ angular.module('ePrime')
         }
       }
       return undefined;
-    }
+    } */
 
     ngEcs.$s('scripts', {
       acc: 0,
       interval: 1,
       $require: ['bot','script'],
       $addEntity: function(e) {
-        var script = findScript(e.script.scriptName);
-        if (!script) {
+        if (!(e.script.scriptName in GAME.scripts)) {
           $log.error('Script not found');
-        } else {
-          e.script.$script = script;
         }
       },
       $update: function() {
+        GAME.stats.turn++;  // Move this?
+      },
+      $updateEach: function(e) {
 
-        GAME.stats.turn++;
+        //var i = -1,arr = this.$family,len = arr.length,e;
+        //var script;  // reusable references
 
-        var i = -1,arr = this.$family,len = arr.length,e;
-        while (++i < len) {
-          e = arr[i];
+        //while (++i < len) {
+          //e = arr[i];
 
-          if( e.script.halted === true || e.script.skip === true) {
-            e.script.skip = false;
-            continue;
+          //if (e.bot.E < 1) { return; }
+
+          //script = e.script;
+
+          if( e.bot.E < 1 || e.script.halted === true || e.action.queue.length > 0) {
+            return;
           }
 
-          if (e.bot.E < 1) { continue; }
+          var script = GAME.scripts[e.script.scriptName];
 
-          var script = findScript(e.script.scriptName);  // don't do this
-          //var E = e.bot.E;
-          //var ret = true;
-          while (e.bot.E > 1) {
+          //while (e.bot.E > 1) {  // do I need this?
             var ret = sandBox.run(script, e.$bot);
             if (ret.error) {
               e.bot.error(ret.error);
-              continue;
+              //continue;
             }
-            if (ret.done) {
-              break;
-            }
-          }
+            //if (ret.done) {
+              //break;
+            //}
+          //}
 
-        }
+        //}
 
       }
     });

@@ -16,7 +16,7 @@
     "noisejs": "josephg/noisejs",
     "angular-xeditable": "~0.1.8",
     "bootstrap-material-design": "~0.2.1",
-    "angular-hotkeys": "chieffancypants/angular-hotkeys#~1.4.5",
+    "angular-hotkeys": "Hypercubed/angular-hotkeys.git#myfork",
     "angular-localforage": "~1.2.2",
     "d3": "~3.5.3",
     "_F": "Hypercubed/_F#~0.0.7",
@@ -41,20 +41,11 @@
     "noisejs": {
       "main": "perlin.js"
     },
-    "SandboxJS": {
-      "main": "Sandbox.js"
-    },
     "ace-builds": {
       "main": "src-min-noconflict/ace.js"
     },
-    "JS-Interpreter": {
-      "main": "acorn.js"
-    },
-    "ng-joyride": {
-      "main": [
-        "ng-joyride.js",
-        "ng-joyride.css"
-      ]
+    "angular-hotkeys": {
+      "main": "build/hotkeys.js"
     }
   },
   "appPath": "app"

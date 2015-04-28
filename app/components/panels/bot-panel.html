@@ -59,16 +59,15 @@
       </div>
     </div>
 
-    <div class="row">
+    <div class="row" ng-if="main.bots.length > 1">
       <div class="col-xs-1 text-right"><span class="fa fa-code"></span></div>
       <div class="col-xs-7">
 
         <div class="">
-          <div class="input-group" ng-show="main.bots.length > 1">
+          <div class="input-group">
             <select class="form-control input-sm"
-              ng-options="script.name as script.name for script in main.game.scripts"
+              ng-options="k as k for (k, v) in main.game.scripts"
               ng-model="bot.script.scriptName"
-              xxxng-disabled="bot.active"
               ng-change="setScript(bot, bot.script.scriptName)">
               <option value="">Waiting</option>
             </select>
@@ -202,8 +201,5 @@
     </tabset>
 
   </div>
-
-
-
 
 </div>

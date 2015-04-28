@@ -16,12 +16,12 @@
     return number < 0 ? -1 : 1;
   };
 
-  function isAt(obj,x,y) {
+  /* function isAt(obj,x,y) {
     if (angular.isObject(x)) {
       return x.x === obj.x && x.y === obj.y;
     }
     return x === obj.x && y === obj.y;
-  }
+  } */
 
   function modulo(x,n) {  // move somewher globally usefull
     return ((x%n)+n)%n;
@@ -33,7 +33,36 @@
   }
 
 angular.module('ePrime')
-  .value('isAt', isAt)
+  //.value('isAt', isAt)
+  .factory('Position', function(ngEcs) {
+
+    function Position() {
+      this.x = 0;
+      this.y = 0;
+    }
+
+    Position.prototype.isAt = function(x,y) {
+      if (angular.isObject(x)) {
+        return x.x === this.x && x.y === this.y;
+      }
+      return x === this.x && y === this.y;
+    };
+
+    Position.prototype.distanceTo = function(x,y) {
+      if (angular.isObject(x)) {
+        y = x.y;
+        x = x.x;
+      }
+      var dx = x - this.x;
+      var dy = y - this.y;
+      return Math.max(Math.abs(dx),Math.abs(dy));
+    };
+
+    ngEcs.$c('position', Position);
+
+    return Position;
+
+  })
   .run(function(ngEcs) {
 
     //function find(bot, _) {  // used by unload and charge, move?
@@ -43,8 +72,12 @@ angular.module('ePrime')
     function Copy(e) {
       var self = this;
 
-      ['name','x','y','S','mS','E','mE'].forEach(function(prop) {
-        self[prop] = e[prop];
+      ['name','S','mS','E','mE'].forEach(function(prop) {
+        self[prop] = e.bot[prop];
+      });
+
+      ['x','y'].forEach(function(prop) {
+        self[prop] = e.position[prop];
       });
 
     }
@@ -52,9 +85,15 @@ angular.module('ePrime')
     function Accessor(e) {
       var self = this;
 
-      ['name','x','y','S','mS','E','mE','mem'].forEach(function(prop) {
+      ['name','S','mS','E','mE','mem'].forEach(function(prop) {
         Object.defineProperty(self, prop, {
-          get: function() {return e[prop]; }
+          get: function() {return e.bot[prop]; }
+        });
+      });
+
+      ['x','y'].forEach(function(prop) {
+        Object.defineProperty(self, prop, {
+          get: function() {return e.position[prop]; }
         });
       });
 
@@ -62,7 +101,7 @@ angular.module('ePrime')
 
     function BotProxy(e) {
 
-      Accessor.call(this, e.bot);
+      Accessor.call(this, e);
 
       this.moveTo = e.bot.moveTo.bind(e.bot);
       this.move = e.bot.move.bind(e.bot);
@@ -74,7 +113,7 @@ angular.module('ePrime')
       this.charge = BotProxy.prototype.charge.bind(e.bot);
       this.construct = BotProxy.prototype.construct.bind(e.bot);
       this.find = BotProxy.prototype.find.bind(e.bot);
-      this.distanceTo = BotProxy.prototype.distanceTo.bind(e.bot);
+      this.distanceTo = BotProxy.prototype.distanceTo.bind(e);
       this.log = BotProxy.prototype.log.bind(e.bot);
     }
 
@@ -92,15 +131,21 @@ angular.module('ePrime')
       this.construct(_ || null);
     };
 
+    //console.log($bot.distanceTo($bot.find('O')))
     BotProxy.prototype.distanceTo = function(_) {
-      return distance(this,_);
+      if (typeof _ === 'string') {
+        _ = this.bot.findNearest(_);
+        return this.position.distanceTo(_);
+      }
+      var args = Array.prototype.slice.call(arguments);
+      return this.position.distanceTo.apply(this, args);
     };
 
     BotProxy.prototype.find = function(_) {
       var n = this.findNearest(_);
       if (!n) { return null; }
       if (n.$bot) {
-        n = new Copy(n.bot);
+        n = new Copy(n);
       }
       return n;
     };
@@ -176,11 +221,12 @@ angular.module('ePrime')
       return $bot;
     } */
 
-    ngEcs.$s('charging', {  // todo: create charging component
+    ngEcs.$s('charging', {  // todo: create charging component, move
       factor: 1,
+      actionFactor: 1,
       $require: ['bot'],
       $addEntity: function(e) {  // should be part of scripting?
-        e.$bot = new BotProxy(e);
+        e.$bot = new BotProxy(e);  // should be a component?
         e.bot.update();
       },
       $updateEach: function(e,dt) {
@@ -240,27 +286,16 @@ angular.module('ePrime')
       $require: ['bot','action'],
       $updateEach: function(e) {
 
-        //console.log(e);
+        if (e.bot.E < 1 || e.action.queue.length < 1) { return; }  // todo: make while
 
-        //var i = -1,arr = this.$family,len = arr.length,e;
-        //while (++i < len) {
-          //e = arr[i];
-
-          if (e.script) {  // is this necessary?
-            e.script.skip = e.action.queue.length > 0;
+        //if (e.action.queue.length > 0) { // remove action component when done?
+          var fn = e.action.next();
+          var ret = fn(e);
+          if (ret.next) {
+            e.action.push(ret.next);
           }
-
-          if (e.bot.E < 1) { return; }  // todo: make while
-
-          if (e.action.queue.length > 0) { // remove action component when done?
-            var fn = e.action.next();
-            var ret = fn(e);
-            if (ret.next) {
-              e.action.push(ret.next);
-            }
-          }
-
         //}
+
       }
     });
 
@@ -275,7 +310,7 @@ angular.module('ePrime')
     constructCost: 20,
     maxBots: 10
   })
-  .run(function (isAt, TILES, GAME, ngEcs, botParams) {  // Bot components
+  .run(function (Position, TILES, GAME, ngEcs, $families, botParams) {  // Bot components
 
     /* function Tile() {
       this.x = 0;
@@ -291,8 +326,8 @@ angular.module('ePrime')
 
       this.name = '';
       this.t = TILES.BOT;
-      this.x = 0;
-      this.y = 0;
+      //this.x = 0;
+      //this.y = 0;
 
       this.S = 0;      // Raw material storage
       this.mS = 10;    // Maximum
@@ -311,19 +346,19 @@ angular.module('ePrime')
 
     }
 
-    Bot.prototype.addAlert = function(type, msg) {
+    Bot.prototype.addAlert = function(type, msg) {  // script component
       this.alerts.push({type:type, msg:msg});
     };
 
-    Bot.prototype.closeAlert = function(index) {
+    Bot.prototype.closeAlert = function(index) {  // script component
       this.alerts.splice(index, 1);
     };
 
-    Bot.prototype.clearLog = function() {
+    Bot.prototype.clearLog = function() {  // script component
       this.alerts.splice(0);
     };
 
-    Bot.prototype.error = function(msg) {  // move
+    Bot.prototype.error = function(msg) {  // script component
       console.log('bot error', msg);
       if (this.$parent.script) {
         this.$parent.script.halted = true;
@@ -334,19 +369,18 @@ angular.module('ePrime')
       //this.setCode(null);
     };
 
-    Bot.prototype.charge = function(dE) {
+    Bot.prototype.charge = function(dE) {  // battery component
       var e = this.E;
       this.E = +Math.min(e + dE, this.mE).toFixed(4);
       return this.E - e;
     };
 
-    Bot.prototype.isAt = function(x,y) {
-      return isAt(this,x,y);
-    };
+    //Bot.prototype.isAt = Position.prototype.isAt;  // move
+    //Bot.prototype.distanceTo = Position.prototype.distanceTo;  // move
 
-    Bot.prototype.isNotAt = function(x,y) {
-      return this.x !== x || this.y !== y;
-    };
+    //Bot.prototype.isNotAt = function(x,y) {  // Position component
+    //  return this.x !== x || this.y !== y;
+    //};
 
     //Bot.prototype.mass = function() {
     //  return this.mS + this.mE;
@@ -367,7 +401,8 @@ angular.module('ePrime')
       return N*Math.pow(this.mass(), E);
     }; */
 
-    Bot.prototype.canMove = function(dx,dy) {  // TODO: check range
+    Bot.prototype.canMove = function(dx,dy) {  // TODO: check range  // Movement component
+      var position = this.$parent.position;
 
       dx = mathSign(dx);
       dy = mathSign(dy);  // max +/-1
@@ -375,10 +410,11 @@ angular.module('ePrime')
       var dr = Math.max(Math.abs(dx),Math.abs(dy));
       var dE = this.moveCost*dr;
 
-      return GAME.world.canMove(this.x + dx,this.y + dy) && this.E >= dE;
+      return GAME.world.canMove(position.x + dx,position.y + dy) && this.E >= dE;
     };
 
-    Bot.prototype.move = function(dx,dy) {  // TODO: check range
+    Bot.prototype.move = function(dx,dy) {  // TODO: check range  // Movement component
+      var position = this.$parent.position;
 
       this.obs = false;
 
@@ -388,45 +424,47 @@ angular.module('ePrime')
       var dr = Math.max(Math.abs(dx),Math.abs(dy));  // Chebyshev distance
       var dE = this.moveCost*dr;
 
-      if (GAME.world.canMove(this.x + dx,this.y + dy)) {  // Need to check bot skills, check path
-        if (this.E >= dE) {
-          this.last = {x: this.x, y: this.y};
+      if (this.E >= dE && GAME.world.canMove(position.x + dx,position.y + dy)) {  // Need to check bot skills, check path
+
+          this.last = {x: position.x, y: position.y};
           this.heading = {x: dx, y:dy};
 
-          this.x += dx;
-          this.y += dy;
+          position.x += dx;
+          position.y += dy;
           this.E -= dE;
 
-          GAME.world.scanRange(this);
+          GAME.world.scanRange(position);
 
           return true;
-        }
       }
       return false;
     };
 
-    Bot.prototype.canWalk = function(dx,dy) {
-      return GAME.world.canMove(this.x+dx,this.y+dy);
+    Bot.prototype.canWalk = function(dx,dy) {  // Movement component
+      var position = this.$parent.position;
+      return GAME.world.canMove(position.x+dx,position.y+dy);
     };
 
-    Bot.prototype.moveStep = function(dx,dy) {  // TODO: check range
-        this.x += dx;
-        this.y += dy;
-        this.E -= this.moveCost;
+    Bot.prototype.moveStep = function(dx,dy) {  // TODO: check range  // Movement component
+      var position = this.$parent.position;
 
-        GAME.world.scanRange(this);
-        return true;
+      position.x += dx;
+      position.y += dy;
+      this.E -= this.moveCost;
+
+      GAME.world.scanRange(position);
+      return true;
     };
 
-    Bot.prototype.canMoveTo = function(x,y) {  // TODO: check range
+    Bot.prototype.canMoveTo = function(x,y) {  // TODO: check range  // Movement component
 
       if (angular.isObject(x)) {  // TODO: Utility
         y = x.y;
         x = x.x;
       }
 
-      var dx = x - this.x;
-      var dy = y - this.y;
+      var dx = x - this.$parent.position.x;
+      var dy = y - this.$parent.position.y;
 
       return this.canMove(dx,dy);
     };
@@ -451,7 +489,7 @@ angular.module('ePrime')
 
 
 
-    Bot.prototype.moveTo = function(x,y) {  // this is so bad!!!
+    Bot.prototype.moveTo = function(x,y) {  // this is so bad!!! use action queue  // Movement component
 
       if (angular.isObject(x)) {  // TODO: Utility
         y = +x.y || 0;
@@ -461,7 +499,9 @@ angular.module('ePrime')
         y = +y || 0;
       }
 
-      if (isAt(this, x,y)) {
+      var position = this.$parent.position;
+
+      if (position.isAt(x,y)) {
         this.obs = false;
         return true;
       }
@@ -470,8 +510,8 @@ angular.module('ePrime')
         return false;
       }
 
-      var dx = x - this.x;
-      var dy = y - this.y;
+      var dx = x - position.x;
+      var dy = y - position.y;
       var dr = Math.max(Math.abs(dx),Math.abs(dy));  // "distance" to target, not euclidian, Chebyshev distance
       //var dr = Math.sqrt(dx*dx+dy*dy);  // distance to target, euclidian
 
@@ -497,8 +537,8 @@ angular.module('ePrime')
         }
       });
 
-      var ddx = x - (this.x + dx);
-      var ddy = y - (this.y + dy);
+      var ddx = x - (position.x + dx);
+      var ddy = y - (position.y + dy);
       var DF = Math.max(Math.abs(ddx),Math.abs(ddy));  // "distance" to target, not euclidian, Chebyshev distance
       //var DF = Math.sqrt(ddx*ddx+ddy*ddy);  // distance from next step towards goal to goal
 
@@ -546,16 +586,16 @@ angular.module('ePrime')
       return false;
     };
 
-    Bot.prototype.canMine = function() {
+    Bot.prototype.canMine = function() {  // mining component
       return this.E >= 1 &&
         this.S < this.mS &&
-        GAME.world.get(this.x,this.y).t === TILES.MINE;
+        GAME.world.get(this.$parent.position.x,this.$parent.position.y).t === TILES.MINE;
     };
 
-    Bot.prototype.mine = function() {
+    Bot.prototype.mine = function() {  // mining component
       if (this.canMine()) {
         this.E--;
-        var dS = GAME.world.dig(this.x,this.y);  // TODO: bot effeciency?
+        var dS = GAME.world.dig(this.$parent.position.x,this.$parent.position.y);  // TODO: bot effeciency?
         dS = this.load(dS);
         GAME.stats.S += dS;
         return dS;
@@ -563,21 +603,21 @@ angular.module('ePrime')
       return false;
     };
 
-    Bot.prototype.load = function(dS) {  // dE?
+    Bot.prototype.load = function(dS) {  // storage component
       var s = this.S;
       this.S = Math.min(s + dS, this.mS);
       return this.S - s;
     };
 
-    Bot.prototype.unload = function() {  // dE?
+    Bot.prototype.unload = function() {  // storage component
       var l = this.S;
       this.S = 0;
       return l;
     };
 
-    Bot.prototype.chargeBot = function(bot) {
+    Bot.prototype.chargeBot = function(bot) {  // battery component
       //console.log('charge', bot);
-      if (isAt(bot.bot, this)) { // TODO: charging range?
+      if (bot.position.isAt(this.$parent.position)) { // TODO: charging range?
         var e = Math.min(10, this.E);  // TODO: charging speed
         e = bot.bot.charge(e);
         this.E -= e;
@@ -586,8 +626,9 @@ angular.module('ePrime')
       return false;
     };
 
-    Bot.prototype.unloadTo = function(bot) {
-      if (isAt(bot.bot, this)) {// TODO: unloading range?
+    Bot.prototype.unloadTo = function(bot) {  // storage component
+      //console.log('unloadTo',bot);
+      if (bot.position.isAt(this.$parent.position)) {// TODO: unloading range?
         var s = this.unload();
         var l = bot.bot.load(s);
         this.load(s-l);
@@ -629,21 +670,23 @@ angular.module('ePrime')
     };
 
     Bot.prototype.canConstruct = function() {  // where used? Move this to component
-      return (ngEcs.families.bot.length < botParams.maxBots) && (this.S >= botParams.constructCost);
+      return ($families.bot.length < botParams.maxBots) && (this.S >= botParams.constructCost);
     };
 
     Bot.prototype.construct = function(script) {  // todo: move to construct component
+
       if (this.canConstruct()) {
-        //var self = this;
+        var position = this.$parent.position;
 
         var bot = GAME.ecs.$e({
           bot: {
-            name: 'Rover',
-            x: this.x,
-            y: this.y,
+            name: 'Rover'
           },
           action: {},
-          render: {}
+          position: {
+            x: position.x,
+            y: position.y,
+          }
         });
 
         if (script) {
@@ -660,27 +703,29 @@ angular.module('ePrime')
     };
 
     Bot.prototype.canRelocate = function() {  // component?
-      return this.E >= 500;
+      return this.E >= 200;
     };
 
-    Bot.prototype.scan = function() {  // used?
-      return GAME.world.scan(this);
+    Bot.prototype.scan = function() {  // scanner component, range?
+      return GAME.world.scan(this.$parent.position);
     };
 
-    Bot.prototype.findAt = function(_) {  // move
-      return GAME.findBotAt(_, this.x, this.y);
+    Bot.prototype.findAt = function(_) {  // use directly
+      return GAME.findBotAt(_, this.$parent.position.x, this.$parent.position.y);
     };
 
-    Bot.prototype.findNearest = function(_) {
+    Bot.prototype.findNearest = function(_) {  // move, range?
       var self = this;
       var r = 1e10;
       var ret = null;
+
+      var position = self.$parent.position;
 
       GAME.scanList(_)
         .forEach(function(e) {  // do better
           if (e !== self) {
             var b = e.bot || e;
-            var _r = distance(b,self);
+            var _r = distance(b,position);
             if (_r < r) {
               ret = e;
               r = _r;
@@ -699,10 +744,12 @@ angular.module('ePrime')
 
       if (l.length === 0) { return []; }
 
+      var position = self.$parent.position;
+
       l.forEach(function(d) {
         var b = d.bot || d;
-        var dx = b.x - self.x;
-        var dy = b.y - self.y;
+        var dx = b.x - position.x;
+        var dy = b.y - position.y;
         d.r = Math.max(Math.abs(dx),Math.abs(dy));  // don't do this, adds r to entities?
       });
 

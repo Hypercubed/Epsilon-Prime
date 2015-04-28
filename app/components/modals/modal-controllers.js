@@ -39,7 +39,7 @@
 
   .controller('HelpInstanceCtrl', function ($scope, hotkeys) {
 
-    $scope.hotkeys = hotkeys;
+    $scope.hotkeys = hotkeys.getAll();
 
   })
 

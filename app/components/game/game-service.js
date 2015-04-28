@@ -51,17 +51,19 @@ angular.module('ePrime')
     };
   }
 
+  // scans for tiles and bots
   GAME.scanList = function(_) { // move?
     var bots = (!_) ? this.bots : this.bots.filter(_nameOrTile(_));
     var tiles = this.world.findTiles(_);
     return tiles.concat(bots);
   };
 
-  GAME.findBotAt = function(_,x,y) {  // move
+  // finds bots at position
+  GAME.findBotAt = function(_,x,y) {  // move?
     var len = this.bots.length, fn = _nameOrTile(_);
     for (var i = 0; i < len; i++) {
       var bot = this.bots[i];
-      if (fn(bot) && bot.bot.x === x && bot.bot.y === y) {
+      if (fn(bot) && bot.position.isAt(x,y)) {
         return bot;
       }
     }
@@ -74,8 +76,7 @@ angular.module('ePrime')
       stats: ssCopy(GAME.stats),
       world: ssCopy(GAME.world),
       entities: ssCopy(ngEcs.entities),
-      scripts: GAME.scripts.map(ssCopy),
-      //chunks: ssCopy(GAME.world.$$chunks)  // todo: entities?
+      scripts: ssCopy(GAME.scripts),
     };
 
     //localStorageService.set('saveGame', G);
@@ -115,8 +116,6 @@ angular.module('ePrime')
         ngEcs.$e(key, value);
       });
 
-
-
       //G.entities.forEach(ngEcs.$e, ngEcs);
 
       GAME.bots = GAME.ecs.families.bot;　　// get rid
@@ -129,7 +128,7 @@ angular.module('ePrime')
 
   GAME.clear = function() {
     return $localForage.setItem('saveGame', {  // save only scripts
-      scripts: GAME.scripts.map(ssCopy)
+      scripts: ssCopy(GAME.scripts)
     });
   };
 
@@ -164,7 +163,10 @@ angular.module('ePrime')
         $game: GAME
       },
       action: {},
-      render: {},
+      position: {
+        x: 30,
+        y: 10
+      },
       active: true
     });
 

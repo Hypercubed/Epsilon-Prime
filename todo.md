@@ -18,10 +18,13 @@ _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 - [x] Move draw to system?
 - [-] Order system updates by priority, add scenes
 - [x] Move accumulator to engine
+- [ ] Standardize component constructor `Component(entity, instance)`
+- [ ] Call addEntity after all components added when using ecs.$e()
 
 ## Next
-- [ ] Make defaultScripts as scripts service (or entities?). (crud, reset, validate, run, etc)
-- [ ] Improve editor save/validation
+- [-] Make defaultScripts as scripts service (or entities?). (crud, reset, validate, run, etc)
+- [-] Improve editor save/validation
+- [ ] Use Position component
 - [ ] Re-balance gameplay, decide starting conditions, game flow.
 - [ ] Store scripts separately from rest of the game?
 - [ ] Achievements.

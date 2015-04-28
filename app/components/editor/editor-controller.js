@@ -9,8 +9,14 @@
 
     var editor = this;
 
-    editor.set = function(script) {
-      editor.script = script;
+    editor.script = {};
+    editor.scripts = GAME.scripts;
+
+    editor.load = function(_) {
+      if (typeof _ === 'string') {
+        _ = GAME.scripts[_];
+      }
+      angular.copy(_, editor.script);
     };
 
     editor.reset = function(form) {
@@ -19,76 +25,48 @@
         form.$setUntouched();
         form.code.$error = {};
       }
-      editor.scripts = angular.copy(GAME.scripts);
-      editor.script = editor.scripts[initialScriptId || 0];
+      editor.load(initialScriptId);
     };
 
     editor.resetToDefaultScripts = function() {
-
-      defaultScripts.forEach(function(script) {
-        for (var i = 0; i < editor.scripts.length; i++) {
-          if (editor.scripts[i].name === script.name) {
-            angular.copy(script, editor.scripts[i]);
-            return;
-          }
-        }
-        editor.scripts.push(angular.copy(script));
-      });
-
-      //console.log(GAME.scripts);
-      //angular.extend(editor.scripts, defaultScripts);
-      //console.log(GAME.scripts);
-      //editor.reset(form);
+      angular.copy(defaultScripts, GAME.scripts);
     };
 
     editor.new = function(name, code) {
       name = name || 'new';
-      code = code || '$log($bot.name, $bot.x, $bot.y);';
+      code = code || 'console.log($bot.name, $bot.x, $bot.y);';
       editor.script = {name: name, code: code };
-      editor.scripts.push(editor.script);
-      deDupNames();
     };
 
-    editor.delete = function(script) {
-      var index = editor.scripts.indexOf(script);
-      editor.scripts.splice(index,1);
-      if (editor.script === script) {
-        editor.script = editor.scripts[index < editor.scripts.length ? index : 0];
+    editor.delete = function(_) {
+      if (typeof _ !== 'string') {
+        _ = _.name;
       }
+      delete GAME.scripts[_];
     };
 
-    function deDupNames() {  // get rid of this
-      var names = editor.scripts.map(_F('name'));
+    var _message = _F('message');
 
-      editor.scripts.forEach(function(d,i) {  // cheap way to unique names
-        while (names.indexOf(d.name) < i) {
-          d.name = names[i] = d.name+'*';
-        }
-      });
-    }
-
-    editor.update = function(script, form) {
+    editor.validate = function(script, form) {
 
       form.code.$error.syntaxError = false;
       if (script.code && script.code.length > 0) {
         aether.transpile(script.code);
 
-        //console.log(aether.problems);
-
         if (aether.problems.errors.length > 0) {
-          form.code.$error.syntaxError = aether.problems.errors.map(_F('message')).join('\n');
+          form.code.$error.syntaxError = aether.problems.errors.map(_message).join('\n');
         }
       }
 
     };
 
-    editor.save = function() {
-      deDupNames();
+    editor.save = function(_) {
+      _ = _ || editor.script.name;
 
-      GAME.scripts = angular.copy(editor.scripts);
-      GAME.scripts.forEach(function(d) {
-        d.$method = null;
-      });
+      GAME.scripts[_] = GAME.scripts[_] || {};
+      angular.copy(editor.script, GAME.scripts[_]);  // todo: ssCopy
+      GAME.scripts[_].$method = null;
+
       $modalInstance.close();
     };
 
