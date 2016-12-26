@@ -175,6 +175,10 @@ body {
   border-bottom: 1px solid #e3e3e3;
 }
 
+#header .btn {
+  color: #999999;
+}
+
 #footer {
   position: fixed;
   height: 26px;

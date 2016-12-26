@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="bower_components/angular-xeditable/dist/css/xeditable.css" />
     <link rel="stylesheet" href="bower_components/bootstrap-material-design/dist/css/material.css" />
     <link rel="stylesheet" href="bower_components/bootstrap-material-design/dist/css/ripples.css" />
-    <link rel="stylesheet" href="bower_components/angular-hotkeys/build/hotkeys.min.css" />
+    <link rel="stylesheet" href="bower_components/angular-hotkeys/build/hotkeys.css" />
     <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
     <link rel="stylesheet" href="bower_components/intro.js/introjs.css" />
     <!-- endbower -->
@@ -57,6 +57,7 @@
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/json3/lib/json3.min.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
     <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
     <script src="bower_components/angular-animate/angular-animate.js"></script>
@@ -70,7 +71,7 @@
     <script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
     <script src="bower_components/bootstrap-material-design/dist/js/material.js"></script>
     <script src="bower_components/bootstrap-material-design/dist/js/ripples.js"></script>
-    <script src="bower_components/angular-hotkeys/build/hotkeys.min.js"></script>
+    <script src="bower_components/angular-hotkeys/build/hotkeys.js"></script>
     <script src="bower_components/localforage/dist/localforage.js"></script>
     <script src="bower_components/angular-localforage/dist/angular-localForage.js"></script>
     <script src="bower_components/d3/d3.js"></script>
@@ -82,12 +83,13 @@
     <script src="bower_components/ng-debounce/angular-debounce.js"></script>
     <script src="bower_components/eventemitter2/lib/eventemitter2.js"></script>
     <script src="bower_components/angular-third-party/dist/angular-third-party.js"></script>
+    <script src="bower_components/js-signals/dist/signals.js"></script>
     <script src="bower_components/angular-ecs/dist/angular-ecs.js"></script>
     <script src="bower_components/intro.js/intro.js"></script>
-    <script src="bower_components/angular-intro.js/src/angular-intro.js"></script>
     <script src="bower_components/fpsmeter/dist/fpsmeter.js"></script>
     <script src="bower_components/marked/lib/marked.js"></script>
     <script src="bower_components/angular-marked/angular-marked.js"></script>
+    <script src="bower_components/angular-intro.js/src/angular-intro.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 

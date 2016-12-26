@@ -3,39 +3,39 @@
   "version": "0.0.1",
   "dependencies": {
     "angular": "~1.4.0",
-    "json3": "~3.3.1",
-    "es5-shim": "~3.1.0",
-    "bootstrap": "~3.3.0",
+    "json3": "=3.3.1",
+    "es5-shim": "=3.1.0",
+    "bootstrap": "=3.3.0",
     "angular-sanitize": "~1.4.0",
     "angular-animate": "~1.4.0",
     "angular-touch": "~1.4.0",
     "angular-route": "~1.4.0",
-    "angular-bootstrap": "~0.12.0",
+    "angular-bootstrap": "=0.12.0",
     "angular-ui-ace": "bower",
-    "angular-messages": "~1.3.8",
+    "angular-messages": "=1.3.8",
     "noisejs": "josephg/noisejs",
-    "angular-xeditable": "~0.1.8",
-    "bootstrap-material-design": "~0.2.1",
-    "angular-hotkeys": "chieffancypants/angular-hotkeys#~1.4.5",
-    "angular-localforage": "~1.2.2",
-    "d3": "~3.5.3",
-    "_F": "Hypercubed/_F#~0.0.7",
-    "angular-moment": "~0.9.0",
+    "angular-xeditable": "=0.1.8",
+    "bootstrap-material-design": "=0.2.1",
+    "angular-hotkeys": "chieffancypants/angular-hotkeys#1.7.0",
+    "angular-localforage": "=1.2.2",
+    "d3": "=3.5.3",
+    "_F": "Hypercubed/_F#=0.0.7",
+    "angular-moment": "=0.9.0",
     "lodash": "2.4.1",
-    "aether": ">=0.3.11",
-    "ng-debounce": "~0.1.5",
-    "font-awesome": "~4.3.0",
-    "eventemitter2": "~0.4.14",
+    "aether": "=0.3.29",
+    "ng-debounce": "=0.1.5",
+    "font-awesome": "=4.3.0",
+    "eventemitter2": "=0.4.14",
     "angular-third-party": "Hypercubed/angular-third-party",
     "angular-ecs": "Hypercubed/angular-ecs",
-    "intro.js": "~1.0.0",
-    "angular-intro.js": "~1.2.1",
-    "fpsmeter": "darsain/fpsmeter#~0.3.1",
-    "angular-marked": "~0.0.12"
+    "intro.js": "=1.0.0",
+    "fpsmeter": "darsain/fpsmeter#=0.3.1",
+    "angular-marked": "=0.0.12",
+    "angular-intro.js": "^2.1.1"
   },
   "devDependencies": {
-    "angular-mocks": "~1.2.0",
-    "angular-scenario": "~1.2.0"
+    "angular-mocks": "=1.2.0",
+    "angular-scenario": "=1.2.0"
   },
   "overrides": {
     "noisejs": {
@@ -57,5 +57,11 @@
       ]
     }
   },
-  "appPath": "app"
+  "appPath": "app",
+  "resolutions": {
+    "intro.js": "~1.0.0",
+    "aether": "=0.3.29",
+    "angular-hotkeys": "=1.5.0",
+    "angular": "~1.4.0"
+  }
 }
